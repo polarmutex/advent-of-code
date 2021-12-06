@@ -2,8 +2,8 @@
 
 https://adventofcode.com
 
-![](https://img.shields.io/badge/stars%20⭐-10-yellow)
-![](https://img.shields.io/badge/days%20completed-5-red)
+![](https://img.shields.io/badge/stars%20⭐-12-yellow)
+![](https://img.shields.io/badge/days%20completed-6-red)
 
 ## 2021 Results
 
@@ -14,3 +14,4 @@ https://adventofcode.com
 | [Day 3](https://adventofcode.com/2021/day/3) |   ⭐   |   ⭐   |
 | [Day 4](https://adventofcode.com/2021/day/4) |   ⭐   |   ⭐   |
 | [Day 5](https://adventofcode.com/2021/day/5) |   ⭐   |   ⭐   |
+| [Day 6](https://adventofcode.com/2021/day/6) |   ⭐   |   ⭐   |
