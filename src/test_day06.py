@@ -1,6 +1,6 @@
 import pytest
 
-from src.advent_of_code.day06 import INPUT_S, compute, parse
+from src.day06 import INPUT_S, compute, parse
 
 
 @pytest.fixture

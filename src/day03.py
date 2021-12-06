@@ -2,16 +2,60 @@ from __future__ import annotations
 
 import argparse
 import os.path
+from typing import List
+
 from bitarray import bitarray
 from bitarray.util import ba2int
 
-
 from support import timing
 
-INPUT_TXT = os.path.join(os.path.dirname(__file__), "input.txt")
+INPUT_TXT = os.path.join(os.path.dirname(__file__), "aoc_data", "day03.txt")
+
+INPUT_S = """\
+00100
+11110
+10110
+10111
+10101
+01111
+00111
+11100
+10000
+11001
+00010
+01010
+"""
 
 
-def compute(s: str) -> int:
+def part1(s: str) -> int:
+    lines = s.splitlines()
+    total = len(lines)
+    line_total: int = 0
+    count_1: List[int] = []
+    for line_index, line in enumerate(lines):
+        if line_index == 0:
+            line_total = len(line)
+
+        for index, char in enumerate(line):
+            if line_index == 0:
+                count_1.append(0)
+            if char == "1":
+                count_1[index] += 1
+
+    gamma: bitarray = bitarray(line_total)
+    epsilon: bitarray = bitarray(line_total)
+    for index, count in enumerate(count_1):
+        if count > total / 2:
+            gamma[index] = 1
+            epsilon[index] = 0
+        else:
+            gamma[index] = 0
+            epsilon[index] = 1
+
+    return ba2int(gamma) * ba2int(epsilon)
+
+
+def part2(s: str) -> int:
     lines = s.splitlines()
     line_total: int = len(lines[0])
 
@@ -60,13 +104,22 @@ def compute(s: str) -> int:
     return ba2int(bitarray(oxygen_rating[0])) * ba2int(bitarray(co2_rating[0]))
 
 
+def solve(puzzle_input: str):
+    """Solve the puzzle for the given input"""
+    data = puzzle_input
+    solution1 = part1(data)
+    solution2 = part2(data)
+    return solution1, solution2
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("data_file", nargs="?", default=INPUT_TXT)
     args = parser.parse_args()
 
     with open(args.data_file) as f, timing():
-        print(compute(f.read()))
+        solutions = solve(f.read())
+        print("\n".join(str(solution) for solution in solutions))
 
     return 0
 
