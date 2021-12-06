@@ -4,9 +4,7 @@ import argparse
 import os.path
 from bitarray import bitarray
 from bitarray.util import ba2int
-from typing import List
 
-import pytest
 
 from support import timing
 
@@ -60,30 +58,6 @@ def compute(s: str) -> int:
     print(co2_rating)
 
     return ba2int(bitarray(oxygen_rating[0])) * ba2int(bitarray(co2_rating[0]))
-
-
-INPUT_S = """\
-00100
-11110
-10110
-10111
-10101
-01111
-00111
-11100
-10000
-11001
-00010
-01010
-"""
-
-
-@pytest.mark.parametrize(
-    ("input_s", "expected"),
-    ((INPUT_S, 230),),
-)
-def test(input_s: str, expected: int) -> None:
-    assert compute(input_s) == expected
 
 
 def main() -> int:
