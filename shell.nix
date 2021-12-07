@@ -1,10 +1,11 @@
-{ pkgs ? (import <nixpkgs> {}).pkgs }:
+{ pkgs ? (import <nixpkgs> { }).pkgs }:
 with pkgs;
 mkShell {
   buildInputs = [
     python3
     poetry
     protobuf
+    python39Packages.numpy
   ];
   shellHook = ''
     # fixes libstdc++ issues and libgl.so issues
