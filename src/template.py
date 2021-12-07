@@ -11,8 +11,6 @@ FishTimer = int
 Fish = List[FishTimer]
 NumFish = int
 
-INPUT_TXT = os.path.join(os.path.dirname(__file__),
-                         "aoc_data", "day06_github.txt")
 INPUT_S = """\
 3,4,3,1,2
 """
@@ -48,31 +46,15 @@ def compute(input: Fish, days_to_run: int) -> int:
     return total_fish
 
 
-def solve(puzzle_input: str):
-    solution1 = part1(puzzle_input)
-    solution2 = part2(puzzle_input)
-    return solution1, solution2
-
-
-def part1(input: str):
-    data = parse(input)
-    return compute(data, 80)
-
-
-def part2(input: str):
-    data = parse(input)
-    return compute(data, 256)
-
-
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("data_file", nargs="?", default=INPUT_TXT)
+    parser.add_argument("data_file", nargs="?", default=INPUT_S)
     args = parser.parse_args()
 
     with open(args.data_file) as f, timing():
-        solutions = solve(f.read())
-        print("\n".join(str(solution) for solution in solutions))
+        fish = parse(f.read())
 
+    print(compute(fish, 256))
     return 0
 
 
