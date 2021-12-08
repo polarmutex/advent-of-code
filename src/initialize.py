@@ -55,13 +55,13 @@ def main():
     python_test_filename = os.path.join(
         os.path.dirname(__file__), f"test_day{day_str}.py")
 
-    day_file_exists = exists(python_filename)
-    if not day_file_exists:
-        print("writing templates...")
-        with open(python_filename, "w") as f, open(template_filename) as template:
-            f.write(template.read())
-        with open(python_test_filename, "w") as f, open(test_template_filename) as template:
-            f.write(template.read())
+    #day_file_exists = exists(python_filename)
+    #if not day_file_exists:
+        #print("writing templates...")
+        #with open(python_filename, "w") as f, open(template_filename) as template:
+        #    f.write(template.read())
+        #with open(python_test_filename, "w") as f, open(test_template_filename) as template:
+        #    f.write(template.read())
 
     # Download input txt file from AoC website
     github_data = os.path.join(os.path.dirname(
