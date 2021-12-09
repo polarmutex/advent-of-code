@@ -9,7 +9,7 @@ from bitarray.util import ba2int
 
 from support import timing
 
-INPUT_TXT = os.path.join(os.path.dirname(__file__), "aoc_data", "day03.txt")
+INPUT_TXT = os.path.join("data", "2021", "day03.txt")
 
 INPUT_S = """\
 00100

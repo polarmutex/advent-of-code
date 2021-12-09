@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "src"
-version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
+name = "py_aoc"
+version = "1.0.0"
+description = "Advent of Code in Python"
+authors = ["Brian Ryall"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -21,7 +21,7 @@ types-setuptools = "^57.4.4"
 pytest-cov = "^3.0.0"
 
 [tool.poetry.scripts]
-init = "src.initialize:main"
+init = "py_aoc.initialize:main"
 
 [tool.isort]
 profile = "black"

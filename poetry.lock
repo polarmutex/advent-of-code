@@ -85,7 +85,10 @@ mypy-extensions = ">=0.4.3"
 pathspec = ">=0.9.0,<1"
 platformdirs = ">=2"
 tomli = ">=0.2.6,<2.0.0"
-typing-extensions = ">=3.10.0.0"
+typing-extensions = [
+    {version = ">=3.10.0.0", markers = "python_version < \"3.10\""},
+    {version = "!=3.10.0.1", markers = "python_version >= \"3.10\""},
+]
 
 [package.extras]
 colorama = ["colorama (>=0.4.3)"]
@@ -512,8 +515,8 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "3.9"
-content-hash = "4392a0484e3585c76f6585d56e82003653d71f9265761bea21f1fa2327becdab"
+python-versions = "^3.9"
+content-hash = "106ba040747726e15c6bafdde19572e2ac7bb4dfab024f7881511be497193494"
 
 [metadata.files]
 advent-of-code-data = [

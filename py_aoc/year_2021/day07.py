@@ -10,8 +10,7 @@ from support import timing
 HorizPos = int
 CrabSubs = List[HorizPos]
 
-INPUT_TXT = os.path.join(os.path.dirname(__file__),
-                         "aoc_data", "day07_github.txt")
+INPUT_TXT = os.path.join("data", "2021", "day07_github.txt")
 INPUT_S = """\
 16,1,2,0,4,2,7,1,2,14
 """

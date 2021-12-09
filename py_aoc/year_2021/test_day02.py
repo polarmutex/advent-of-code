@@ -1,6 +1,6 @@
 import pytest
 
-from src.day02 import INPUT_S, INPUT_TXT, parse, part1, part2
+from py_aoc.year_2021.day02 import INPUT_S, INPUT_TXT, parse, part1, part2
 
 
 @pytest.fixture
