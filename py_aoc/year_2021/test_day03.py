@@ -1,6 +1,6 @@
 import pytest
 
-from src.day04 import INPUT_S, INPUT_TXT, part1, part2
+from py_aoc.year_2021.day03 import INPUT_S, INPUT_TXT, part1, part2
 
 
 @pytest.fixture
@@ -15,16 +15,16 @@ def input():
 
 
 def test_part1_example(example) -> None:
-    assert part1(example) == 4512
+    assert part1(example) == 198
 
 
 def test_part1_input(input) -> None:
-    assert part1(input) == 46920
+    assert part1(input) == 845186
 
 
 def test_part2_example(example) -> None:
-    assert part2(example) == 1924
+    assert part2(example) == 230
 
 
 def test_part2_input(input) -> None:
-    assert part2(input) == 12635
+    assert part2(input) == 4636702

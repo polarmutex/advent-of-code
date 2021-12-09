@@ -6,7 +6,7 @@ from typing import List, Tuple
 
 from support import timing
 
-INPUT_TXT = os.path.join(os.path.dirname(__file__), "aoc_data", "day02.txt")
+INPUT_TXT = os.path.join("data", "2021", "day02.txt")
 
 INPUT_S = """\
 forward 5

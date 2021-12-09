@@ -7,7 +7,7 @@ from typing import Dict, List, Tuple
 
 from support import timing
 
-INPUT_TXT = os.path.join(os.path.dirname(__file__), "aoc_data", "day05.txt")
+INPUT_TXT = os.path.join("data", "2021",  "day05.txt")
 
 INPUT_S = """\
 0,9 -> 5,9
@@ -113,7 +113,8 @@ def compute(input: List[Point_Line], process_diag: bool) -> int:
                 line_cover_map[cur_point] += 1
 
                 while cur_point != point2:
-                    cur_point = (cur_point[0] + x_increment, cur_point[1] + y_increment)
+                    cur_point = (cur_point[0] + x_increment,
+                                 cur_point[1] + y_increment)
                     if cur_point not in line_cover_map.keys():
                         line_cover_map[cur_point] = 0
                     line_cover_map[cur_point] += 1

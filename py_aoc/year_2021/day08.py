@@ -11,8 +11,7 @@ SignalPattern = str
 NumberOutput = str
 Entry = Tuple[List[SignalPattern], List[NumberOutput]]
 
-INPUT_TXT = os.path.join(os.path.dirname(__file__),
-                         "aoc_data", "day08_github.txt")
+INPUT_TXT = os.path.join("data", "2021", "day08_github.txt")
 INPUT_S = """\
 be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb |fdgacbe cefdb cefbgd gcbe
 edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec |fcgedb cgb dgebacf gc

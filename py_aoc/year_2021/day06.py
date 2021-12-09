@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import os.path
 from collections import defaultdict
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 from support import timing
 
@@ -11,8 +11,7 @@ FishTimer = int
 Fish = List[FishTimer]
 NumFish = int
 
-INPUT_TXT = os.path.join(os.path.dirname(__file__),
-                         "aoc_data", "day06_github.txt")
+INPUT_TXT = os.path.join("data", "2021", "day06_github.txt")
 INPUT_S = """\
 3,4,3,1,2
 """

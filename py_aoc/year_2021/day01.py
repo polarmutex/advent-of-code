@@ -6,7 +6,7 @@ from typing import List
 
 from support import timing
 
-INPUT_TXT = os.path.join(os.path.dirname(__file__), "aoc_data", "day01.txt")
+INPUT_TXT = os.path.join("data", "2021", "day01.txt")
 
 INPUT_S = """\
 199
