@@ -26,11 +26,9 @@ def test_part2_example(example) -> None:
     assert part2(example) == 168
 
 
-@pytest.mark.skip(reason="Not implemented")
 def test_part1_input(input) -> None:
-    assert part1(input) == 388739
+    assert part1(input) == 335330
 
 
-@pytest.mark.skip(reason="Not implemented")
 def test_part2_input(input) -> None:
-    assert part2(input) == 1741362314973
+    assert part2(input) == 92439766
