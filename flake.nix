@@ -6,6 +6,8 @@
     flake-utils.inputs.nixpkgs.follows = "nixpkgs";
   };
 
+  # TODO https://github.com/breuerfelix/highzer/blob/master/shell.nix (poetry2nix)
+
   outputs = { self, nixpkgs, ... }@inputs: inputs.flake-utils.lib.eachSystem [
     "x86_64-linux"
   ]
