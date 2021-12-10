@@ -4,9 +4,9 @@
 
 ## 2021
 
-![Alt](https://img.shields.io/badge/stars%20⭐-18-yellow)
-![Alt](https://img.shields.io/badge/days%20completed-9-red)
-![Alt](https://img.shields.io/badge/python-3.9-blue)
+![Alt](https://img.shields.io/badge/stars%20⭐-20-yellow)
+![Alt](https://img.shields.io/badge/days%20completed-10-red)
+![Alt](https://img.shields.io/badge/python-3.8-blue)
 
 |                      Day                       |          Name           |     Stars     |
 | :--------------------------------------------: | :---------------------: | :-----------: |
@@ -18,8 +18,8 @@
 |  [Day 6](https://adventofcode.com/2021/day/6)  |       Lanternfish       | :star: :star: |
 |  [Day 7](https://adventofcode.com/2021/day/7)  | The Treachery of Whales | :star: :star: |
 |  [Day 8](https://adventofcode.com/2021/day/8)  |  Seven Segment Search   | :star: :star: |
-|  [Day 9](https://adventofcode.com/2021/day/9)  |      Smoke Basin        | :star: :star: |
-| [Day 10](https://adventofcode.com/2021/day/10) |                         |               |
+|  [Day 9](https://adventofcode.com/2021/day/9)  |       Smoke Basin       | :star: :star: |
+| [Day 10](https://adventofcode.com/2021/day/10) |     Syntax Scoring      | :star: :star: |
 | [Day 11](https://adventofcode.com/2021/day/11) |                         |               |
 | [Day 12](https://adventofcode.com/2021/day/12) |                         |               |
 | [Day 13](https://adventofcode.com/2021/day/13) |                         |               |
