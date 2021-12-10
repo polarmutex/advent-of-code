@@ -12,6 +12,7 @@ import urllib.request
 from typing import Generator, List
 from enum import Enum
 import json
+import importlib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TOKENS_FILE = os.path.join(".secrets", "tokens.json")
@@ -71,7 +72,7 @@ def download_input() -> int:
     parser.add_argument("day", type=int)
     parser.add_argument(
         '--token', type=str,
-        choices=["github", "google", "twitter", "reddit", "al"],
+        choices=["github", "google", "twitter", "reddit", "all"],
         default="all",
         required=False
     )
@@ -130,20 +131,33 @@ ALREADY_DONE = re.compile(r"You don't seem to be solving.*\?")
 
 def submit_solution() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("year", type=int)
+    parser.add_argument("day", type=int)
     parser.add_argument('--part', type=int, required=True)
+    parser.add_argument(
+        '--token', type=str,
+        choices=["github", "google", "twitter", "reddit"],
+        default="github",
+        required=False
+    )
     args = parser.parse_args()
 
-    year, day = get_year_day()
-    answer = int(sys.stdin.read())
+    day_str = str(args.day).zfill(2)
+    token = Tokens[str(args.token).upper()]
+    solution = importlib.import_module(f"py_aoc.year_{args.year}.day{day_str}")
+    input_file = os.path.join("data", str(args.year),
+                              f"day{day_str}_{token.name.lower()}.txt")
+    with open(input_file) as f:
+        answer = getattr(solution, f"part{args.part}")(f.read())
 
     print(f'answer: {answer}')
 
     params = urllib.parse.urlencode({'level': args.part, 'answer': answer})
     req = urllib.request.Request(
-        f'https://adventofcode.com/{year}/day/{day}/answer',
+        f'https://adventofcode.com/{args.year}/day/{args.day}/answer',
         method='POST',
         data=params.encode(),
-        headers=_get_cookie_headers(),
+        headers=_get_cookie_headers(token),
     )
     resp = urllib.request.urlopen(req)
 
