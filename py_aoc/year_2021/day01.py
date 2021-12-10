@@ -54,6 +54,16 @@ def solve(puzzle_input: str):
     return solution1, solution2
 
 
+def part1(input: str):
+    data = parse(input)
+    return compute(data, 1)
+
+
+def part2(input: str):
+    data = parse(input)
+    return compute(data, 3)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("data_file", nargs="?", default=INPUT_GITHUB)
