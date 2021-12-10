@@ -1,6 +1,6 @@
 import pytest
 
-from py_aoc.year_2021.day05 import INPUT_S, INPUT_TXT, compute, parse
+from py_aoc.year_2021.day05 import INPUT_S, INPUT_GITHUB, compute, parse
 
 
 @pytest.fixture
@@ -9,8 +9,8 @@ def example():
 
 
 @pytest.fixture
-def input():
-    with open(INPUT_TXT) as f:
+def github():
+    with open(INPUT_GITHUB) as f:
         return parse(f.read())
 
 
@@ -33,13 +33,13 @@ def test_part1_example(example) -> None:
     assert compute(example, False) == 5
 
 
-def test_part1_input(input) -> None:
-    assert compute(input, False) == 7269
+def test_part1_github(github) -> None:
+    assert compute(github, False) == 7269
 
 
 def test_part2_example(example) -> None:
     assert compute(example, True) == 12
 
 
-def test_part2_input(input) -> None:
-    assert compute(input, True) == 21140
+def test_part2_github(github) -> None:
+    assert compute(github, True) == 21140

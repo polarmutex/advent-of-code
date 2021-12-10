@@ -6,7 +6,10 @@ from typing import List
 
 from support import timing
 
-INPUT_TXT = os.path.join("data", "2021", "day04.txt")
+INPUT_GITHUB = os.path.join("data", "2021", "day04_github.txt")
+INPUT_GOOGLE = os.path.join("data", "2021", "day04_google.txt")
+INPUT_REDDIT = os.path.join("data", "2021", "day04_reddit.txt")
+INPUT_TWITTER = os.path.join("data", "2021", "day04_twitter.txt")
 
 INPUT_S = """\
 7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
@@ -196,7 +199,7 @@ def solve(puzzle_input: str):
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("data_file", nargs="?", default=INPUT_TXT)
+    parser.add_argument("data_file", nargs="?", default=INPUT_GITHUB)
     args = parser.parse_args()
 
     with open(args.data_file) as f, timing():

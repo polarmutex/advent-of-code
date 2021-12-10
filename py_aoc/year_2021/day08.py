@@ -11,7 +11,10 @@ SignalPattern = str
 NumberOutput = str
 Entry = Tuple[List[SignalPattern], List[NumberOutput]]
 
-INPUT_TXT = os.path.join("data", "2021", "day08_github.txt")
+INPUT_GITHUB = os.path.join("data", "2021", "day08_github.txt")
+INPUT_GOOGLE = os.path.join("data", "2021", "day08_google.txt")
+INPUT_REDDIT = os.path.join("data", "2021", "day08_reddit.txt")
+INPUT_TWITTER = os.path.join("data", "2021", "day08_twitter.txt")
 INPUT_S = """\
 be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb |fdgacbe cefdb cefbgd gcbe
 edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec |fcgedb cgb dgebacf gc
@@ -265,7 +268,7 @@ def part2(input: str):
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("data_file", nargs="?", default=INPUT_TXT)
+    parser.add_argument("data_file", nargs="?", default=INPUT_GITHUB)
     args = parser.parse_args()
 
     with open(args.data_file) as f, timing():

@@ -10,7 +10,10 @@ from support import timing
 HorizPos = int
 CrabSubs = List[HorizPos]
 
-INPUT_TXT = os.path.join("data", "2021", "day07_github.txt")
+INPUT_GITHUB = os.path.join("data", "2021", "day07_github.txt")
+INPUT_GOOGLE = os.path.join("data", "2021", "day07_google.txt")
+INPUT_REDDIT = os.path.join("data", "2021", "day07_reddit.txt")
+INPUT_TWITTER = os.path.join("data", "2021", "day07_twitter.txt")
 INPUT_S = """\
 16,1,2,0,4,2,7,1,2,14
 """
@@ -46,7 +49,7 @@ def part2(input: str):
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("data_file", nargs="?", default=INPUT_TXT)
+    parser.add_argument("data_file", nargs="?", default=INPUT_GITHUB)
     args = parser.parse_args()
 
     with open(args.data_file) as f, timing():
