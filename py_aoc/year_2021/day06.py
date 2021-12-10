@@ -11,7 +11,10 @@ FishTimer = int
 Fish = List[FishTimer]
 NumFish = int
 
-INPUT_TXT = os.path.join("data", "2021", "day06_github.txt")
+INPUT_GITHUB = os.path.join("data", "2021", "day06_github.txt")
+INPUT_GOOGLE = os.path.join("data", "2021", "day06_google.txt")
+INPUT_REDDIT = os.path.join("data", "2021", "day06_reddit.txt")
+INPUT_TWITTER = os.path.join("data", "2021", "day06_twitter.txt")
 INPUT_S = """\
 3,4,3,1,2
 """
@@ -65,7 +68,7 @@ def part2(input: str):
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("data_file", nargs="?", default=INPUT_TXT)
+    parser.add_argument("data_file", nargs="?", default=INPUT_GITHUB)
     args = parser.parse_args()
 
     with open(args.data_file) as f, timing():
