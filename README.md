@@ -4,8 +4,8 @@
 
 ## 2021
 
-![Alt](https://img.shields.io/badge/stars%20⭐-24-yellow)
-![Alt](https://img.shields.io/badge/days%20completed-12-red)
+![Alt](https://img.shields.io/badge/stars%20⭐-26-yellow)
+![Alt](https://img.shields.io/badge/days%20completed-13-red)
 ![Alt](https://img.shields.io/badge/python-3.8-blue)
 
 |                      Day                       |          Name           |     Stars     |
@@ -22,7 +22,7 @@
 | [Day 10](https://adventofcode.com/2021/day/10) |     Syntax Scoring      | :star: :star: |
 | [Day 11](https://adventofcode.com/2021/day/11) |      Dumbo Octopus      | :star: :star: |
 | [Day 12](https://adventofcode.com/2021/day/12) |     Passage Pathing     | :star: :star: |
-| [Day 13](https://adventofcode.com/2021/day/13) |                         |               |
+| [Day 13](https://adventofcode.com/2021/day/13) |   Transparent Origami   | :star: :star: |
 | [Day 14](https://adventofcode.com/2021/day/14) |                         |               |
 | [Day 15](https://adventofcode.com/2021/day/15) |                         |               |
 | [Day 16](https://adventofcode.com/2021/day/16) |                         |               |
