@@ -4,8 +4,8 @@
 
 ## 2021
 
-![Alt](https://img.shields.io/badge/stars%20⭐-28-yellow)
-![Alt](https://img.shields.io/badge/days%20completed-14-red)
+![Alt](https://img.shields.io/badge/stars%20⭐-30-yellow)
+![Alt](https://img.shields.io/badge/days%20completed-15-red)
 ![Alt](https://img.shields.io/badge/python-3.8-blue)
 
 |                      Day                       |          Name           |     Stars     |
@@ -24,7 +24,7 @@
 | [Day 12](https://adventofcode.com/2021/day/12) |     Passage Pathing     | :star: :star: |
 | [Day 13](https://adventofcode.com/2021/day/13) |   Transparent Origami   | :star: :star: |
 | [Day 14](https://adventofcode.com/2021/day/14) | Extended Polymerization | :star: :star: |
-| [Day 15](https://adventofcode.com/2021/day/15) |                         |               |
+| [Day 15](https://adventofcode.com/2021/day/15) |         Chiton          | :star: :star: |
 | [Day 16](https://adventofcode.com/2021/day/16) |                         |               |
 | [Day 17](https://adventofcode.com/2021/day/17) |                         |               |
 | [Day 18](https://adventofcode.com/2021/day/18) |                         |               |
