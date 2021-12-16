@@ -8,8 +8,8 @@
 ![Alt](https://img.shields.io/badge/days%20completed-15-red)
 ![Alt](https://img.shields.io/badge/python-3.8-blue)
 
-|                      Day                       |          Name           |     Stars     |
-| :--------------------------------------------: | :---------------------: | :-----------: |
+|                      Day                       |          Name           |     Stars     | Notes       |
+| :--------------------------------------------: | :---------------------: | :-----------: | ----------- |
 |  [Day 1](https://adventofcode.com/2021/day/1)  |       Sonar Sweep       | :star: :star: |
 |  [Day 2](https://adventofcode.com/2021/day/2)  |          Dive!          | :star: :star: |
 |  [Day 3](https://adventofcode.com/2021/day/3)  |    Binary Diagnostic    | :star: :star: |
@@ -24,7 +24,7 @@
 | [Day 12](https://adventofcode.com/2021/day/12) |     Passage Pathing     | :star: :star: |
 | [Day 13](https://adventofcode.com/2021/day/13) |   Transparent Origami   | :star: :star: |
 | [Day 14](https://adventofcode.com/2021/day/14) | Extended Polymerization | :star: :star: |
-| [Day 15](https://adventofcode.com/2021/day/15) |         Chiton          | :star: :star: |
+| [Day 15](https://adventofcode.com/2021/day/15) |         Chiton          | :star: :star: | dystra algo |
 | [Day 16](https://adventofcode.com/2021/day/16) |                         |               |
 | [Day 17](https://adventofcode.com/2021/day/17) |                         |               |
 | [Day 18](https://adventofcode.com/2021/day/18) |                         |               |
@@ -74,33 +74,33 @@
 ![Alt](https://img.shields.io/badge/stars%20⭐-0-yellow)
 ![Alt](https://img.shields.io/badge/days%20completed-0-red)
 
-|                      Day                       | Name | Stars |
-| :--------------------------------------------: | :--: | :---: |
-|  [Day 1](https://adventofcode.com/2019/day/1)  |      |       |
-|  [Day 2](https://adventofcode.com/2019/day/2)  |      |       |
-|  [Day 3](https://adventofcode.com/2019/day/3)  |      |       |
-|  [Day 4](https://adventofcode.com/2019/day/4)  |      |       |
-|  [Day 5](https://adventofcode.com/2019/day/5)  |      |       |
-|  [Day 6](https://adventofcode.com/2019/day/6)  |      |       |
-|  [Day 7](https://adventofcode.com/2019/day/7)  |      |       |
-|  [Day 8](https://adventofcode.com/2019/day/8)  |      |       |
-|  [Day 9](https://adventofcode.com/2019/day/9)  |      |       |
-| [Day 10](https://adventofcode.com/2019/day/10) |      |       |
-| [Day 11](https://adventofcode.com/2019/day/11) |      |       |
-| [Day 12](https://adventofcode.com/2019/day/12) |      |       |
-| [Day 13](https://adventofcode.com/2019/day/13) |      |       |
-| [Day 14](https://adventofcode.com/2019/day/14) |      |       |
-| [Day 15](https://adventofcode.com/2019/day/15) |      |       |
-| [Day 16](https://adventofcode.com/2019/day/16) |      |       |
-| [Day 17](https://adventofcode.com/2019/day/17) |      |       |
-| [Day 18](https://adventofcode.com/2019/day/18) |      |       |
-| [Day 19](https://adventofcode.com/2019/day/19) |      |       |
-| [Day 20](https://adventofcode.com/2019/day/20) |      |       |
-| [Day 21](https://adventofcode.com/2019/day/21) |      |       |
-| [Day 22](https://adventofcode.com/2019/day/22) |      |       |
-| [Day 23](https://adventofcode.com/2019/day/23) |      |       |
-| [Day 24](https://adventofcode.com/2019/day/24) |      |       |
-| [Day 25](https://adventofcode.com/2019/day/25) |      |       |
+|                      Day                       |                Name                | Stars |
+| :--------------------------------------------: | :--------------------------------: | :---: |
+|  [Day 1](https://adventofcode.com/2019/day/1)  | The Tyranny of the Rocket Equation |       |
+|  [Day 2](https://adventofcode.com/2019/day/2)  |         1202 Program Alarm         |       |
+|  [Day 3](https://adventofcode.com/2019/day/3)  |           Crossed Wires            |       |
+|  [Day 4](https://adventofcode.com/2019/day/4)  |          Secure Container          |       |
+|  [Day 5](https://adventofcode.com/2019/day/5)  |  Sunny with a Chance of Asteroids  |       |
+|  [Day 6](https://adventofcode.com/2019/day/6)  |        Universal Orbit Map         |       |
+|  [Day 7](https://adventofcode.com/2019/day/7)  |       Amplification Circuit        |       |
+|  [Day 8](https://adventofcode.com/2019/day/8)  |         Space Image Format         |       |
+|  [Day 9](https://adventofcode.com/2019/day/9)  |            Sensor Boost            |       |
+| [Day 10](https://adventofcode.com/2019/day/10) |         Monitoring Station         |       |
+| [Day 11](https://adventofcode.com/2019/day/11) |            Space Police            |       |
+| [Day 12](https://adventofcode.com/2019/day/12) |         The N-Body Problem         |       |
+| [Day 13](https://adventofcode.com/2019/day/13) |            Care Package            |       |
+| [Day 14](https://adventofcode.com/2019/day/14) |        Space Stoichiometry         |       |
+| [Day 15](https://adventofcode.com/2019/day/15) |           Oxygen System            |       |
+| [Day 16](https://adventofcode.com/2019/day/16) |   Flawed Frequency Transmission    |       |
+| [Day 17](https://adventofcode.com/2019/day/17) |           Set and Forget           |       |
+| [Day 18](https://adventofcode.com/2019/day/18) |     Many-Worlds Interpretation     |       |
+| [Day 19](https://adventofcode.com/2019/day/19) |            Tractor Beam            |       |
+| [Day 20](https://adventofcode.com/2019/day/20) |             Donut Maze             |       |
+| [Day 21](https://adventofcode.com/2019/day/21) |       Springdroid Adventure        |       |
+| [Day 22](https://adventofcode.com/2019/day/22) |            Slam Shuffle            |       |
+| [Day 23](https://adventofcode.com/2019/day/23) |            Category Six            |       |
+| [Day 24](https://adventofcode.com/2019/day/24) |         Planet of Discord          |       |
+| [Day 25](https://adventofcode.com/2019/day/25) |             Cryostasis             |       |
 
 ## 2018
 
