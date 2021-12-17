@@ -20,11 +20,23 @@
         devShell = pkgs.mkShell rec {
           name = "aoc-prj";
           packages = with pkgs; [
+            # python
             python3
             poetry
             python39Packages.numpy
             git-crypt
+
+            # rust
+            rustc
+            cargo
+            rustfmt
+            rust-analyzer
+            clippy
+            dbus
+            openssl
           ];
+          nativeBuildInputs = [ pkgs.pkg-config ];
+          DBUS_PATH = "${pkgs.dbus}";
           shellHook = ''
             export LD_LIBRARY_PATH=${pkgs.stdenv.cc.cc.lib}/lib/
             source $(poetry env info --path)/bin/activate
