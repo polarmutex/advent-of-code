@@ -4,8 +4,8 @@
 
 ## 2021
 
-![Alt](https://img.shields.io/badge/stars%20⭐-32-yellow)
-![Alt](https://img.shields.io/badge/days%20completed-16-red)
+![Alt](https://img.shields.io/badge/stars%20⭐-34-yellow)
+![Alt](https://img.shields.io/badge/days%20completed-17-red)
 ![Alt](https://img.shields.io/badge/python-3.8-blue)
 
 |                      Day                       |          Name           |     Stars     | Notes       |
@@ -26,7 +26,7 @@
 | [Day 14](https://adventofcode.com/2021/day/14) | Extended Polymerization | :star: :star: |
 | [Day 15](https://adventofcode.com/2021/day/15) |         Chiton          | :star: :star: | dystra algo |
 | [Day 16](https://adventofcode.com/2021/day/16) |      Packet Decoder     | :star: :star: |
-| [Day 17](https://adventofcode.com/2021/day/17) |                         |               |
+| [Day 17](https://adventofcode.com/2021/day/17) |       Trick Shot        | :star: :star: |
 | [Day 18](https://adventofcode.com/2021/day/18) |                         |               |
 | [Day 19](https://adventofcode.com/2021/day/19) |                         |               |
 | [Day 20](https://adventofcode.com/2021/day/20) |                         |               |
