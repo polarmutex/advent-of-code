@@ -301,6 +301,20 @@ def perform_transform(point: Point_3D, t: Transform) -> Point_3D:
     raise AssertionError("")
 
 
+"""
+TODO
+4) Apply the set of rotation matrices to each point in scanner 1's and compare
+the result to the matching point in scanner 0's set. If all the results are THE
+SAME for each pair, BINGO you have found the correct rotation matrix. And
+probably also the scanner 1 point of reference... ;-)
+
+5) Apply the found rotation matrix and point of reference to ALL the beacons
+found in scanner 1, and add the newly calculated beacon references (which will
+be in the scanner 0 frame of reference) to the list of known good beacon
+references (also in the scanner 0 frame of reference).
+"""
+
+
 def part1_orig(input: str) -> int:
     scanners: Dict[int, Scanner] = parse(input)
 
