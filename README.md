@@ -4,8 +4,8 @@
 
 ## 2021
 
-![Alt](https://img.shields.io/badge/stars%20⭐-40-yellow)
-![Alt](https://img.shields.io/badge/days%20completed-20-red)
+![Alt](https://img.shields.io/badge/stars%20⭐-42-yellow)
+![Alt](https://img.shields.io/badge/days%20completed-21-red)
 ![Alt](https://img.shields.io/badge/python-3.8-blue)
 
 |                      Day                       |          Name           |     Stars     | Notes       |
@@ -25,12 +25,12 @@
 | [Day 13](https://adventofcode.com/2021/day/13) |   Transparent Origami   | :star: :star: |
 | [Day 14](https://adventofcode.com/2021/day/14) | Extended Polymerization | :star: :star: |
 | [Day 15](https://adventofcode.com/2021/day/15) |         Chiton          | :star: :star: | dystra algo |
-| [Day 16](https://adventofcode.com/2021/day/16) |      Packet Decoder     | :star: :star: |
+| [Day 16](https://adventofcode.com/2021/day/16) |     Packet Decoder      | :star: :star: |
 | [Day 17](https://adventofcode.com/2021/day/17) |       Trick Shot        | :star: :star: |
 | [Day 18](https://adventofcode.com/2021/day/18) |        Snailfish        | :star: :star: |
 | [Day 19](https://adventofcode.com/2021/day/19) |     Beacon Scanner      | :star: :star: |
-| [Day 20](https://adventofcode.com/2021/day/20) |        Trench Map       | :star: :star: |
-| [Day 21](https://adventofcode.com/2021/day/21) |                         |               |
+| [Day 20](https://adventofcode.com/2021/day/20) |       Trench Map        | :star: :star: |
+| [Day 21](https://adventofcode.com/2021/day/21) |       Dirac Dice        | :star: :star: |
 | [Day 22](https://adventofcode.com/2021/day/22) |                         |               |
 | [Day 23](https://adventofcode.com/2021/day/23) |                         |               |
 | [Day 24](https://adventofcode.com/2021/day/24) |                         |               |
