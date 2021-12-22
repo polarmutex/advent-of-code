@@ -4,8 +4,8 @@
 
 ## 2021
 
-![Alt](https://img.shields.io/badge/stars%20⭐-42-yellow)
-![Alt](https://img.shields.io/badge/days%20completed-21-red)
+![Alt](https://img.shields.io/badge/stars%20⭐-44-yellow)
+![Alt](https://img.shields.io/badge/days%20completed-22-red)
 ![Alt](https://img.shields.io/badge/python-3.8-blue)
 
 |                      Day                       |          Name           |     Stars     | Notes       |
@@ -31,7 +31,7 @@
 | [Day 19](https://adventofcode.com/2021/day/19) |     Beacon Scanner      | :star: :star: |
 | [Day 20](https://adventofcode.com/2021/day/20) |       Trench Map        | :star: :star: |
 | [Day 21](https://adventofcode.com/2021/day/21) |       Dirac Dice        | :star: :star: |
-| [Day 22](https://adventofcode.com/2021/day/22) |                         |               |
+| [Day 22](https://adventofcode.com/2021/day/22) |     Reactor Reboot      | :star: :star: |
 | [Day 23](https://adventofcode.com/2021/day/23) |                         |               |
 | [Day 24](https://adventofcode.com/2021/day/24) |                         |               |
 | [Day 25](https://adventofcode.com/2021/day/25) |                         |               |
