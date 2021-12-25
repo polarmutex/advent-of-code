@@ -4,8 +4,8 @@
 
 ## 2021
 
-![Alt](https://img.shields.io/badge/stars%20⭐-48-yellow)
-![Alt](https://img.shields.io/badge/days%20completed-24-red)
+![Alt](https://img.shields.io/badge/stars%20⭐-50-yellow)
+![Alt](https://img.shields.io/badge/days%20completed-25-red)
 ![Alt](https://img.shields.io/badge/python-3.8-blue)
 
 |                      Day                       |          Name           |     Stars     | Notes       |
@@ -34,7 +34,7 @@
 | [Day 22](https://adventofcode.com/2021/day/22) |     Reactor Reboot      | :star: :star: |
 | [Day 23](https://adventofcode.com/2021/day/23) |        Amphipod         | :star: :star: |
 | [Day 24](https://adventofcode.com/2021/day/24) |  Arithmetic Logic Unit  | :star: :star: |
-| [Day 25](https://adventofcode.com/2021/day/25) |                         |               |
+| [Day 25](https://adventofcode.com/2021/day/25) |          Dive!          | :star: :star: |
 
 ## 2020
 
