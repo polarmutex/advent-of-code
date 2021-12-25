@@ -28,14 +28,11 @@ Point = Tuple[int, int]
 POS = {'A': 0, 'B': 1, 'C': 2, 'D': 3}
 
 
-def parse(input: str):
-    map = []
-    for index, line in enumerate(input.splitlines()):
-        map.append(line)
-    return map
+def parse(input: str) -> None:
+    pass
 
 
-def solve(puzzle_input: str):
+def solve(puzzle_input: str) -> Tuple[int, int]:
     solution1 = part1(puzzle_input)
     solution2 = part2(puzzle_input)
     return solution1, solution2
