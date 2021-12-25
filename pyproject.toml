@@ -9,6 +9,7 @@ python = ">=3.8,<3.11"
 support = {path = "support", develop = true}
 bitarray = "^2.3.4"
 aocd = "^0.1"
+z3-solver = "^4.8.14"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
