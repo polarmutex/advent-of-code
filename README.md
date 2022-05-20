@@ -1,6 +1,8 @@
-# Advent of Code
+# 🎄 Advent of Code 🎄
 
 [Advent of Code](https://adventofcode.com)
+
+<img src="./assets/christmas_ferris.png" width="164" align="center">
 
 ## 2021
 
