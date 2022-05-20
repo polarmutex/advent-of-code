@@ -233,3 +233,9 @@
 | [Day 23](https://adventofcode.com/2015/day/23) |      |       |
 | [Day 24](https://adventofcode.com/2015/day/24) |      |       |
 | [Day 25](https://adventofcode.com/2015/day/25) |      |       |
+
+## Resources
+
+### Rust
+- [cstars](https://github.com/lasse16/cstarshttps://github.com/lasse16/cstars)
+- [aoc-cli](https://github.com/scarvalhojr/aoc-cli)
