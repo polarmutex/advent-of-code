@@ -31,10 +31,10 @@
           ];
           nativeBuildInputs = [ pkgs.pkg-config ];
           DBUS_PATH = "${pkgs.dbus}";
-          shellHook = ''
-            export LD_LIBRARY_PATH=${pkgs.stdenv.cc.cc.lib}/lib/
-            source $(poetry env info --path)/bin/activate
-          '';
+          #shellHook = ''
+          #  export LD_LIBRARY_PATH=${pkgs.stdenv.cc.cc.lib}/lib/
+          #  source $(poetry env info --path)/bin/activate
+          #'';
         };
       });
 }
