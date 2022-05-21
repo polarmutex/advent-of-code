@@ -396,7 +396,105 @@ dependencies = [
 ]
 
 [[package]]
+name = "polar-aoc2015"
+version = "0.1.0"
+dependencies = [
+ "argh",
+ "arrayvec",
+ "bit",
+ "colored",
+ "criterion",
+ "fnv",
+ "indexmap",
+ "itertools",
+]
+
+[[package]]
+name = "polar-aoc2016"
+version = "0.1.0"
+dependencies = [
+ "argh",
+ "arrayvec",
+ "bit",
+ "colored",
+ "criterion",
+ "fnv",
+ "indexmap",
+ "itertools",
+]
+
+[[package]]
+name = "polar-aoc2017"
+version = "0.1.0"
+dependencies = [
+ "argh",
+ "arrayvec",
+ "bit",
+ "colored",
+ "criterion",
+ "fnv",
+ "indexmap",
+ "itertools",
+]
+
+[[package]]
+name = "polar-aoc2018"
+version = "0.1.0"
+dependencies = [
+ "argh",
+ "arrayvec",
+ "bit",
+ "colored",
+ "criterion",
+ "fnv",
+ "indexmap",
+ "itertools",
+]
+
+[[package]]
+name = "polar-aoc2019"
+version = "0.1.0"
+dependencies = [
+ "argh",
+ "arrayvec",
+ "bit",
+ "colored",
+ "criterion",
+ "fnv",
+ "indexmap",
+ "itertools",
+]
+
+[[package]]
+name = "polar-aoc2020"
+version = "0.1.0"
+dependencies = [
+ "argh",
+ "arrayvec",
+ "bit",
+ "colored",
+ "criterion",
+ "fnv",
+ "indexmap",
+ "itertools",
+]
+
+[[package]]
 name = "polar-aoc2021"
+version = "0.1.0"
+dependencies = [
+ "argh",
+ "arrayvec",
+ "bit",
+ "colored",
+ "criterion",
+ "fnv",
+ "indexmap",
+ "itertools",
+]
+
+[[package]]
+name = "polar-aoc2022"
 version = "0.1.0"
 dependencies = [
  "argh",
