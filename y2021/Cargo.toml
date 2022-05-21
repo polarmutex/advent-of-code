@@ -1,0 +1,41 @@
+[package]
+name = "polar-aoc2021"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+argh = "0.1"
+arrayvec = { version = "0.7", features = ["std"] }
+colored = "2"
+fnv = "1.0"
+indexmap = { version = "1.5", features = ["std"] }
+itertools = "0.10"
+bit = "0.1"
+
+[dev-dependencies]
+criterion = "0.3"
+
+# The "debug" profile
+[profile.release]
+panic = "abort"
+debug = true
+lto = "thin"
+
+# The profile to benchmark with (`cargo run --profile benchmark`)
+[profile.benchmark]
+inherits = "release"
+debug = false
+lto = "fat"
+
+# Needed for `cargo criterion`
+[profile.bench]
+inherits = "release"
+debug = false
+lto = "fat"
+
+[[bench]]
+name = "bench"
+harness = false
+
