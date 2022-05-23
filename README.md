@@ -245,3 +245,6 @@
 - [notes](https://gendignoux.com/blog/2019/08/25/rust-advent-of-code.html)
 - [cstars](https://github.com/lasse16/cstarshttps://github.com/lasse16/cstars)
 - [aoc-cli](https://github.com/scarvalhojr/aoc-cli)
+- [aoc helper](https://github.com/remi-dupre/aoc)
+- [aocf](https://github.com/nuxeh/aocf)
+- [structure](https://gitlab.com/mbryant/aoc-2021)
