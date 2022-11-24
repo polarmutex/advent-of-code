@@ -106,7 +106,9 @@
           # Extra inputs can be added here
           nativeBuildInputs = with pkgs; [
             cargo
+            clippy
             rustc
+            rustfmt
           ];
         };
       });

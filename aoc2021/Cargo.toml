@@ -1,0 +1,18 @@
+[package]
+name = "aoc2021"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+aoc_traits = { path = "../aoc_traits" }
+#anyhow = "1.0"
+#rand = "0.8"
+#bitvec = "0.22"
+
+#[lib]
+#path = "src/lib.rs"
+
+#[[bin]]
+#name = "aoc2021"
+#path = "src/main.rs"
+
