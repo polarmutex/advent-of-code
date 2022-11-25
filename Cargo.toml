@@ -1,10 +1,10 @@
 [workspace]
 members = [
-    "aoc_traits",
-    "aoc2021",
+    "framework",
+    "aoc_2021",
 ]
 
-default-members = ["aoc2021"]
+default-members = ["aoc_2021"]
 
 [profile.release]
 debug = true

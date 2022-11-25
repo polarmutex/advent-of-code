@@ -1,0 +1,15 @@
+[package]
+name = "aoc2021"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+colored = "2.0.0"
+framework = { path = "../framework" }
+
+[dev-dependencies]
+criterion = "0.4"
+criterion-macro = "0.4"
+
+[features]
+criterion = []

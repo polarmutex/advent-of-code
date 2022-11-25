@@ -31,6 +31,8 @@
 
         buildInputs = [
           # Add additional build inputs here
+          pkgs.pkg-config
+          pkgs.openssl.dev
         ] ++ lib.optionals pkgs.stdenv.isDarwin [
           # Additional darwin specific inputs can be set here
           pkgs.libiconv
@@ -90,7 +92,7 @@
           # NB: cargo-tarpaulin only supports x86_64 systems
           # Check code coverage (note: this will not upload coverage anywhere)
           my-crate-coverage = craneLib.cargoTarpaulin {
-            inherit cargoArtifacts src;
+            inherit cargoArtifacts src buildInputs;
           };
         };
 
@@ -109,6 +111,8 @@
             clippy
             rustc
             rustfmt
+            pkg-config
+            openssl.dev
           ];
         };
       });
