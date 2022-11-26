@@ -39,7 +39,7 @@ tests! {
 263";
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 7);
-    input_tests!(parse, part1, part1_input_test, 1448);
+    input_tests!(2021, 1, parse, part1, part1_input_test, 1448);
     simple_tests!(parse, part2, part2_example_test, EXAMPLE => 5);
-    input_tests!(parse, part2, part2_input_test, 1471);
+    input_tests!(2021, 1, parse, part2, part2_input_test, 1471);
 }

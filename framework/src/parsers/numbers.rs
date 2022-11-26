@@ -1,5 +1,4 @@
-use super::ParseError;
-use super::ParseResult;
+use super::*;
 use std::marker::PhantomData;
 
 pub trait IsParsableNumber {}

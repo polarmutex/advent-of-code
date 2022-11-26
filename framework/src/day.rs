@@ -55,10 +55,13 @@ macro_rules! simple_tests {
 
 #[macro_export]
 macro_rules! input_tests {
-    ($parse:expr, $pt:expr, $pt_name:ident, $expected:expr) => {
+    ($year:literal, $day:literal, $parse:expr, $pt:expr, $pt_name:ident, $expected:expr) => {
         #[test]
         fn $pt_name() -> ::anyhow::Result<()> {
-            let path = std::path::Path::new("../data/2021/01.txt");
+            let year = $year;
+            let day = $day;
+            let path = format!("../data/{year}/{day:0>2}.txt");
+            let path = std::path::Path::new(&path);
             let input = match std::fs::read(path) {
                 Ok(mut input) => {
                     input.retain(|c| *c != b'\r');

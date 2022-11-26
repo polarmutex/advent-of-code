@@ -1,10 +1,12 @@
 mod common;
 pub mod error;
+mod logical;
 mod multi;
 pub mod numbers;
 
 pub use common::*;
 pub use error::{ParseError, ParseResult};
+pub use logical::ParserLogicalExt;
 pub use multi::ParserMultiExt;
 pub use numbers::number;
 
