@@ -1,7 +1,6 @@
-use crate::error::Error;
+use anyhow::Result;
 use std::fs::read_to_string;
 use std::path::Path;
-use std::result::Result;
 use std::time::Duration;
 use std::time::Instant;
 
@@ -18,10 +17,13 @@ impl Inputs {
         Default::default()
     }
 
-    pub fn get(&mut self, year: u32, day: u32) -> Result<String, Error> {
+    pub fn get(&mut self, year: u32, day: u32) -> Result<Vec<u8>> {
         let path = format!("data/{year}/{day:0>2}.txt");
         let path = Path::new(&path);
-        if let Ok(input) = std::fs::read_to_string(path) {
+        println!("{}", path.display());
+        println!("{}", std::env::current_dir()?.display());
+        if let Ok(mut input) = std::fs::read(path) {
+            input.retain(|c| *c != b'\r');
             return Ok(input);
         }
 
@@ -31,14 +33,14 @@ impl Inputs {
         Ok(input)
     }
 
-    fn get_session_token(&mut self) -> Result<&str, Error> {
+    fn get_session_token(&mut self) -> Result<&str> {
         if self.session_token.is_none() {
             self.session_token = Some(read_to_string("./session_token.txt")?);
         }
         Ok(self.session_token.as_ref().unwrap())
     }
 
-    fn download(&mut self, year: u32, day: u32) -> Result<String, Error> {
+    fn download(&mut self, year: u32, day: u32) -> Result<Vec<u8>> {
         let session_token = self.get_session_token()?;
         let cookie = format!("session={session_token}");
 
@@ -51,13 +53,13 @@ impl Inputs {
         };
         self.last_download_time = Some(now);
         let response = ureq::get(&format!("https://adventofcode.com/{year}/day/{day}/input"))
-            .set("cookie", &cookie)
+            .set("cookie", &cookie.trim())
             .timeout(Duration::from_secs(5))
             .call()
             .map_err(Box::new)?;
 
-        let mut buf = String::new();
-        response.into_reader().read_to_string(&mut buf)?;
+        let mut buf = Vec::new();
+        response.into_reader().read_to_end(&mut buf)?;
         Ok(buf)
     }
 }

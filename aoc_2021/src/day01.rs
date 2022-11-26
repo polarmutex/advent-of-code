@@ -1,44 +1,45 @@
-#[allow(unused_imports)]
-use framework::traits::{Day1, MissingPartOne, MissingPartTwo, ParseInput, Part1, Part2, Solution};
+use crate::prelude::*;
 
-use crate::AdventOfCode;
+day!(1, parse => part1, part2);
 
-impl MissingPartOne<Day1> for AdventOfCode<Day1> {}
-/*
-impl<'a> ParseInput<'a, Day1, Part1> for AdventOfCode<Day1> {
-    type Parsed = Vec<u32>;
-
-    fn parse_input(&'a self, _input: &'a str) -> Self::Parsed {
-        vec![1, 2, 3]
-    }
+fn parse(input: &[u8]) -> ParseResult<Vec<u32>> {
+    use parsers::*;
+    number::<u32>().sep_by(token(b'\n')).parse(input)
 }
 
-impl<'a> Solution<'a, Day1, Part1> for AdventOfCode<Day1> {
-    type Input = Vec<u32>;
-    type Output = u32;
-
-    fn solve(&'a self, input: &Self::Input) -> Self::Output {
-        input.iter().sum()
-    }
-}
-*/
-
-impl MissingPartTwo<Day1> for AdventOfCode<Day1> {}
-/*
-impl<'a> ParseInput<'a, Day1, Part2> for AdventOfCode<Day1> {
-    type Parsed = &'a str;
-
-    fn parse_input(&'a self, input: &'a str) -> Self::Parsed {
-        input
-    }
+fn part1(input: &[u32]) -> Result<u32> {
+    Ok(input
+        .iter()
+        .tuple_windows()
+        .filter(|&(&a, &b)| b > a)
+        .count() as u32)
 }
 
-impl<'a> Solution<'a, Day1, Part2> for AdventOfCode<Day1> {
-    type Input = &'a str;
-    type Output = u32;
-
-    fn solve(&'a self, input: &Self::Input) -> Self::Output {
-        input.len() as u32
-    }
+fn part2(input: &[u32]) -> Result<u32> {
+    Ok(input
+        .iter()
+        .tuple_windows()
+        .map(|(&a, &b, &c)| a + b + c)
+        .tuple_windows()
+        .filter(|&(a, b)| b > a)
+        .count() as u32)
 }
-*/
+
+tests! {
+    const EXAMPLE: &'static [u8] = b"\
+199
+200
+208
+210
+200
+207
+240
+269
+260
+263";
+
+    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 7);
+    input_tests!(parse, part1, part1_input_test, 1448);
+    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 5);
+    input_tests!(parse, part2, part2_input_test, 1471);
+}

@@ -4,8 +4,10 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.66"
 colored = "2.0.0"
 framework = { path = "../framework" }
+itertools = "0.10.5"
 
 [dev-dependencies]
 criterion = "0.4"
