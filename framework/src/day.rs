@@ -1,5 +1,4 @@
-use crate::parsers::error::Finish;
-use crate::parsers::ParseResult;
+use crate::parser::{ParseError, ParseResult};
 use anyhow::Result;
 use std::borrow::Borrow;
 use std::marker::PhantomData;
@@ -41,7 +40,7 @@ macro_rules! simple_tests {
         #[test]
         fn $pt_name() -> ::anyhow::Result<()> {
             $({
-                let input = $crate::parsers::error::Finish::finish($parse($input))?;
+                let input = $parse($input)?;
                 let result = $pt(&input)?;
                 let expected = $expected;
                 if result != expected {
@@ -62,11 +61,8 @@ macro_rules! input_tests {
             let day = $day;
             let path = format!("../data/{year}/{day:0>2}.txt");
             let path = std::path::Path::new(&path);
-            let input = match std::fs::read(path) {
-                Ok(mut input) => {
-                    input.retain(|c| *c != b'\r');
-                    input
-                }
+            let input = match std::fs::read_to_string(path) {
+                Ok(mut input) => input,
                 Err(e) => {
                     return Err(anyhow::anyhow!(format!(
                         "failed to get input {}",
@@ -74,7 +70,7 @@ macro_rules! input_tests {
                     )))
                 }
             };
-            let parsed_input = $crate::parsers::error::Finish::finish($parse(&input))?;
+            let parsed_input = $parse(&input)?;
             let result = $pt(&parsed_input)?;
             let expected = $expected;
             if result != expected {
@@ -87,7 +83,7 @@ macro_rules! input_tests {
 
 pub enum DayResult {
     NoInput(anyhow::Error),
-    ParseFailed(anyhow::Error),
+    ParseFailed(ParseError),
     Ran {
         part1: Result<u32>,
         part2: Result<u32>,
@@ -102,13 +98,13 @@ pub struct BenchOutputs {
 
 pub trait Day {
     fn nr(&self) -> u32;
-    fn exec(&self, input: &[u8]) -> DayResult;
-    fn exec_bench(&self, input: &[u8]) -> Result<BenchOutputs>;
+    fn exec(&self, input: &str) -> DayResult;
+    fn exec_bench(&self, input: &str) -> Result<BenchOutputs>;
 }
 
 pub struct DayCommon<P, P1, P2, I, I1, I2>
 where
-    P: for<'s> Fn(&'s [u8]) -> ParseResult<'s, I>,
+    P: for<'s> Fn(&'s str) -> ParseResult<I>,
     P1: Fn(&I1) -> Result<u32>,
     P2: Fn(&I2) -> Result<u32>,
     I: Borrow<I1> + Borrow<I2>,
@@ -125,7 +121,7 @@ where
 
 impl<P, P1, P2, I, I1, I2> Day for DayCommon<P, P1, P2, I, I1, I2>
 where
-    P: for<'s> Fn(&'s [u8]) -> ParseResult<'s, I>,
+    P: for<'s> Fn(&'s str) -> ParseResult<I>,
     P1: Fn(&I1) -> Result<u32>,
     P2: Fn(&I2) -> Result<u32>,
     I: Borrow<I1> + Borrow<I2>,
@@ -136,8 +132,8 @@ where
         self.nr
     }
 
-    fn exec(&self, input: &[u8]) -> DayResult {
-        let input = match (self.parser)(input).finish() {
+    fn exec(&self, input: &str) -> DayResult {
+        let input = match (self.parser)(input) {
             Ok(x) => x,
             Err(e) => return DayResult::ParseFailed(e),
         };
@@ -146,12 +142,12 @@ where
         DayResult::Ran { part1, part2 }
     }
 
-    fn exec_bench(&self, input: &[u8]) -> Result<BenchOutputs> {
+    fn exec_bench(&self, input: &str) -> Result<BenchOutputs> {
         let start = Instant::now();
         let parse_result = (self.parser)(input);
         let parse = Instant::now() - start;
 
-        let input = parse_result.finish()?;
+        let input = parse_result?;
 
         let start = Instant::now();
         (self.pt1)(input.borrow()).unwrap();

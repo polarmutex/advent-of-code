@@ -2,9 +2,14 @@ use crate::prelude::*;
 
 day!(1, parse => part1, part2);
 
-fn parse(input: &[u8]) -> ParseResult<Vec<u32>> {
-    use parsers::*;
-    number::<u32>().sep_by(token(b'\n')).parse(input)
+fn input_parser() -> impl Parser<char, Vec<u32>, Error = Simple<char>> {
+    c::text::int(10)
+        .map(|s: String| s.parse().unwrap())
+        .separated_by(c::text::newline())
+}
+
+fn parse(input: &str) -> ParseResult<Vec<u32>> {
+    Ok(input_parser().parse(input).unwrap())
 }
 
 fn part1(input: &[u32]) -> Result<u32> {
@@ -30,7 +35,7 @@ fn part2(input: &[u32]) -> Result<u32> {
 }
 
 tests! {
-    const EXAMPLE: &'static [u8] = b"\
+    const EXAMPLE: &'static str = "\
 199
 200
 208

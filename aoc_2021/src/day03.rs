@@ -5,13 +5,17 @@ day!(3, parse => part1::<12>, part2::<12>);
 type Diagnostics = Vec<u32>;
 type DiagnosticsRef = [u32];
 
-fn parse(input: &[u8]) -> ParseResult<Diagnostics> {
-    use parsers::*;
-    let bit = token((b'0', 0)).or(token((b'1', 1)));
-    // << left bit shift by 1
-    // ^ bitwise xor
-    let word = bit.fold(0, |nr, bit| (nr << 1) ^ bit);
-    word.sep_by(token(b'\n')).parse(input)
+fn input_parser() -> impl Parser<char, Vec<u32>, Error = Simple<char>> {
+    let bits = just('0').or(just('1')).repeated().at_least(1);
+    let bit_based_number = bits.collect::<String>().map(|s: String| {
+        let num_from_bits = u32::from_str_radix(&s, 2).unwrap();
+        num_from_bits
+    });
+    bit_based_number.separated_by(c::text::newline())
+}
+
+fn parse(input: &str) -> ParseResult<Diagnostics> {
+    Ok(input_parser().parse(input).unwrap())
 }
 
 fn part1<const BITS: usize>(input: &DiagnosticsRef) -> Result<u32> {
@@ -94,7 +98,7 @@ fn part2_compute_rating<const BITS: usize>(rating: Rating, input: &DiagnosticsRe
 }
 
 tests! {
-    const EXAMPLE: &'static [u8] = b"\
+    const EXAMPLE: &'static str = "\
 00100
 11110
 10110

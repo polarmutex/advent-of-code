@@ -17,13 +17,13 @@ impl Inputs {
         Default::default()
     }
 
-    pub fn get(&mut self, year: u32, day: u32) -> Result<Vec<u8>> {
+    pub fn get(&mut self, year: u32, day: u32) -> Result<String> {
         let path = format!("data/{year}/{day:0>2}.txt");
         let path = Path::new(&path);
         println!("{}", path.display());
         println!("{}", std::env::current_dir()?.display());
-        if let Ok(mut input) = std::fs::read(path) {
-            input.retain(|c| *c != b'\r');
+        if let Ok(input) = std::fs::read_to_string(path) {
+            //input.retain(|c| *c != b'\r');
             return Ok(input);
         }
 
@@ -40,7 +40,7 @@ impl Inputs {
         Ok(self.session_token.as_ref().unwrap())
     }
 
-    fn download(&mut self, year: u32, day: u32) -> Result<Vec<u8>> {
+    fn download(&mut self, year: u32, day: u32) -> Result<String> {
         let session_token = self.get_session_token()?;
         let cookie = format!("session={session_token}");
 
@@ -58,8 +58,8 @@ impl Inputs {
             .call()
             .map_err(Box::new)?;
 
-        let mut buf = Vec::new();
-        response.into_reader().read_to_end(&mut buf)?;
+        let mut buf = String::new();
+        response.into_reader().read_to_string(&mut buf)?;
         Ok(buf)
     }
 }

@@ -1,6 +1,6 @@
 pub mod day;
 pub mod inputs;
-pub mod parsers;
+mod parser;
 pub mod prelude;
 
 use ahash::AHashSet;

@@ -3,23 +3,39 @@ use crate::prelude::*;
 day!(2, parse => part1, part2);
 
 #[derive(Debug, Copy, Clone)]
-pub enum Direction {
-    Forward,
-    Down,
-    Up,
+pub enum Instruction {
+    Forward(u32),
+    Down(u32),
+    Up(u32),
 }
 
-type Instruction = (Direction, u32);
+fn input_parser() -> impl Parser<char, Vec<Instruction>, Error = Simple<char>> {
+    let number = c::text::int(10).map(|s: String| s.parse().unwrap());
+    let instruction =
+        c::text::ident()
+            .then_ignore(just(' '))
+            .then(number)
+            .map(|(direction, count)| match direction.as_str() {
+                "forward" => Instruction::Forward(count),
+                "down" => Instruction::Down(count),
+                "up" => Instruction::Up(count),
+                _ => unreachable!(),
+            });
+    instruction.separated_by(c::text::newline())
+}
+
+fn parse(input: &str) -> ParseResult<Vec<Instruction>> {
+    Ok(input_parser().parse(input).unwrap())
+}
 
 fn part1(input: &[Instruction]) -> Result<u32> {
     let mut hpos = 0;
     let mut depth = 0;
-    for &(direction, amount) in input {
-        let amount = amount as u32;
-        match direction {
-            Direction::Forward => hpos += amount,
-            Direction::Down => depth += amount,
-            Direction::Up => depth -= amount,
+    for instr in input {
+        match instr {
+            Instruction::Forward(amount) => hpos += amount,
+            Instruction::Down(amount) => depth += amount,
+            Instruction::Up(amount) => depth -= amount,
         }
     }
     Ok(hpos * depth)
@@ -29,31 +45,21 @@ fn part2(input: &[Instruction]) -> Result<u32> {
     let mut aim = 0;
     let mut hpos = 0;
     let mut depth = 0;
-    for &(direction, amount) in input {
-        let amount = amount as u32;
-        match direction {
-            Direction::Forward => {
+    for instr in input {
+        match instr {
+            Instruction::Forward(amount) => {
                 hpos += amount;
                 depth += aim * amount;
             }
-            Direction::Down => aim += amount,
-            Direction::Up => aim -= amount,
+            Instruction::Down(amount) => aim += amount,
+            Instruction::Up(amount) => aim -= amount,
         }
     }
     Ok(hpos * depth)
 }
 
-fn parse(input: &[u8]) -> ParseResult<Vec<Instruction>> {
-    use parsers::*;
-    let direction = token((b"forward ", Direction::Forward))
-        .or(token((b"down ", Direction::Down)))
-        .or(token((b"up ", Direction::Up)));
-    let instruction = direction.and(number::<u32>());
-    instruction.sep_by(token(b'\n')).parse(input)
-}
-
 tests! {
-    const EXAMPLE: &'static [u8] = b"\
+    const EXAMPLE: &'static str = "\
 forward 5
 down 5
 forward 8
