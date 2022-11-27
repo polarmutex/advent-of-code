@@ -4,6 +4,7 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
+ahash = "0.8.2"
 anyhow = "1.0.66"
 chumsky = "0.8.0"
 colored = "2.0.0"
