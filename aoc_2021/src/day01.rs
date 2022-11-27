@@ -11,6 +11,10 @@ fn part1(input: &[u32]) -> Result<u32> {
     Ok(input
         .iter()
         .tuple_windows()
+        //Return an iterator over all contiguous windows producing tuples of a
+        // specific size (up to 12). tuple_windows clones the iterator elements
+        // so that they can be part of successive windows, this makes it most
+        // suited for iterators of references and other values that are cheap to copy.
         .filter(|&(&a, &b)| b > a)
         .count() as u32)
 }
