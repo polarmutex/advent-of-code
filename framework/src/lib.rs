@@ -1,7 +1,9 @@
 pub mod day;
 pub mod inputs;
+pub mod line;
 mod parser;
 pub mod prelude;
+pub mod vec;
 
 use ahash::AHashSet;
 use colored::Colorize;
