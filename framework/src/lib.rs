@@ -3,9 +3,12 @@ pub mod inputs;
 pub mod line;
 mod parser;
 pub mod prelude;
+mod submission;
 pub mod vec;
 
+use crate::submission::FinalResult;
 use ahash::AHashSet;
+use anyhow::Result;
 use colored::Colorize;
 use day::{Day, DayResult};
 use inputs::Inputs;
@@ -65,20 +68,20 @@ fn exec_day(inputs: &mut Inputs, year: u32, day: &dyn Day) {
         Ok(input) => day.exec(&input),
         Err(e) => DayResult::NoInput(e),
     };
+    fn err_to_str(e: anyhow::Error) -> FinalResult {
+        FinalResult {
+            final_answer: e.to_string().red().bold().to_string(),
+        }
+    }
+    fn fmt_output(result: Result<FinalResult>) -> FinalResult {
+        result.unwrap_or_else(err_to_str)
+    }
     let (pt1_key, pt1_value, pt2_value) = match result {
-        DayResult::NoInput(e) => (
-            "no input".bright_red(),
-            e.to_string().red().bold().to_string(),
-            None,
-        ),
-        DayResult::ParseFailed(e) => (
-            "parse error".bright_red(),
-            e.to_string().red().bold().to_string(),
-            None,
-        ),
+        DayResult::NoInput(e) => ("no input".bright_red(), err_to_str(e), None),
+        DayResult::ParseFailed(e) => ("parse error".bright_red(), err_to_str(e), None),
         DayResult::Ran { part1, part2 } => (
             "part1".bright_green(),
-            format!("{}", part1.unwrap()).bright_green().to_string(),
+            fmt_output(part1),
             Some(format!("{}", part2.unwrap()).bright_green().to_string()),
         ),
     };

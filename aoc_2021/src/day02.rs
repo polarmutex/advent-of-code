@@ -28,7 +28,7 @@ fn parse(input: &str) -> ParseResult<Vec<Instruction>> {
     Ok(input_parser().parse(input).unwrap())
 }
 
-fn part1(input: &[Instruction]) -> Result<u32> {
+fn part1(input: &[Instruction]) -> MulSubmission<u32> {
     let mut hpos = 0;
     let mut depth = 0;
     for instr in input {
@@ -38,10 +38,10 @@ fn part1(input: &[Instruction]) -> Result<u32> {
             Instruction::Up(amount) => depth -= amount,
         }
     }
-    Ok(hpos * depth)
+    MulSubmission(hpos, depth)
 }
 
-fn part2(input: &[Instruction]) -> Result<u32> {
+fn part2(input: &[Instruction]) -> MulSubmission<u32> {
     let mut aim = 0;
     let mut hpos = 0;
     let mut depth = 0;
@@ -55,7 +55,7 @@ fn part2(input: &[Instruction]) -> Result<u32> {
             Instruction::Up(amount) => aim -= amount,
         }
     }
-    Ok(hpos * depth)
+    MulSubmission(hpos, depth)
 }
 
 tests! {
@@ -67,8 +67,8 @@ up 3
 down 8
 forward 2";
 
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 150);
-    input_tests!(2021, 2, parse, part1, part1_input_test, 1250395);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 900);
-    input_tests!(2021, 2, parse, part2, part2_input_test, 1451210346);
+    simple_tests!(parse, part1, part1_example_test, EXAMPLE => MulSubmission(15,10));
+    input_tests!(2021, 2, parse, part1, part1_input_test, MulSubmission(1909,655));
+    simple_tests!(parse, part2, part2_example_test, EXAMPLE => MulSubmission(15,60));
+    input_tests!(2021, 2, parse, part2, part2_input_test, MulSubmission(1909,760194));
 }

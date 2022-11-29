@@ -1,4 +1,6 @@
-use crate::parser::{ParseError, ParseResult};
+use crate::parser::ParseResult;
+use crate::submission::MulSubmission;
+use crate::submission::{FinalResult, ToFinalResult};
 use anyhow::Result;
 use std::borrow::Borrow;
 use std::marker::PhantomData;
@@ -34,6 +36,32 @@ macro_rules! tests {
     };
 }
 
+pub trait ToResult {
+    type Output;
+    fn to_result(self) -> Result<Self::Output, anyhow::Error>;
+}
+
+impl ToResult for u32 {
+    type Output = u32;
+    fn to_result(self) -> Result<u32, anyhow::Error> {
+        Ok(self)
+    }
+}
+
+impl ToResult for MulSubmission<u32> {
+    type Output = MulSubmission<u32>;
+    fn to_result(self) -> Result<MulSubmission<u32>, anyhow::Error> {
+        Ok(self)
+    }
+}
+
+impl ToResult for Result<MulSubmission<u32>, anyhow::Error> {
+    type Output = MulSubmission<u32>;
+    fn to_result(self) -> Result<MulSubmission<u32>, anyhow::Error> {
+        self
+    }
+}
+
 #[macro_export]
 macro_rules! simple_tests {
     ($parse:expr, $pt:expr, $pt_name:ident, $($input:expr => $expected:expr),+$(,)*) => {
@@ -41,7 +69,7 @@ macro_rules! simple_tests {
         fn $pt_name() -> ::anyhow::Result<()> {
             $({
                 let input = $parse($input)?;
-                let result = $pt(&input)?;
+                let result = $crate::day::ToResult::to_result($pt(&input))?;
                 let expected = $expected;
                 if result != expected {
                     return Err(anyhow::anyhow!("Expected: {expected}, but got: {result}"));
@@ -71,7 +99,7 @@ macro_rules! input_tests {
                 }
             };
             let parsed_input = $parse(&input)?;
-            let result = $pt(&parsed_input)?;
+            let result = $crate::day::ToResult::to_result($pt(&parsed_input))?;
             let expected = $expected;
             if result != expected {
                 return Err(anyhow::anyhow!("Expected: {expected}, but got: {result}"));
@@ -83,10 +111,10 @@ macro_rules! input_tests {
 
 pub enum DayResult {
     NoInput(anyhow::Error),
-    ParseFailed(ParseError),
+    ParseFailed(anyhow::Error),
     Ran {
-        part1: Result<u32>,
-        part2: Result<u32>,
+        part1: Result<FinalResult>,
+        part2: Result<FinalResult>,
     },
 }
 
@@ -102,14 +130,16 @@ pub trait Day {
     fn exec_bench(&self, input: &str) -> Result<BenchOutputs>;
 }
 
-pub struct DayCommon<P, P1, P2, I, I1, I2>
+pub struct DayCommon<P, P1, P2, I, I1, I2, O1, O2>
 where
     P: for<'s> Fn(&'s str) -> ParseResult<I>,
-    P1: Fn(&I1) -> Result<u32>,
-    P2: Fn(&I2) -> Result<u32>,
+    P1: Fn(&I1) -> O1,
+    P2: Fn(&I2) -> O2,
     I: Borrow<I1> + Borrow<I2>,
     I1: ?Sized,
     I2: ?Sized,
+    O1: ToFinalResult,
+    O2: ToFinalResult,
 {
     pub nr: u32,
     pub parser: P,
@@ -119,14 +149,16 @@ where
     pub phantom2: PhantomData<I2>,
 }
 
-impl<P, P1, P2, I, I1, I2> Day for DayCommon<P, P1, P2, I, I1, I2>
+impl<P, P1, P2, I, I1, I2, O1, O2> Day for DayCommon<P, P1, P2, I, I1, I2, O1, O2>
 where
     P: for<'s> Fn(&'s str) -> ParseResult<I>,
-    P1: Fn(&I1) -> Result<u32>,
-    P2: Fn(&I2) -> Result<u32>,
+    P1: Fn(&I1) -> O1,
+    P2: Fn(&I2) -> O2,
     I: Borrow<I1> + Borrow<I2>,
     I1: ?Sized,
     I2: ?Sized,
+    O1: ToFinalResult,
+    O2: ToFinalResult,
 {
     fn nr(&self) -> u32 {
         self.nr
@@ -139,7 +171,10 @@ where
         };
         let part1 = (self.pt1)(input.borrow());
         let part2 = (self.pt2)(input.borrow());
-        DayResult::Ran { part1, part2 }
+        DayResult::Ran {
+            part1: part1.to_final_answer(),
+            part2: part2.to_final_answer(),
+        }
     }
 
     fn exec_bench(&self, input: &str) -> Result<BenchOutputs> {
@@ -150,11 +185,11 @@ where
         let input = parse_result?;
 
         let start = Instant::now();
-        (self.pt1)(input.borrow()).unwrap();
+        (self.pt1)(input.borrow());
         let part1 = Instant::now() - start;
 
         let start = Instant::now();
-        (self.pt2)(input.borrow()).unwrap();
+        (self.pt2)(input.borrow());
         let part2 = Instant::now() - start;
 
         Ok(BenchOutputs {

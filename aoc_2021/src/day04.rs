@@ -63,7 +63,7 @@ fn get_unmarked_sum(board: &BingoBoard, seen_digits: &AHashSet<u32>) -> u32 {
         .sum()
 }
 
-fn part1(input: &Input) -> Result<u32> {
+fn part1(input: &Input) -> Result<MulSubmission<u32>> {
     let mut seen_digits = AHashSet::with_capacity(input.numbers.len());
     for &num in &input.numbers {
         seen_digits.insert(num);
@@ -77,12 +77,12 @@ fn part1(input: &Input) -> Result<u32> {
             None => continue,
         };
         let unmarked_sum = get_unmarked_sum(board, &seen_digits);
-        return Ok(num * unmarked_sum);
+        return Ok(MulSubmission(unmarked_sum, num));
     }
     Err(anyhow!("no solution"))
 }
 
-fn part2(input: &Input) -> Result<u32> {
+fn part2(input: &Input) -> Result<MulSubmission<u32>> {
     let mut seen_digits = AHashSet::with_capacity(input.numbers.len());
     let mut remaining_boards = input.bingo_boards.clone();
     for &num in &input.numbers {
@@ -90,7 +90,7 @@ fn part2(input: &Input) -> Result<u32> {
         if remaining_boards.len() == 1 {
             if is_bingo(&remaining_boards[0], &seen_digits) {
                 let unmarked_sum = get_unmarked_sum(&remaining_boards[0], &seen_digits);
-                return Ok(num * unmarked_sum);
+                return Ok(MulSubmission(unmarked_sum, num));
             }
         }
         remaining_boards.retain(|board| !is_bingo(board, &seen_digits));
@@ -120,8 +120,9 @@ tests! {
 22 11 13  6  5
  2  0 12  3  7";
 
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 4512);
-    input_tests!(2021, 4, parse, part1, part1_input_test, 46920);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 1924);
-    input_tests!(2021, 4, parse, part2, part2_input_test, 12635);
+    simple_tests!(parse, part1, part1_example_test, EXAMPLE => MulSubmission(188,24));
+    input_tests!(2021, 4, parse, part1, part1_input_test, MulSubmission(782,60));
+    simple_tests!(parse, part2, part2_example_test, EXAMPLE => MulSubmission(148,13));
+    input_tests!(2021, 4, parse, part2, part2_input_test, MulSubmission(361, 35));
+
 }

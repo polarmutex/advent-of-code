@@ -12,8 +12,8 @@ fn parse(input: &str) -> ParseResult<Vec<u32>> {
     Ok(input_parser().parse(input).unwrap())
 }
 
-fn part1(input: &[u32]) -> Result<u32> {
-    Ok(input
+fn part1(input: &[u32]) -> u32 {
+    input
         .iter()
         .tuple_windows()
         //Return an iterator over all contiguous windows producing tuples of a
@@ -21,17 +21,17 @@ fn part1(input: &[u32]) -> Result<u32> {
         // so that they can be part of successive windows, this makes it most
         // suited for iterators of references and other values that are cheap to copy.
         .filter(|&(&a, &b)| b > a)
-        .count() as u32)
+        .count() as u32
 }
 
-fn part2(input: &[u32]) -> Result<u32> {
-    Ok(input
+fn part2(input: &[u32]) -> u32 {
+    input
         .iter()
         .tuple_windows()
         .map(|(&a, &b, &c)| a + b + c)
         .tuple_windows()
         .filter(|&(a, b)| b > a)
-        .count() as u32)
+        .count() as u32
 }
 
 tests! {

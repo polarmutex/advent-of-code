@@ -18,7 +18,7 @@ fn parse(input: &str) -> ParseResult<Diagnostics> {
     Ok(input_parser().parse(input).unwrap())
 }
 
-fn part1<const BITS: usize>(input: &DiagnosticsRef) -> Result<u32> {
+fn part1<const BITS: usize>(input: &DiagnosticsRef) -> MulSubmission<u32> {
     let mut bit_counts = [0; BITS];
 
     for &diag in input {
@@ -44,7 +44,7 @@ fn part1<const BITS: usize>(input: &DiagnosticsRef) -> Result<u32> {
         .fold(0, |gamma, (index, bit)| {
             gamma | ((if bit { 1 } else { 0 }) << index)
         });
-    Ok(gamma * epsilon)
+    MulSubmission(gamma, epsilon)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -53,11 +53,10 @@ enum Rating {
     CO2Scrubber,
 }
 
-fn part2<const BITS: usize>(input: &DiagnosticsRef) -> Result<u32> {
+fn part2<const BITS: usize>(input: &DiagnosticsRef) -> MulSubmission<u32> {
     let oxygen_generator_rating = part2_compute_rating::<BITS>(Rating::OxygenGenerator, input);
     let co2_scrubber_rating = part2_compute_rating::<BITS>(Rating::CO2Scrubber, input);
-    println!("{} {}", oxygen_generator_rating, co2_scrubber_rating);
-    Ok(oxygen_generator_rating * co2_scrubber_rating)
+    MulSubmission(oxygen_generator_rating, co2_scrubber_rating)
 }
 
 fn part2_compute_rating<const BITS: usize>(rating: Rating, input: &DiagnosticsRef) -> u32 {
@@ -112,8 +111,9 @@ tests! {
 00010
 01010";
 
-    simple_tests!(parse, part1::<5>, part1_example_test, EXAMPLE => 198);
-    input_tests!(2021, 3, parse, part1::<12>, part1_input_test, 845186);
-    simple_tests!(parse, part2::<5>, part2_example_test, EXAMPLE => 230);
-    input_tests!(2021, 3, parse, part2::<12>, part2_input_test, 4636702);
+    simple_tests!(parse, part1::<5>, part1_example_test, EXAMPLE => MulSubmission(22,9));
+    input_tests!(2021, 3, parse, part1::<12>, part1_input_test, MulSubmission(218,3877));
+    simple_tests!(parse, part2::<5>, part2_example_test, EXAMPLE => MulSubmission(23,10));
+    input_tests!(2021, 3, parse, part2::<12>, part2_input_test, MulSubmission(1459,3178));
+
 }

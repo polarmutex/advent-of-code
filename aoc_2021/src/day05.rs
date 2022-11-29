@@ -45,16 +45,16 @@ fn count_overlap_pts<'i, I: Iterator<Item = &'i Line> + Clone + 'i>(lines: I) ->
     count
 }
 
-fn part1(input: &Vec<Line>) -> Result<u32> {
-    Ok(count_overlap_pts(
+fn part1(input: &Vec<Line>) -> u32 {
+    count_overlap_pts(
         input
             .iter()
             .filter(|line| line.is_horizontal() || line.is_vertical()),
-    ))
+    )
 }
 
-fn part2(input: &Vec<Line>) -> Result<u32> {
-    Ok(count_overlap_pts(input.iter()))
+fn part2(input: &Vec<Line>) -> u32 {
+    count_overlap_pts(input.iter())
 }
 
 tests! {
