@@ -45,7 +45,7 @@ fn count_overlap_pts<'i, I: Iterator<Item = &'i Line> + Clone + 'i>(lines: I) ->
     count
 }
 
-fn part1(input: &Vec<Line>) -> u32 {
+fn part1(input: &[Line]) -> u32 {
     count_overlap_pts(
         input
             .iter()
@@ -53,12 +53,12 @@ fn part1(input: &Vec<Line>) -> u32 {
     )
 }
 
-fn part2(input: &Vec<Line>) -> u32 {
+fn part2(input: &[Line]) -> u32 {
     count_overlap_pts(input.iter())
 }
 
 tests! {
-    const EXAMPLE: &'static str = "\
+    const EXAMPLE: &str = "\
 0,9 -> 5,9
 8,0 -> 0,8
 9,4 -> 3,4

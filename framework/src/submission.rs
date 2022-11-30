@@ -9,7 +9,7 @@ pub struct FinalResult {
 
 impl Display for FinalResult {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.final_answer.bright_green().to_string())
+        write!(f, "{}", self.final_answer.bright_green())
     }
 }
 
@@ -57,6 +57,6 @@ impl<T: Clone + Display + Mul<Output = T>> Display for MulSubmission<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let result = self.0.clone().mul(self.1.clone());
         //write!(f, "{} {} {} = {}", self.0, "x", self.1, result)
-        write!(f, "{} {} {} = {}", self.0, "x", self.1, result)
+        write!(f, "{} x {} = {}", self.0, self.1, result)
     }
 }

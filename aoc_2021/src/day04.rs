@@ -67,11 +67,11 @@ fn part1(input: &Input) -> Result<MulSubmission<u32>> {
     let mut seen_digits = AHashSet::with_capacity(input.numbers.len());
     for &num in &input.numbers {
         seen_digits.insert(num);
+
         let board = match input
             .bingo_boards
             .iter()
-            .filter(|board| is_bingo(board, &seen_digits))
-            .next()
+            .find(|board| is_bingo(board, &seen_digits))
         {
             Some(x) => x,
             None => continue,
@@ -87,11 +87,9 @@ fn part2(input: &Input) -> Result<MulSubmission<u32>> {
     let mut remaining_boards = input.bingo_boards.clone();
     for &num in &input.numbers {
         seen_digits.insert(num);
-        if remaining_boards.len() == 1 {
-            if is_bingo(&remaining_boards[0], &seen_digits) {
-                let unmarked_sum = get_unmarked_sum(&remaining_boards[0], &seen_digits);
-                return Ok(MulSubmission(unmarked_sum, num));
-            }
+        if remaining_boards.len() == 1 && is_bingo(&remaining_boards[0], &seen_digits) {
+            let unmarked_sum = get_unmarked_sum(&remaining_boards[0], &seen_digits);
+            return Ok(MulSubmission(unmarked_sum, num));
         }
         remaining_boards.retain(|board| !is_bingo(board, &seen_digits));
     }
@@ -99,7 +97,7 @@ fn part2(input: &Input) -> Result<MulSubmission<u32>> {
 }
 
 tests! {
-    const EXAMPLE: &'static str = "\
+    const EXAMPLE: &str = "\
 7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
 
 22 13 17 11  0

@@ -35,7 +35,7 @@ fn part2(input: &[u32]) -> u32 {
 }
 
 tests! {
-    const EXAMPLE: &'static str = "\
+    const EXAMPLE: &str = "\
 199
 200
 208

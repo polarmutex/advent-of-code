@@ -7,10 +7,9 @@ type DiagnosticsRef = [u32];
 
 fn input_parser() -> impl Parser<char, Vec<u32>, Error = Simple<char>> {
     let bits = just('0').or(just('1')).repeated().at_least(1);
-    let bit_based_number = bits.collect::<String>().map(|s: String| {
-        let num_from_bits = u32::from_str_radix(&s, 2).unwrap();
-        num_from_bits
-    });
+    let bit_based_number = bits
+        .collect::<String>()
+        .map(|s: String| u32::from_str_radix(&s, 2).unwrap());
     bit_based_number.separated_by(c::text::newline())
 }
 
@@ -22,8 +21,9 @@ fn part1<const BITS: usize>(input: &DiagnosticsRef) -> MulSubmission<u32> {
     let mut bit_counts = [0; BITS];
 
     for &diag in input {
-        for bit in 0..BITS {
-            bit_counts[bit] += (diag >> bit) & 1;
+        //for bit in 0..BITS {
+        for (bit, count) in bit_counts.iter_mut().enumerate().take(BITS) {
+            *count += (diag >> bit) & 1;
         }
     }
 
@@ -60,7 +60,7 @@ fn part2<const BITS: usize>(input: &DiagnosticsRef) -> MulSubmission<u32> {
 }
 
 fn part2_compute_rating<const BITS: usize>(rating: Rating, input: &DiagnosticsRef) -> u32 {
-    let mut temp = input.clone().to_vec();
+    let mut temp = input.to_vec();
     // reverse because we code them into ints
     for bit in (0..BITS).rev() {
         let mut ones = 0;
@@ -97,7 +97,7 @@ fn part2_compute_rating<const BITS: usize>(rating: Rating, input: &DiagnosticsRe
 }
 
 tests! {
-    const EXAMPLE: &'static str = "\
+    const EXAMPLE: &str = "\
 00100
 11110
 10110

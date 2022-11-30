@@ -59,7 +59,7 @@ fn part2(input: &[Instruction]) -> MulSubmission<u32> {
 }
 
 tests! {
-    const EXAMPLE: &'static str = "\
+    const EXAMPLE: &str = "\
 forward 5
 down 5
 forward 8

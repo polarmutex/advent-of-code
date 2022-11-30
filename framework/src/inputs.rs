@@ -53,7 +53,7 @@ impl Inputs {
         };
         self.last_download_time = Some(now);
         let response = ureq::get(&format!("https://adventofcode.com/{year}/day/{day}/input"))
-            .set("cookie", &cookie.trim())
+            .set("cookie", cookie.trim())
             .timeout(Duration::from_secs(5))
             .call()
             .map_err(Box::new)?;
