@@ -2,9 +2,16 @@ use crate::parser::ParseResult;
 use crate::submission::MulSubmission;
 use crate::submission::{FinalResult, ToFinalResult};
 use anyhow::Result;
+use clap::ValueEnum;
 use std::borrow::Borrow;
 use std::marker::PhantomData;
 use std::time::{Duration, Instant};
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum Part {
+    Part1,
+    Part2,
+}
 
 #[macro_export]
 macro_rules! day {
