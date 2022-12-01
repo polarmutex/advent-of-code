@@ -57,6 +57,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc2022"
+version = "1.0.0"
+dependencies = [
+ "ahash 0.8.2",
+ "anyhow",
+ "chumsky",
+ "clap 4.0.29",
+ "colored",
+ "criterion",
+ "criterion-macro",
+ "framework",
+ "itertools",
+]
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
