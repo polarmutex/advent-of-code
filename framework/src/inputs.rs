@@ -20,8 +20,6 @@ impl Inputs {
     pub fn get(&mut self, year: u32, day: u32) -> Result<String> {
         let path = format!("data/{year}/{day:0>2}.txt");
         let path = Path::new(&path);
-        println!("{}", path.display());
-        println!("{}", std::env::current_dir()?.display());
         if let Ok(input) = std::fs::read_to_string(path) {
             //input.retain(|c| *c != b'\r');
             return Ok(input);

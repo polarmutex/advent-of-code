@@ -4,12 +4,13 @@ use colored::Colorize;
 use std::ops::Mul;
 
 pub struct FinalResult {
-    pub final_answer: String,
+    pub answer: String,
+    pub display: String,
 }
 
 impl Display for FinalResult {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.final_answer.bright_green())
+        write!(f, "{}", self.display.bright_green())
     }
 }
 
@@ -17,46 +18,63 @@ pub trait ToFinalResult {
     fn to_final_answer(self) -> Result<FinalResult, anyhow::Error>;
 }
 
+/*
+  u32
+*/
 impl ToFinalResult for u32 {
     fn to_final_answer(self) -> Result<FinalResult, anyhow::Error> {
         Ok(FinalResult {
-            final_answer: self.to_string(),
+            answer: self.to_string(),
+            display: format!("{}", self.to_string().bold().bright_white()),
         })
     }
 }
 
+/*
+  MulSubmission
+*/
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MulSubmission<T: Clone + Display + Mul<Output = T>>(pub T, pub T);
 
+// ToFinalResult for MulSubmission
 impl<T: Clone + Display + Mul<Output = T>> ToFinalResult for MulSubmission<T> {
     fn to_final_answer(self) -> Result<FinalResult, anyhow::Error> {
         let result = self.0.clone().mul(self.1.clone());
-        let result = result.to_string().bold().white();
-        let op = "*".bright_yellow();
+        let answer = result.to_string();
+        let display = result.to_string().bold().bright_white();
+        let op = "x".bright_yellow();
         let eq = "=".bright_yellow();
         Ok(FinalResult {
-            final_answer: format!("{} {} {} {} {}", self.0, op, self.1, eq, result),
+            answer,
+            display: format!("{} {} {} {} {}", self.0, op, self.1, eq, display),
         })
     }
 }
 
+// ToFinalResult fro Result<MulSubmission>
 impl<T: Clone + Display + Mul<Output = T>> ToFinalResult for Result<MulSubmission<T>> {
     fn to_final_answer(self) -> Result<FinalResult, anyhow::Error> {
         let sub = self.unwrap();
         let result = sub.0.clone().mul(sub.1.clone());
-        let result = result.to_string().bold().white();
-        let op = "*".bright_yellow();
+        let answer = result.to_string();
+        let display = result.to_string().bold().bright_white();
+        let op = "x".bright_yellow();
         let eq = "=".bright_yellow();
         Ok(FinalResult {
-            final_answer: format!("{} {} {} {} {}", sub.0, op, sub.1, eq, result),
+            answer,
+            display: format!("{} {} {} {} {}", sub.0, op, sub.1, eq, display),
         })
     }
 }
 
+// Display for MulSubmission
 impl<T: Clone + Display + Mul<Output = T>> Display for MulSubmission<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let result = self.0.clone().mul(self.1.clone());
+        let result = result.to_string().bold().white();
+        let op = "x".bright_yellow();
+        let eq = "=".bright_yellow();
         //write!(f, "{} {} {} = {}", self.0, "x", self.1, result)
-        write!(f, "{} x {} = {}", self.0, self.1, result)
+        write!(f, "{} {} {} {} {}", self.0, op, self.1, eq, result)
     }
 }
