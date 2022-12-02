@@ -16,18 +16,16 @@ struct Elf {
 
 fn parse(input: &str) -> ParseResult<Vec<Elf>> {
     //Ok(input_parser().parse(input).unwrap())
-    let elf_groups: Vec<&str> = input.split("\n\n").collect();
-    let mut elfs: Vec<Elf> = vec![];
-    for elf in elf_groups {
-        let elf_temp: Vec<&str> = elf.split('\n').collect();
-        let mut elf_food: Vec<u32> = vec![];
-        for i in elf_temp {
-            if !i.is_empty() {
-                elf_food.push(i.parse().unwrap());
-            }
-        }
-        elfs.push(Elf { food: elf_food });
-    }
+    let elfs: Vec<Elf> = input
+        .split("\n\n")
+        .map(|a| Elf {
+            food: a
+                .split('\n')
+                .map(|f| f.parse::<u32>().unwrap_or(0))
+                .collect(),
+        })
+        .collect();
+
     Ok(elfs)
 }
 
