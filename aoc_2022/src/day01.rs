@@ -7,11 +7,11 @@ struct Elf {
     food: Vec<u32>,
 }
 
-//fn input_parser() -> impl Parser<char, Vec<Elf>, Error = Simple<char>> {
-//    (c::text::int(10)
+//fn input_parser() -> impl Parser<char, Vec<Vec<u32>>, Error = Simple<char>> {
+//    let elf_line = c::text::int(10)
 //        .map(|s: String| s.parse().unwrap())
-//        .separated_by(c::text::newline())).map(|)
-//    .repeated()
+//        .separated_by(c::text::newline());
+//    (c::text::int(10)).separated_by(just("\n\n"))
 //}
 
 fn parse(input: &str) -> ParseResult<Vec<Elf>> {
