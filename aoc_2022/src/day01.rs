@@ -76,7 +76,7 @@ tests! {
 10000";
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 24000);
-    input_tests!(2022, 1, parse, part1, part1_input_test, 68802);
+    input_tests!(YEAR, parse, part1, part1_input_test, 68802);
     simple_tests!(parse, part2, part2_example_test, EXAMPLE => 45000); // 24000 + 11000 + 45000
-    input_tests!(2022, 1, parse, part2, part2_input_test, 205370);
+    input_tests!(YEAR, parse, part2, part2_input_test, 205370);
 }

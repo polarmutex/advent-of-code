@@ -89,11 +89,11 @@ macro_rules! simple_tests {
 
 #[macro_export]
 macro_rules! input_tests {
-    ($year:literal, $day:literal, $parse:expr, $pt:expr, $pt_name:ident, $expected:expr) => {
+    ($year:ident, $parse:expr, $pt:expr, $pt_name:ident, $expected:expr) => {
         #[test]
         fn $pt_name() -> ::anyhow::Result<()> {
             let year = $year;
-            let day = $day;
+            let day = day().nr();
             let path = format!("../data/{year}/{day:0>2}.txt");
             let path = std::path::Path::new(&path);
             let input = match std::fs::read_to_string(path) {

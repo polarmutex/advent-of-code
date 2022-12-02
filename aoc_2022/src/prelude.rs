@@ -1,3 +1,4 @@
+pub use crate::YEAR;
 pub use anyhow::anyhow;
 pub use framework::day;
 pub use framework::prelude::*;

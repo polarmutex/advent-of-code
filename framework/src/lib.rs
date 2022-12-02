@@ -50,6 +50,8 @@ macro_rules! main {
             part: Part,
         }
 
+        pub const YEAR:u32 = $year;
+
         pub fn main() {
             let cli = Cli::parse();
             match &cli.command {
