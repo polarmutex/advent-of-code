@@ -95,7 +95,6 @@ macro_rules! input_tests {
             let year = $year;
             let day = day().nr();
             let path = format!("../data/{year}/{day:0>2}.txt");
-            let path = std::path::Path::new(&path);
             let input = match std::fs::read_to_string(path) {
                 Ok(mut input) => input,
                 Err(e) => {

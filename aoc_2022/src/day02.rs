@@ -132,9 +132,10 @@ A Y
 B X
 C Z
 ";
+    const INPUT: &str = include_str!("../../data/2022/02.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 15); // 8 + 1 + 6
-    input_tests!(YEAR, parse, part1, part1_input_test, 11873);
+    simple_tests!(parse, part1, part1_input_test, INPUT => 11873);
     simple_tests!(parse, part2, part2_example_test, EXAMPLE => 12);
-    input_tests!(YEAR, parse, part2, part2_input_test, 12014);
+    simple_tests!(parse, part2, part2_input_test, INPUT => 12014);
 }

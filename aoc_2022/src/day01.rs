@@ -63,9 +63,10 @@ tests! {
 9000
 
 10000";
+    const INPUT: &str = include_str!("../../data/2022/01.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 24000);
-    input_tests!(YEAR, parse, part1, part1_input_test, 68802);
+    simple_tests!(parse, part1, part1_input_test, INPUT => 68802);
     simple_tests!(parse, part2, part2_example_test, EXAMPLE => 45000); // 24000 + 11000 + 45000
-    input_tests!(YEAR, parse, part2, part2_input_test, 205370);
+    simple_tests!(parse, part2, part2_input_test, INPUT => 205370);
 }
