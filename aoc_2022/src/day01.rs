@@ -30,30 +30,21 @@ fn parse(input: &str) -> ParseResult<Vec<Elf>> {
 }
 
 fn part1(input: &[Elf]) -> u32 {
-    let mut largest = 0;
-    for elf in input {
-        let mut sum = 0;
-        for &food in &elf.food {
-            sum += food
-        }
-        if sum > largest {
-            largest = sum
-        }
-    }
-    largest
+    input
+        .iter()
+        .map(|elf| elf.food.iter().sum::<u32>())
+        .max()
+        .unwrap()
 }
 
 fn part2(input: &[Elf]) -> u32 {
-    let mut sums: Vec<u32> = vec![];
-    for elf in input {
-        let mut sum = 0;
-        for &food in &elf.food {
-            sum += food;
-        }
-        sums.push(sum);
-    }
-    sums.sort();
-    sums.pop().unwrap() + sums.pop().unwrap() + sums.pop().unwrap()
+    input
+        .iter()
+        .map(|elf| elf.food.iter().sum::<u32>())
+        .sorted()
+        .rev()
+        .take(3)
+        .sum()
 }
 
 tests! {
