@@ -60,6 +60,7 @@ dependencies = [
 name = "aoc2022"
 version = "1.0.0"
 dependencies = [
+ "ahash 0.8.2",
  "anyhow",
  "clap 4.0.29",
  "criterion",

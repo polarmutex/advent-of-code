@@ -4,6 +4,7 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
+ahash = "0.8"
 anyhow = "1"
 clap = { version = "4", features = ["color", "derive"]}
 framework = { path = "../framework" }
