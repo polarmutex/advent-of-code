@@ -9,7 +9,6 @@ anyhow = "1"
 clap = { version = "4", features = ["color", "derive"]}
 framework = { path = "../framework" }
 itertools = "0.10"
-nom = "7"
 
 [dev-dependencies]
 criterion = "0.4"

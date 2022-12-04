@@ -3,48 +3,75 @@ use crate::prelude::*;
 day!(4, parse => part1, part2);
 
 #[derive(Debug, Clone, Copy)]
+struct ElfTask {
+    start: u32,
+    end: u32,
+}
+
+impl FromStr for ElfTask {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let (start, end) = s.split_once('-').expect("invalid input for elftask");
+        let task: ElfTask = ElfTask {
+            start: start.parse()?,
+            end: end.parse()?,
+        };
+        Ok(task)
+    }
+}
+
+impl ElfTask {
+    pub fn fully_contains(&self, other: &ElfTask) -> bool {
+        self.start <= other.start && self.end >= other.end
+    }
+
+    pub fn overlaps(&self, other: &ElfTask) -> bool {
+        (self.start <= other.end) && (other.start <= self.end)
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
 struct ElfCleanupPair {
-    first: (u32, u32),
-    second: (u32, u32),
+    left: ElfTask,
+    right: ElfTask,
+}
+
+impl FromStr for ElfCleanupPair {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let (left, right) = s.split_once(',').expect("invalid elf cleanup pairs");
+        let pair: ElfCleanupPair = ElfCleanupPair {
+            left: left.parse()?,
+            right: right.parse()?,
+        };
+        Ok(pair)
+    }
+}
+
+impl ElfCleanupPair {
+    pub fn fully_contains(&self) -> bool {
+        self.left.fully_contains(&self.right) || self.right.fully_contains(&self.left)
+    }
+    pub fn overlaps(&self) -> bool {
+        self.left.overlaps(&self.right) || self.right.overlaps(&self.left)
+    }
 }
 
 fn parse(input: &str) -> ParseResult<Vec<ElfCleanupPair>> {
-    Ok(input
-        .trim()
-        .split('\n')
-        .map(|line| {
-            let elf_vec = line.split_once(',').unwrap();
-            ElfCleanupPair {
-                first: elf_vec
-                    .0
-                    .split_once('-')
-                    .map(|a| (a.0.parse::<u32>().unwrap(), a.1.parse::<u32>().unwrap()))
-                    .unwrap(),
-                second: elf_vec
-                    .1
-                    .split_once('-')
-                    .map(|a| (a.0.parse::<u32>().unwrap(), a.1.parse::<u32>().unwrap()))
-                    .unwrap(),
-            }
-        })
-        .collect())
+    input
+        .lines()
+        .map(|line| line.parse::<ElfCleanupPair>())
+        .collect()
 }
 
 fn part1(input: &[ElfCleanupPair]) -> usize {
-    input
-        .iter()
-        .filter(|pair| {
-            ((pair.first.0 >= pair.second.0) && (pair.first.1 <= pair.second.1))
-                || ((pair.second.0 >= pair.first.0) && (pair.second.1 <= pair.first.1))
-        })
-        .count()
+    input.iter().filter(|pair| pair.fully_contains()).count()
 }
 
 fn part2(input: &[ElfCleanupPair]) -> usize {
-    input
-        .iter()
-        .filter(|pair| (pair.first.0 <= pair.second.1) && (pair.second.0 <= pair.first.1))
-        .count()
+    input.iter().filter(|pair| pair.overlaps()).count()
 }
 
 tests! {
