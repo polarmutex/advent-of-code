@@ -30,32 +30,21 @@ fn parse(input: &str) -> ParseResult<Vec<ElfCleanupPair>> {
         .collect())
 }
 
-fn part1(input: &[ElfCleanupPair]) -> u32 {
+fn part1(input: &[ElfCleanupPair]) -> usize {
     input
         .iter()
-        .map(|pair| {
-            if ((pair.first.0 >= pair.second.0) && (pair.first.1 <= pair.second.1))
+        .filter(|pair| {
+            ((pair.first.0 >= pair.second.0) && (pair.first.1 <= pair.second.1))
                 || ((pair.second.0 >= pair.first.0) && (pair.second.1 <= pair.first.1))
-            {
-                1
-            } else {
-                0
-            }
         })
-        .sum()
+        .count()
 }
 
-fn part2(input: &[ElfCleanupPair]) -> u32 {
+fn part2(input: &[ElfCleanupPair]) -> usize {
     input
         .iter()
-        .map(|pair| {
-            if (pair.first.0 <= pair.second.1) && (pair.second.0 <= pair.first.1) {
-                1
-            } else {
-                0
-            }
-        })
-        .sum()
+        .filter(|pair| (pair.first.0 <= pair.second.1) && (pair.second.0 <= pair.first.1))
+        .count()
 }
 
 tests! {

@@ -31,6 +31,18 @@ impl ToFinalResult for u32 {
 }
 
 /*
+  usize
+*/
+impl ToFinalResult for usize {
+    fn to_final_answer(self) -> Result<FinalResult, anyhow::Error> {
+        Ok(FinalResult {
+            answer: self.to_string(),
+            display: format!("{}", self.to_string().bold().bright_white()),
+        })
+    }
+}
+
+/*
   MulSubmission
 */
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
