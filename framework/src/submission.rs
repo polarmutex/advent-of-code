@@ -43,6 +43,18 @@ impl ToFinalResult for usize {
 }
 
 /*
+  String
+*/
+impl ToFinalResult for String {
+    fn to_final_answer(self) -> Result<FinalResult, anyhow::Error> {
+        Ok(FinalResult {
+            answer: self.to_string(),
+            display: format!("{}", self.bold().bright_white()),
+        })
+    }
+}
+
+/*
   MulSubmission
 */
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

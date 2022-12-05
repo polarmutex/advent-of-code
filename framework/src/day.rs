@@ -62,6 +62,13 @@ impl ToResult for usize {
     }
 }
 
+impl ToResult for String {
+    type Output = String;
+    fn to_result(self) -> Result<String, anyhow::Error> {
+        Ok(self)
+    }
+}
+
 impl ToResult for MulSubmission<u32> {
     type Output = MulSubmission<u32>;
     fn to_result(self) -> Result<MulSubmission<u32>, anyhow::Error> {
