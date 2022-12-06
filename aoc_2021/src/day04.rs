@@ -12,6 +12,29 @@ struct Input {
     bingo_boards: Vec<BingoBoard>,
 }
 
+impl std::str::FromStr for Input {
+    type Err = anyhow::Error;
+    fn from_str(input: &str) -> Result<Input, Self::Err> {
+        let sections: Vec<&str> = input.split("\n\n").collect();
+
+        for section in sections[1..].iter() {
+            assert!(section.split('\n').collect_vec().len() == 5)
+        }
+
+        let numbers: Vec<u32> = sections[0]
+            .split(',')
+            .map(|num| num.parse::<u32>().expect(""))
+            .collect();
+        let bingo_boards: Vec<BingoBoard> =
+            sections[1..].iter().map(|board| vec![vec![]]).collect();
+        let out = Input {
+            numbers,
+            bingo_boards,
+        };
+        Ok(out)
+    }
+}
+
 fn input_parser() -> impl Parser<char, (Numbers, Vec<BingoBoard>), Error = Simple<char>> {
     let number = c::text::int(10).map(|s: String| s.parse().unwrap());
     let called_numbers = number.separated_by(just(','));

@@ -5,16 +5,13 @@ day!(3, parse => part1::<12>, part2::<12>);
 type Diagnostics = Vec<u32>;
 type DiagnosticsRef = [u32];
 
-fn input_parser() -> impl Parser<char, Vec<u32>, Error = Simple<char>> {
-    let bits = just('0').or(just('1')).repeated().at_least(1);
-    let bit_based_number = bits
-        .collect::<String>()
-        .map(|s: String| u32::from_str_radix(&s, 2).unwrap());
-    bit_based_number.separated_by(c::text::newline())
-}
-
 fn parse(input: &str) -> ParseResult<Diagnostics> {
-    Ok(input_parser().parse(input).unwrap())
+    let lines: Vec<&str> = input.lines().collect();
+    let diags: Diagnostics = lines
+        .iter()
+        .map(|line| u32::from_str_radix(line, 2).expect(""))
+        .collect();
+    Ok(diags)
 }
 
 fn part1<const BITS: usize>(input: &DiagnosticsRef) -> MulSubmission<u32> {

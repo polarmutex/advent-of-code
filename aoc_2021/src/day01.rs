@@ -2,14 +2,12 @@ use crate::prelude::*;
 
 day!(1, parse => part1, part2);
 
-fn input_parser() -> impl Parser<char, Vec<u32>, Error = Simple<char>> {
-    c::text::int(10)
-        .map(|s: String| s.parse().unwrap())
-        .separated_by(c::text::newline())
-}
-
 fn parse(input: &str) -> ParseResult<Vec<u32>> {
-    Ok(input_parser().parse(input).unwrap())
+    let nums: Vec<u32> = input
+        .lines()
+        .map(|line| line.parse::<u32>().unwrap())
+        .collect();
+    Ok(nums)
 }
 
 fn part1(input: &[u32]) -> u32 {

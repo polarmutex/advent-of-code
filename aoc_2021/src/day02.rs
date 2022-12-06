@@ -9,23 +9,27 @@ pub enum Instruction {
     Up(u32),
 }
 
-fn input_parser() -> impl Parser<char, Vec<Instruction>, Error = Simple<char>> {
-    let number = c::text::int(10).map(|s: String| s.parse().unwrap());
-    let instruction =
-        c::text::ident()
-            .then_ignore(just(' '))
-            .then(number)
-            .map(|(direction, count)| match direction.as_str() {
-                "forward" => Instruction::Forward(count),
-                "down" => Instruction::Down(count),
-                "up" => Instruction::Up(count),
-                _ => unreachable!(),
-            });
-    instruction.separated_by(c::text::newline())
+impl std::str::FromStr for Instruction {
+    type Err = anyhow::Error;
+    fn from_str(input: &str) -> Result<Instruction, Self::Err> {
+        let (instr, num) = input.split_once(' ').expect("instruction to be found");
+        let num = num.parse::<u32>().expect("number to be found");
+        match instr {
+            "forward" => Ok(Instruction::Forward(num)),
+            "down" => Ok(Instruction::Down(num)),
+            "up" => Ok(Instruction::Up(num)),
+            _ => anyhow::bail!("Could not match instruction"),
+        }
+    }
 }
 
 fn parse(input: &str) -> ParseResult<Vec<Instruction>> {
-    Ok(input_parser().parse(input).unwrap())
+    let instructions: Vec<Instruction> = input
+        .lines()
+        .map(|line| line.parse::<Instruction>().expect("valid instructions"))
+        .collect();
+    Ok(instructions)
+    //Ok(input_parser().parse(input).unwrap())
 }
 
 fn part1(input: &[Instruction]) -> MulSubmission<u32> {
