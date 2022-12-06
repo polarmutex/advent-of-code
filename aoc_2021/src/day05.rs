@@ -69,9 +69,10 @@ tests! {
 3,4 -> 1,4
 0,0 -> 8,8
 5,5 -> 8,2";
+    const INPUT: &str = include_str!("../../data/2021/05.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 5);
-    input_tests!(2021, 5, parse, part1, part1_input_test, 7269);
+    simple_tests!(parse, part1, part1_input_test, INPUT => 7269);
     simple_tests!(parse, part2, part2_example_test, EXAMPLE => 12);
-    input_tests!(2021, 5, parse, part2, part2_input_test, 21140);
+    simple_tests!(parse, part2, part2_input_test, INPUT => 21140);
 }

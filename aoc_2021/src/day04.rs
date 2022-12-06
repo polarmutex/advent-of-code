@@ -117,10 +117,11 @@ tests! {
 18  8 23 26 20
 22 11 13  6  5
  2  0 12  3  7";
+    const INPUT: &str = include_str!("../../data/2021/04.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => MulSubmission(188,24));
-    input_tests!(2021, 4, parse, part1, part1_input_test, MulSubmission(782,60));
+    simple_tests!(parse, part1, part1_input_test, INPUT => MulSubmission(782,60));
     simple_tests!(parse, part2, part2_example_test, EXAMPLE => MulSubmission(148,13));
-    input_tests!(2021, 4, parse, part2, part2_input_test, MulSubmission(361, 35));
+    simple_tests!(parse, part2, part2_input_test, INPUT => MulSubmission(361, 35));
 
 }
