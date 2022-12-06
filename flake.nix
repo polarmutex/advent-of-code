@@ -116,7 +116,7 @@
               rustfmt
               pkg-config
               openssl.dev
-
+              nodePackages.prettier
             ];
           };
         });

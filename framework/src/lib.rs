@@ -103,7 +103,7 @@ pub fn run(year: u32, days: &[&dyn Day], specific_days: &[u32]) {
 
 fn exec_day(inputs: &mut Inputs, year: u32, day: &dyn Day) {
     let day_nr = day.nr();
-    print!(
+    println!(
         "{} {}",
         "Day".bright_blue(),
         format!("{day_nr:>2}").bright_red().bold()
