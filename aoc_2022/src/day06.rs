@@ -8,27 +8,23 @@ fn parse(input: &str) -> ParseResult<Vec<char>> {
     Ok(chars)
 }
 
-fn solve(input: &[char], window: u32) -> u32 {
-    let mut count = window;
-    for val in input.windows(window as usize) {
-        assert!(val.len() == window as usize);
-        let mut temp = AHashSet::new();
-        val.iter().for_each(|v| {
-            temp.insert(v);
-        });
-        if temp.len() == window as usize {
-            break;
-        }
-        count += 1;
-    }
-    count
+fn solve(input: &[char], window: usize) -> usize {
+    input
+        .iter()
+        .enumerate()
+        .collect::<Vec<_>>()
+        .windows(window as usize)
+        .find(|w| w.iter().map(|p| p.1).collect::<AHashSet<_>>().len() == window)
+        .unwrap()[0]
+        .0
+        + window
 }
 
-fn part1(input: &[char]) -> u32 {
+fn part1(input: &[char]) -> usize {
     solve(input, 4)
 }
 
-fn part2(input: &[char]) -> u32 {
+fn part2(input: &[char]) -> usize {
     solve(input, 14)
 }
 
