@@ -43,6 +43,18 @@ impl ToFinalResult for usize {
 }
 
 /*
+  u64
+*/
+impl ToFinalResult for u64 {
+    fn to_final_answer(self) -> Result<FinalResult, anyhow::Error> {
+        Ok(FinalResult {
+            answer: self.to_string(),
+            display: format!("{}", self.to_string().bold().bright_white()),
+        })
+    }
+}
+
+/*
   String
 */
 impl ToFinalResult for String {

@@ -55,6 +55,13 @@ impl ToResult for u32 {
     }
 }
 
+impl ToResult for u64 {
+    type Output = u64;
+    fn to_result(self) -> Result<u64, anyhow::Error> {
+        Ok(self)
+    }
+}
+
 impl ToResult for usize {
     type Output = usize;
     fn to_result(self) -> Result<usize, anyhow::Error> {
