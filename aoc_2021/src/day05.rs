@@ -11,7 +11,27 @@ fn input_parser() -> impl Parser<char, Vec<Line>, Error = Simple<char>> {
 }
 
 fn parse(input: &str) -> ParseResult<Vec<Line>> {
-    Ok(input_parser().parse(input).unwrap())
+    //Ok(input_parser().parse(input).unwrap())
+    let lines: Vec<Line> = input
+        .lines()
+        .map(|line| {
+            line.split_once(" -> ")
+                .map(|(from, to)| Line {
+                    from: from
+                        .split_once(',')
+                        .map(|(x, y)| (x.parse::<i32>().expect(""), y.parse::<i32>().expect("")))
+                        .map(Vec2::from_coords)
+                        .expect(""),
+                    to: to
+                        .split_once(',')
+                        .map(|(x, y)| (x.parse::<i32>().expect(""), y.parse::<i32>().expect("")))
+                        .map(Vec2::from_coords)
+                        .expect(""),
+                })
+                .expect("")
+        })
+        .collect();
+    Ok(lines)
 }
 
 fn count_overlap_pts<'i, I: Iterator<Item = &'i Line> + Clone + 'i>(lines: I) -> u32 {

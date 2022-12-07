@@ -3,7 +3,6 @@ use ahash::AHashSet;
 
 day!(4, parse => part1, part2);
 
-type Numbers = Vec<u32>;
 type BingoBoard = Vec<Vec<u32>>;
 
 #[derive(Debug, Clone)]
@@ -15,9 +14,10 @@ struct Input {
 impl std::str::FromStr for Input {
     type Err = anyhow::Error;
     fn from_str(input: &str) -> Result<Input, Self::Err> {
-        let sections: Vec<&str> = input.split("\n\n").collect();
+        let sections: Vec<&str> = input.trim().split("\n\n").collect();
 
         for section in sections[1..].iter() {
+            println!("{}\n\n", section);
             assert!(section.split('\n').collect_vec().len() == 5)
         }
 
@@ -25,8 +25,20 @@ impl std::str::FromStr for Input {
             .split(',')
             .map(|num| num.parse::<u32>().expect(""))
             .collect();
-        let bingo_boards: Vec<BingoBoard> =
-            sections[1..].iter().map(|board| vec![vec![]]).collect();
+        let bingo_boards: Vec<BingoBoard> = sections[1..]
+            .iter()
+            //.map(|board| let bingo_board = vec![vec![]]; {board.lines().enumerate().map(|(iy, row)| row.split_whitespace().enumerate(|(ix, val)| val ); val)
+            .map(|board| {
+                let mut bingo_board = vec![vec![0; 5]; 5];
+                board.lines().enumerate().for_each(|(iy, row)| {
+                    row.split_whitespace().enumerate().for_each(|(ix, val)| {
+                        bingo_board[ix][iy] =
+                            val.parse::<u32>().expect("bingo board contains numbers");
+                    })
+                });
+                bingo_board
+            })
+            .collect();
         let out = Input {
             numbers,
             bingo_boards,
@@ -35,33 +47,9 @@ impl std::str::FromStr for Input {
     }
 }
 
-fn input_parser() -> impl Parser<char, (Numbers, Vec<BingoBoard>), Error = Simple<char>> {
-    let number = c::text::int(10).map(|s: String| s.parse().unwrap());
-    let called_numbers = number.separated_by(just(','));
-
-    let bingo_board_line = just(' ')
-        .ignore_then(number)
-        .or(number)
-        .separated_by(just(' '))
-        .exactly(5);
-
-    let bingo_board = (c::text::newline().ignore_then(bingo_board_line))
-        .repeated()
-        .exactly(5);
-
-    let bingo_boards = bingo_board.separated_by(c::text::newline());
-
-    called_numbers
-        .then_ignore(c::text::newline())
-        .then(bingo_boards)
-}
-
 fn parse(input: &str) -> ParseResult<Input> {
-    let (numbers, bingo_boards) = input_parser().parse(input).unwrap();
-    Ok(Input {
-        numbers,
-        bingo_boards,
-    })
+    let i: Input = input.parse::<Input>().expect("valid input");
+    Ok(i)
 }
 
 fn is_bingo(board: &BingoBoard, seen_digits: &AHashSet<u32>) -> bool {
