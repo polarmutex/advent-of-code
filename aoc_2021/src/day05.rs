@@ -2,14 +2,6 @@ use crate::prelude::*;
 
 day!(5, parse => part1, part2);
 
-fn input_parser() -> impl Parser<char, Vec<Line>, Error = Simple<char>> {
-    let number = c::text::int(10).map(|s: String| s.parse().unwrap());
-    let point = (number.then_ignore(just(',')).then(number)).map(Vec2::from_coords);
-    let arrow = (just(' ').then(just('-')).then(just('>')).then(just(' '))).ignored(); // TODO: replace with 'keyword'
-    let vent_line = (point.then_ignore(arrow).then(point)).map(Line::between_points);
-    vent_line.separated_by(c::text::newline())
-}
-
 fn parse(input: &str) -> ParseResult<Vec<Line>> {
     //Ok(input_parser().parse(input).unwrap())
     let lines: Vec<Line> = input
