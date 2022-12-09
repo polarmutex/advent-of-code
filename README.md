@@ -6,8 +6,8 @@
 
 ## 2022
 
-![Alt](https://img.shields.io/badge/stars%20⭐16--yellow)
-![Alt](https://img.shields.io/badge/days%20completed-8-red)
+![Alt](https://img.shields.io/badge/stars%20⭐18--yellow)
+![Alt](https://img.shields.io/badge/days%20completed-9-red)
 ![Alt](https://img.shields.io/badge/rust-blue)
 
 |                      Day                       |          Name           |     Stars     | Notes |
@@ -20,7 +20,7 @@
 |  [Day 6](https://adventofcode.com/2022/day/6)  |     Tuning Trouble      | :star: :star: |
 |  [Day 7](https://adventofcode.com/2022/day/7)  | No Space Left On Device | :star: :star: |
 |  [Day 8](https://adventofcode.com/2022/day/8)  |   Treetop Tree House    | :star: :star: |
-|  [Day 9](https://adventofcode.com/2022/day/9)  |                         |               |
+|  [Day 9](https://adventofcode.com/2022/day/9)  | Rope Bridge             | :star: :star: |
 | [Day 10](https://adventofcode.com/2022/day/10) |                         |               |
 | [Day 11](https://adventofcode.com/2022/day/11) |                         |               |
 | [Day 12](https://adventofcode.com/2022/day/12) |                         |               |
