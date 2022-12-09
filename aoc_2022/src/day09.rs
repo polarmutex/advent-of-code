@@ -89,7 +89,7 @@ fn part1(input: &[Motion]) -> u32 {
     let mut head: Vec2<i32> = Vec2 { x: 0, y: 0 };
     let mut tail: Vec2<i32> = Vec2 { x: 0, y: 0 };
     for motion in input {
-        for i in 0..motion.num {
+        for _ in 0..motion.num {
             // Move head
             head = move_head(head, &motion.direction);
             tail = move_knot(tail, head);
@@ -104,7 +104,7 @@ fn part2(input: &[Motion]) -> u32 {
     let mut head: Vec2<i32> = Vec2 { x: 0, y: 0 };
     let mut knots: Vec<Vec2<i32>> = vec![Vec2 { x: 0, y: 0 }; 9];
     for motion in input {
-        for i in 0..motion.num {
+        for _ in 0..motion.num {
             // Move head
             head = move_head(head, &motion.direction);
             let mut prev_knot = head;

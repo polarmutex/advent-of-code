@@ -72,7 +72,7 @@ fn part1(input: &Input) -> usize {
     vis.len()
 }
 
-fn viewing_distance(height: u8, view: &Vec<u8>) -> usize {
+fn viewing_distance(height: u8, view: &[u8]) -> usize {
     let mut score = 0;
     for val in view.iter() {
         if *val < height {
@@ -104,7 +104,7 @@ fn part2(input: &Input) -> usize {
                 .map(|val| val[x])
                 .collect::<Vec<_>>();
             let left = map[y][0..x].iter().copied().rev().collect::<Vec<_>>();
-            let right = map[y][x + 1..x_len].iter().copied().collect::<Vec<_>>();
+            let right = map[y][x + 1..x_len].to_vec();
 
             let score = viewing_distance(map[y][x], &top)
                 * viewing_distance(map[y][x], &bottom)
