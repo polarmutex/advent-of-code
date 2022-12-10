@@ -6,8 +6,8 @@
 
 ## 2022
 
-![Alt](https://img.shields.io/badge/stars%20⭐18--yellow)
-![Alt](https://img.shields.io/badge/days%20completed-9-red)
+![Alt](https://img.shields.io/badge/stars%20⭐20--yellow)
+![Alt](https://img.shields.io/badge/days%20completed-10-red)
 ![Alt](https://img.shields.io/badge/rust-blue)
 
 |                      Day                       |          Name           |     Stars     | Notes |
@@ -21,7 +21,7 @@
 |  [Day 7](https://adventofcode.com/2022/day/7)  | No Space Left On Device | :star: :star: |       |
 |  [Day 8](https://adventofcode.com/2022/day/8)  |   Treetop Tree House    | :star: :star: |       |
 |  [Day 9](https://adventofcode.com/2022/day/9)  |       Rope Bridge       | :star: :star: |       |
-| [Day 10](https://adventofcode.com/2022/day/10) |                         |               |       |
+| [Day 10](https://adventofcode.com/2022/day/10) |    Cathode-Ray Tube     | :star: :star: |       |
 | [Day 11](https://adventofcode.com/2022/day/11) |                         |               |       |
 | [Day 12](https://adventofcode.com/2022/day/12) |                         |               |       |
 | [Day 13](https://adventofcode.com/2022/day/13) |                         |               |       |
@@ -273,6 +273,7 @@
 | [Day 25](https://adventofcode.com/2015/day/25) |              Let It Snow               |       | Grid           |
 
 ## Types
+
 [from](https://www.reddit.com/r/adventofcode/comments/z0vmy0/350_stars_a_categorization_and_megaguide/)
 
 ### Grammar (Grammar)
@@ -291,97 +292,116 @@
 - [compression](https://en.wikipedia.org/wiki/Lossless_data_compression)
 
 ### Math (Math)
- * [number theory](https://en.wikipedia.org/wiki/Number_theory)
- * [modular arithmetic](https://en.wikipedia.org/wiki/Modular_arithmetic)
- * [cryptography](https://en.wikipedia.org/wiki/Cryptography)
- * [combinatorics](https://en.wikipedia.org/wiki/Combinatorics)
- * [signal processing](https://en.wikipedia.org/wiki/Digital_signal_processing)
+
+- [number theory](https://en.wikipedia.org/wiki/Number_theory)
+- [modular arithmetic](https://en.wikipedia.org/wiki/Modular_arithmetic)
+- [cryptography](https://en.wikipedia.org/wiki/Cryptography)
+- [combinatorics](https://en.wikipedia.org/wiki/Combinatorics)
+- [signal processing](https://en.wikipedia.org/wiki/Digital_signal_processing)
 
 ### Spatial (Spatial)
-* [point registration](https://en.wikipedia.org/wiki/Point-set_registration)
-* [coordinate transforms](https://en.wikipedia.org/wiki/Transformation_matrix)
-* [computational geometry](https://en.wikipedia.org/wiki/Computational_geometry)
+
+- [point registration](https://en.wikipedia.org/wiki/Point-set_registration)
+- [coordinate transforms](https://en.wikipedia.org/wiki/Transformation_matrix)
+- [computational geometry](https://en.wikipedia.org/wiki/Computational_geometry)
 
 ### Image Processing (ImgProcess)
-* general [image processing](https://en.wikipedia.org/wiki/Digital_image_processing)
-* [convolutions](https://en.wikipedia.org/wiki/Kernel_(image_processing))
-* other sliding window operations (especially searching)
-* [distance transforms](https://en.wikipedia.org/wiki/Distance_transform)
+
+- general [image processing](https://en.wikipedia.org/wiki/Digital_image_processing)
+- [convolutions](<https://en.wikipedia.org/wiki/Kernel_(image_processing)>)
+- other sliding window operations (especially searching)
+- [distance transforms](https://en.wikipedia.org/wiki/Distance_transform)
 
 ### Cellular Automata (CellAuto)
-* [cellular automata](https://en.wikipedia.org/wiki/Cellular_automaton)
+
+- [cellular automata](https://en.wikipedia.org/wiki/Cellular_automaton)
 
 ### Grids (Grid)
-* grids as inputs, walks on grids
-* square grids, [hex grids](https://www.redblobgames.com/grids/hexagons/), multi-dimensional grids
-* [strided array access](https://en.wikipedia.org/wiki/Row-_and_column-major_order)
+
+- grids as inputs, walks on grids
+- square grids, [hex grids](https://www.redblobgames.com/grids/hexagons/), multi-dimensional grids
+- [strided array access](https://en.wikipedia.org/wiki/Row-_and_column-major_order)
 
 ### Graphs (Graph)
-* [undirected and directed graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics))
-* [trees](https://en.wikipedia.org/wiki/Tree_(graph_theory))
-* [graph traversal](https://en.wikipedia.org/wiki/Graph_traversal)
-* [topological sorting](https://en.wikipedia.org/wiki/Topological_sorting)
+
+- [undirected and directed graphs](<https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)>)
+- [trees](<https://en.wikipedia.org/wiki/Tree_(graph_theory)>)
+- [graph traversal](https://en.wikipedia.org/wiki/Graph_traversal)
+- [topological sorting](https://en.wikipedia.org/wiki/Topological_sorting)
 
 ### Pathfinding (PathFind)
-* simple pathfinding to find the shortest path through a static grid or undirected graph with unconditional edges.
-* See the breadth-first search category for problems where the search space is dynamic or unbounded, or where the edges are conditional.
+
+- simple pathfinding to find the shortest path through a static grid or undirected graph with unconditional edges.
+- See the breadth-first search category for problems where the search space is dynamic or unbounded, or where the edges are conditional.
 
 ### Breadth-first Search (BFS)
-* [breadth first search](https://en.wikipedia.org/wiki/Breadth-first_search)
-* [dijkstra's](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)
-* [A\*](https://en.wikipedia.org/wiki/A*_search_algorithm) when the search space is more complicated than a static graph or grid
-* finding [connected components](https://en.wikipedia.org/wiki/Connected_component_(graph_theory))
-* simple [image segmentation](https://en.wikipedia.org/wiki/Region-growing)
+
+- [breadth first search](https://en.wikipedia.org/wiki/Breadth-first_search)
+- [dijkstra's](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)
+- [A\*](https://en.wikipedia.org/wiki/A*_search_algorithm) when the search space is more complicated than a static graph or grid
+- finding [connected components](<https://en.wikipedia.org/wiki/Connected_component_(graph_theory)>)
+- simple [image segmentation](https://en.wikipedia.org/wiki/Region-growing)
 
 ### Depth-first Search (DFS)
-* [depth first search](https://en.wikipedia.org/wiki/Depth-first_search)
-* any other kind of [recursive](https://en.wikipedia.org/wiki/Recursion_(computer_science)) search.
+
+- [depth first search](https://en.wikipedia.org/wiki/Depth-first_search)
+- any other kind of [recursive](<https://en.wikipedia.org/wiki/Recursion_(computer_science)>) search.
 
 ### Dynamic Programming (DynProg)
-* [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming)
+
+- [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming)
 
 ### Memoization (Memoization)
-* problems that could use some form of [memoization](https://en.wikipedia.org/wiki/Memoization)
-* recording or tracking a state
-* [preprocessing](https://en.wikipedia.org/wiki/Data_pre-processing) or [caching](https://en.wikipedia.org/wiki/Cache_(computing)) to avoid duplicate work
-* [cycle finding](https://en.wikipedia.org/wiki/Cycle_detection)
+
+- problems that could use some form of [memoization](https://en.wikipedia.org/wiki/Memoization)
+- recording or tracking a state
+- [preprocessing](https://en.wikipedia.org/wiki/Data_pre-processing) or [caching](<https://en.wikipedia.org/wiki/Cache_(computing)>) to avoid duplicate work
+- [cycle finding](https://en.wikipedia.org/wiki/Cycle_detection)
 
 ### Optimization (Optimize)
-* [Optimization problems](https://en.wikipedia.org/wiki/Optimization_problem)
-* minimizing or maximimizing a value
-* [linear programming](https://en.wikipedia.org/wiki/Linear_programming)
-* If a problem mentions the keywords fewest, least, most, lowest, highest, minimum, maximum, smallest, closest, or largest, then it probably goes here.
+
+- [Optimization problems](https://en.wikipedia.org/wiki/Optimization_problem)
+- minimizing or maximimizing a value
+- [linear programming](https://en.wikipedia.org/wiki/Linear_programming)
+- If a problem mentions the keywords fewest, least, most, lowest, highest, minimum, maximum, smallest, closest, or largest, then it probably goes here.
 
 ### Logic (Logic)
-* [logic puzzles](https://en.wikipedia.org/wiki/Logic_puzzle)
-* [logic programming](https://en.wikipedia.org/wiki/Logic_programming)
-* [constraint satisfaction](https://en.wikipedia.org/wiki/Constraint_satisfaction_problem)
-* [planning](https://en.wikipedia.org/wiki/Automated_planning_and_scheduling)
+
+- [logic puzzles](https://en.wikipedia.org/wiki/Logic_puzzle)
+- [logic programming](https://en.wikipedia.org/wiki/Logic_programming)
+- [constraint satisfaction](https://en.wikipedia.org/wiki/Constraint_satisfaction_problem)
+- [planning](https://en.wikipedia.org/wiki/Automated_planning_and_scheduling)
 
 ### Bitwise Arithmetic (Bitwise)
-* [bitwise arithmetic](https://en.wikipedia.org/wiki/Bitwise_operation)
-* [bit twiddling](https://graphics.stanford.edu/~seander/bithacks.html)
-* [binary numbers](https://en.wikipedia.org/wiki/Binary_number)
-* [boolean logic](https://en.wikipedia.org/wiki/Boolean_algebra)
+
+- [bitwise arithmetic](https://en.wikipedia.org/wiki/Bitwise_operation)
+- [bit twiddling](https://graphics.stanford.edu/~seander/bithacks.html)
+- [binary numbers](https://en.wikipedia.org/wiki/Binary_number)
+- [boolean logic](https://en.wikipedia.org/wiki/Boolean_algebra)
 
 ### Virtual Machines (VirtualMach)
-* [abstract](https://en.wikipedia.org/wiki/Abstract_machine)
-* [virtual machines](https://en.wikipedia.org/wiki/Virtual_machine#Process_virtual_machines)
-* [assembly language](https://en.wikipedia.org/wiki/Assembly_language)
-* [interpretation](https://en.wikipedia.org/wiki/Interpreter_(computing))
+
+- [abstract](https://en.wikipedia.org/wiki/Abstract_machine)
+- [virtual machines](https://en.wikipedia.org/wiki/Virtual_machine#Process_virtual_machines)
+- [assembly language](https://en.wikipedia.org/wiki/Assembly_language)
+- [interpretation](<https://en.wikipedia.org/wiki/Interpreter_(computing)>)
 
 ### Reverse Engineering (RevEng)
-* [reverse engineering](https://en.wikipedia.org/wiki/Reverse_engineering) a listing of some kind
-* possibly [patching](https://en.wikipedia.org/wiki/Patch_(computing))
+
+- [reverse engineering](https://en.wikipedia.org/wiki/Reverse_engineering) a listing of some kind
+- possibly [patching](<https://en.wikipedia.org/wiki/Patch_(computing)>)
 
 ### Simulation (Sim)
-* This category involves simulations, various games, and problems where the main task is simply to implement a fiddly specification of some kind of process and find the outcome of it.
+
+- This category involves simulations, various games, and problems where the main task is simply to implement a fiddly specification of some kind of process and find the outcome of it.
 
 ### Input (Input)
-* This category is for problems that may involve non-trivial parsing of the input, irregular lines of input, or where the input is simply less structured than usual.
+
+- This category is for problems that may involve non-trivial parsing of the input, irregular lines of input, or where the input is simply less structured than usual.
 
 ### Scaling (Scaling)
-* Part Two scales up a variation of a problem from Part One n such as a way as to generally rule out brute-force or an obvious way of implementing it and so require a more clever solution.
+
+- Part Two scales up a variation of a problem from Part One n such as a way as to generally rule out brute-force or an obvious way of implementing it and so require a more clever solution.
 
 ## Resources
 
