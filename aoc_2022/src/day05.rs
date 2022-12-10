@@ -138,7 +138,7 @@ move 3 from 1 to 3
 move 2 from 2 to 1
 move 1 from 1 to 2
 ";
-    const INPUT: &str = include_str!("../../data/2022/05.txt");
+    const INPUT: &str = include_str!("data/05.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => "CMZ");
     simple_tests!(parse, part1, part1_input_test, INPUT => "QNNTGTPFN");

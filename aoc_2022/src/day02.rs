@@ -132,7 +132,7 @@ A Y
 B X
 C Z
 ";
-    const INPUT: &str = include_str!("../../data/2022/02.txt");
+    const INPUT: &str = include_str!("data/02.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 15); // 8 + 1 + 6
     simple_tests!(parse, part1, part1_input_test, INPUT => 11873);

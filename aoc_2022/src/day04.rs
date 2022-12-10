@@ -83,7 +83,7 @@ tests! {
 6-6,4-6
 2-6,4-8
 ";
-    const INPUT: &str = include_str!("../../data/2022/04.txt");
+    const INPUT: &str = include_str!("data/04.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 2);
     simple_tests!(parse, part1, part1_input_test, INPUT => 573);

@@ -17,7 +17,7 @@ fn part2(_input: &[u8]) -> u32 {
 tests! {
     const _EXAMPLE: &str = "\
 ";
-    //const INPUT: &str = include_str!("../../data/2022/16.txt");
+    //const INPUT: &str = include_str!("data/16.txt");
 
     //simple_tests!(parse, part1, part1_example_test, EXAMPLE => 0);
     //simple_tests!(parse, part1, part1_input_test, INPUT => 0);

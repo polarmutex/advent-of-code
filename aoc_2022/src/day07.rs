@@ -209,7 +209,7 @@ $ ls
 5626152 d.ext
 7214296 k
 ";
-    const INPUT: &str = include_str!("../../data/2022/07.txt");
+    const INPUT: &str = include_str!("data/07.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 95437);
     simple_tests!(parse, part1, part1_input_test, INPUT => 1886043);

@@ -76,34 +76,33 @@ fn part1(input: &Program) -> i32 {
     answer
 }
 
-fn draw(cycle: u32, x_reg: i32) {
-    let cur_pos = (cycle % 40) as i32;
-    if x_reg == cur_pos - 1 || x_reg == cur_pos || x_reg == cur_pos + 1 {
+fn draw(cycle: i32, x_reg: i32) {
+    let col = (cycle - 1) % 40;
+    if x_reg == (col - 1) || x_reg == col || x_reg == (col + 1) {
         print!("#");
     } else {
         print!(".");
     }
-    if cur_pos == 39 {
+    if col == 39 {
         println!();
     }
 }
 
 fn part2(input: &Program) -> u32 {
     let mut x_reg: i32 = 1;
-    let mut cycle: u32 = 0;
+    let mut cycle: i32 = 1;
 
     for instr in input {
-        cycle += 1;
         draw(cycle, x_reg);
-
         match instr {
             Instruction::Noop => {} // no op
             Instruction::Addx(num) => {
                 cycle += 1;
-                x_reg += num;
                 draw(cycle, x_reg);
+                x_reg += num;
             }
         };
+        cycle += 1;
     }
     0
 }
@@ -257,7 +256,7 @@ noop
 noop
 noop
 ";
-    const INPUT: &str = include_str!("../../data/2022/10.txt");
+    const INPUT: &str = include_str!("data/10.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 13140);
     simple_tests!(parse, part1, part1_input_test, INPUT => 15120);

@@ -139,7 +139,7 @@ D 10
 L 25
 U 20
 ";
-    const INPUT: &str = include_str!("../../data/2022/09.txt");
+    const INPUT: &str = include_str!("data/09.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 13);
     simple_tests!(parse, part1, part1_input_test, INPUT => 6018);

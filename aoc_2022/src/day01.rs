@@ -63,7 +63,7 @@ tests! {
 9000
 
 10000";
-    const INPUT: &str = include_str!("../../data/2022/01.txt");
+    const INPUT: &str = include_str!("data/01.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 24000);
     simple_tests!(parse, part1, part1_input_test, INPUT => 68802);

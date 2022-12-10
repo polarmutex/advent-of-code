@@ -73,7 +73,7 @@ ttgJtRGJQctTZtZT
 CrZsJsPPZsGzwwsLwLmpwMDw
 ";
 
-    const INPUT: &str = include_str!("../../data/2022/03.txt");
+    const INPUT: &str = include_str!("data/03.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 157);
     simple_tests!(parse, part1, part1_input_test, INPUT => 7845);
