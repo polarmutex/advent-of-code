@@ -90,6 +90,13 @@ impl ToResult for MulSubmission<u32> {
     }
 }
 
+impl ToResult for MulSubmission<u64> {
+    type Output = MulSubmission<u64>;
+    fn to_result(self) -> Result<MulSubmission<u64>, anyhow::Error> {
+        Ok(self)
+    }
+}
+
 impl ToResult for Result<MulSubmission<u32>, anyhow::Error> {
     type Output = MulSubmission<u32>;
     fn to_result(self) -> Result<MulSubmission<u32>, anyhow::Error> {
