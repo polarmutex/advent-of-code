@@ -11,3 +11,4 @@ colored = "2"
 clap = { version = "4", features = ["color", "derive"]}
 thiserror = "1"
 ureq = "2"
+itertools = "0.10.5"

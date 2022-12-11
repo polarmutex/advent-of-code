@@ -1,6 +1,7 @@
 pub mod day;
 pub mod inputs;
 pub mod line;
+pub mod ocr;
 mod parser;
 pub mod prelude;
 mod submission;

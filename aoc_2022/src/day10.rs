@@ -1,5 +1,6 @@
 use crate::prelude::*;
-use ahash::AHashMap;
+use framework::ocr::ocr;
+use framework::ocr::pixel_vector_to_char_strings;
 
 day!(10, parse => part1, part2);
 
@@ -42,69 +43,66 @@ fn parse(input: &str) -> ParseResult<Program> {
     Ok(program)
 }
 
-fn part1(input: &Program) -> i32 {
-    let mut interesting_cycles: AHashMap<u32, i32> = AHashMap::new();
-    interesting_cycles.insert(20, 0);
-    interesting_cycles.insert(60, 0);
-    interesting_cycles.insert(100, 0);
-    interesting_cycles.insert(140, 0);
-    interesting_cycles.insert(180, 0);
-    interesting_cycles.insert(220, 0);
-
-    let mut x_reg: i32 = 1;
-    let mut cycle: u32 = 0;
-
-    for instr in input {
-        cycle += 1;
-        if interesting_cycles.contains_key(&cycle) {
-            *interesting_cycles.get_mut(&cycle).expect("") = x_reg * (cycle as i32);
-        }
-
-        match instr {
-            Instruction::Noop => {} // no op
-            Instruction::Addx(num) => {
-                cycle += 1;
-                if interesting_cycles.contains_key(&cycle) {
-                    *interesting_cycles.get_mut(&cycle).expect("") = x_reg * (cycle as i32);
-                }
-                x_reg += num;
+fn for_each_cycle(instr: &[Instruction], mut func: impl FnMut(i32, i32)) {
+    let mut cycle = 1;
+    let mut x_reg = 1;
+    let mut iter = instr.iter();
+    let mut to_add: Option<i32> = None;
+    loop {
+        func(cycle, x_reg);
+        if let Some(val) = to_add {
+            x_reg += val;
+            to_add = None;
+        } else {
+            match iter.next() {
+                Some(Instruction::Noop) => {}
+                Some(Instruction::Addx(val)) => to_add = Some(*val),
+                None => break,
             }
-        };
+        }
+        cycle += 1;
     }
-    let answer = interesting_cycles.values().sum();
+}
+
+fn part1(input: &Program) -> i32 {
+    let mut answer = 0;
+    for_each_cycle(input, |cycle, x_reg| {
+        if (cycle + 20) % 40 == 0 {
+            answer += cycle * x_reg;
+        }
+    });
     println!("answer: {}", answer);
     answer
 }
 
-fn draw(cycle: i32, x_reg: i32) {
-    let col = (cycle - 1) % 40;
-    if x_reg == (col - 1) || x_reg == col || x_reg == (col + 1) {
-        print!("#");
-    } else {
-        print!(".");
-    }
-    if col == 39 {
-        println!();
-    }
-}
+fn part2(input: &Program) -> String {
+    let mut pixels: Vec<char> = Vec::new();
+    for_each_cycle(input, |cycle, x_reg| {
+        if cycle > 240 {
+            return;
+        }
+        let pixel_idx = (cycle - 1) % 40;
+        let sprite_range = (x_reg - 1)..(x_reg + 2);
+        if sprite_range.contains(&pixel_idx) {
+            pixels.push('#');
+        } else {
+            pixels.push('.');
+        }
+    });
 
-fn part2(input: &Program) -> u32 {
-    let mut x_reg: i32 = 1;
-    let mut cycle: i32 = 1;
-
-    for instr in input {
-        draw(cycle, x_reg);
-        match instr {
-            Instruction::Noop => {} // no op
-            Instruction::Addx(num) => {
-                cycle += 1;
-                draw(cycle, x_reg);
-                x_reg += num;
-            }
-        };
-        cycle += 1;
+    // print pixels
+    for (i, val) in pixels.iter().enumerate() {
+        print!("{}", val);
+        if (i % 40) == 39 {
+            println!();
+        }
     }
-    0
+    let answer: String = pixel_vector_to_char_strings(&pixels, 8)
+        .iter()
+        .map(ocr)
+        .collect::<String>();
+
+    answer
 }
 
 tests! {
@@ -260,7 +258,6 @@ noop
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 13140);
     simple_tests!(parse, part1, part1_input_test, INPUT => 15120);
-    // MANUAL
-    //simple_tests!(parse, part2, part2_example_test, EXAMPLE => 0);
-    //simple_tests!(parse, part2, part2_input_test, INPUT => 0);
+    //simple_tests!(parse, part2, part2_example_test, EXAMPLE => 0); // Non Letter Output
+    simple_tests!(parse, part2, part2_input_test, INPUT => "RKPJBPLA");
 }

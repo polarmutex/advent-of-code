@@ -413,6 +413,7 @@ dependencies = [
  "anyhow",
  "clap 4.0.29",
  "colored",
+ "itertools",
  "thiserror",
  "ureq",
 ]
