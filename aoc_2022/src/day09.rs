@@ -47,7 +47,7 @@ fn parse(input: &str) -> ParseResult<Vec<Motion>> {
     Ok(motions)
 }
 
-fn move_head(mut head: Vec2<i32>, dir: &Direction) -> Vec2<i32> {
+fn move_head(mut head: Coord2d<i32>, dir: &Direction) -> Coord2d<i32> {
     match dir {
         Direction::Right => head.x += 1,
         Direction::Left => head.x -= 1,
@@ -57,7 +57,7 @@ fn move_head(mut head: Vec2<i32>, dir: &Direction) -> Vec2<i32> {
     head
 }
 
-fn move_knot(mut knot: Vec2<i32>, prev: Vec2<i32>) -> Vec2<i32> {
+fn move_knot(mut knot: Coord2d<i32>, prev: Coord2d<i32>) -> Coord2d<i32> {
     let valid_head_coords = vec![
         (knot.x, knot.y),
         (knot.x + 1, knot.y),
@@ -85,9 +85,9 @@ fn move_knot(mut knot: Vec2<i32>, prev: Vec2<i32>) -> Vec2<i32> {
 }
 
 fn part1(input: &[Motion]) -> u32 {
-    let mut visited: AHashSet<Vec2<i32>> = AHashSet::new();
-    let mut head: Vec2<i32> = Vec2 { x: 0, y: 0 };
-    let mut tail: Vec2<i32> = Vec2 { x: 0, y: 0 };
+    let mut visited: AHashSet<Coord2d<i32>> = AHashSet::new();
+    let mut head: Coord2d<i32> = Coord2d { x: 0, y: 0 };
+    let mut tail: Coord2d<i32> = Coord2d { x: 0, y: 0 };
     for motion in input {
         for _ in 0..motion.num {
             // Move head
@@ -100,9 +100,9 @@ fn part1(input: &[Motion]) -> u32 {
 }
 
 fn part2(input: &[Motion]) -> u32 {
-    let mut visited: AHashSet<Vec2<i32>> = AHashSet::new();
-    let mut head: Vec2<i32> = Vec2 { x: 0, y: 0 };
-    let mut knots: Vec<Vec2<i32>> = vec![Vec2 { x: 0, y: 0 }; 9];
+    let mut visited: AHashSet<Coord2d<i32>> = AHashSet::new();
+    let mut head: Coord2d<i32> = Coord2d { x: 0, y: 0 };
+    let mut knots: Vec<Coord2d<i32>> = vec![Coord2d { x: 0, y: 0 }; 9];
     for motion in input {
         for _ in 0..motion.num {
             // Move head

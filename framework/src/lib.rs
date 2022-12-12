@@ -1,4 +1,6 @@
+pub mod algorithms;
 pub mod day;
+pub mod grid;
 pub mod inputs;
 pub mod line;
 pub mod ocr;

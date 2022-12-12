@@ -6,37 +6,37 @@
 
 ## 2022
 
-![Alt](https://img.shields.io/badge/stars%20⭐20--yellow)
-![Alt](https://img.shields.io/badge/days%20completed-10-red)
+![Alt](https://img.shields.io/badge/stars%20⭐24--yellow)
+![Alt](https://img.shields.io/badge/days%20completed-12-red)
 ![Alt](https://img.shields.io/badge/rust-blue)
 
-|                      Day                       |          Name           |     Stars     | Notes |
-| :--------------------------------------------: | :---------------------: | :-----------: | ----- |
-|  [Day 1](https://adventofcode.com/2022/day/1)  |    Calorie Counting     | :star: :star: |       |
-|  [Day 2](https://adventofcode.com/2022/day/2)  |   Rock Paper Scissors   | :star: :star: |       |
-|  [Day 3](https://adventofcode.com/2022/day/3)  | Rucksack Reorganization | :star: :star: |       |
-|  [Day 4](https://adventofcode.com/2022/day/4)  |      Camp Cleanup       | :star: :star: |       |
-|  [Day 5](https://adventofcode.com/2022/day/5)  |      Supply Stacks      | :star: :star: |       |
-|  [Day 6](https://adventofcode.com/2022/day/6)  |     Tuning Trouble      | :star: :star: |       |
-|  [Day 7](https://adventofcode.com/2022/day/7)  | No Space Left On Device | :star: :star: |       |
-|  [Day 8](https://adventofcode.com/2022/day/8)  |   Treetop Tree House    | :star: :star: |       |
-|  [Day 9](https://adventofcode.com/2022/day/9)  |       Rope Bridge       | :star: :star: |       |
-| [Day 10](https://adventofcode.com/2022/day/10) |    Cathode-Ray Tube     | :star: :star: |       |
-| [Day 11](https://adventofcode.com/2022/day/11) |                         |               |       |
-| [Day 12](https://adventofcode.com/2022/day/12) |                         |               |       |
-| [Day 13](https://adventofcode.com/2022/day/13) |                         |               |       |
-| [Day 14](https://adventofcode.com/2022/day/14) |                         |               |       |
-| [Day 15](https://adventofcode.com/2022/day/15) |                         |               |       |
-| [Day 16](https://adventofcode.com/2022/day/16) |                         |               |       |
-| [Day 17](https://adventofcode.com/2022/day/17) |                         |               |       |
-| [Day 18](https://adventofcode.com/2022/day/18) |                         |               |       |
-| [Day 19](https://adventofcode.com/2022/day/19) |                         |               |       |
-| [Day 20](https://adventofcode.com/2022/day/20) |                         |               |       |
-| [Day 21](https://adventofcode.com/2022/day/21) |                         |               |       |
-| [Day 22](https://adventofcode.com/2022/day/22) |                         |               |       |
-| [Day 23](https://adventofcode.com/2022/day/23) |                         |               |       |
-| [Day 24](https://adventofcode.com/2022/day/24) |                         |               |       |
-| [Day 25](https://adventofcode.com/2022/day/25) |                         |               |       |
+|                      Day                       |          Name           |     Stars     | Notes     |
+| :--------------------------------------------: | :---------------------: | :-----------: | --------- |
+|  [Day 1](https://adventofcode.com/2022/day/1)  |    Calorie Counting     | :star: :star: |           |
+|  [Day 2](https://adventofcode.com/2022/day/2)  |   Rock Paper Scissors   | :star: :star: |           |
+|  [Day 3](https://adventofcode.com/2022/day/3)  | Rucksack Reorganization | :star: :star: |           |
+|  [Day 4](https://adventofcode.com/2022/day/4)  |      Camp Cleanup       | :star: :star: |           |
+|  [Day 5](https://adventofcode.com/2022/day/5)  |      Supply Stacks      | :star: :star: |           |
+|  [Day 6](https://adventofcode.com/2022/day/6)  |     Tuning Trouble      | :star: :star: |           |
+|  [Day 7](https://adventofcode.com/2022/day/7)  | No Space Left On Device | :star: :star: |           |
+|  [Day 8](https://adventofcode.com/2022/day/8)  |   Treetop Tree House    | :star: :star: |           |
+|  [Day 9](https://adventofcode.com/2022/day/9)  |       Rope Bridge       | :star: :star: |           |
+| [Day 10](https://adventofcode.com/2022/day/10) |    Cathode-Ray Tube     | :star: :star: |           |
+| [Day 11](https://adventofcode.com/2022/day/11) |  Monkey in the Middle   | :star: :star: | Input     |
+| [Day 12](https://adventofcode.com/2022/day/12) | Hill Climbing Algorithm | :star: :star: | Grid, BFS |
+| [Day 13](https://adventofcode.com/2022/day/13) |                         |               |           |
+| [Day 14](https://adventofcode.com/2022/day/14) |                         |               |           |
+| [Day 15](https://adventofcode.com/2022/day/15) |                         |               |           |
+| [Day 16](https://adventofcode.com/2022/day/16) |                         |               |           |
+| [Day 17](https://adventofcode.com/2022/day/17) |                         |               |           |
+| [Day 18](https://adventofcode.com/2022/day/18) |                         |               |           |
+| [Day 19](https://adventofcode.com/2022/day/19) |                         |               |           |
+| [Day 20](https://adventofcode.com/2022/day/20) |                         |               |           |
+| [Day 21](https://adventofcode.com/2022/day/21) |                         |               |           |
+| [Day 22](https://adventofcode.com/2022/day/22) |                         |               |           |
+| [Day 23](https://adventofcode.com/2022/day/23) |                         |               |           |
+| [Day 24](https://adventofcode.com/2022/day/24) |                         |               |           |
+| [Day 25](https://adventofcode.com/2022/day/25) |                         |               |           |
 
 ## 2021
 

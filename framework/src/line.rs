@@ -1,9 +1,9 @@
-use crate::vec::Vec2;
+use crate::vec::Coord2d;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Line {
-    pub from: Vec2<i32>,
-    pub to: Vec2<i32>,
+    pub from: Coord2d<i32>,
+    pub to: Coord2d<i32>,
 }
 
 impl Line {
@@ -15,20 +15,20 @@ impl Line {
         self.from.y == self.to.y
     }
 
-    pub fn between_points((p1, p2): (Vec2<i32>, Vec2<i32>)) -> Self {
+    pub fn between_points((p1, p2): (Coord2d<i32>, Coord2d<i32>)) -> Self {
         Line { from: p1, to: p2 }
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct LineIter {
-    current: Vec2<i32>,
-    offset: Vec2<i32>,
+    current: Coord2d<i32>,
+    offset: Coord2d<i32>,
     remaining_points: u32,
 }
 
 impl IntoIterator for &'_ Line {
-    type Item = Vec2<i32>;
+    type Item = Coord2d<i32>;
     type IntoIter = LineIter;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -43,7 +43,7 @@ impl IntoIterator for &'_ Line {
 }
 
 impl Iterator for LineIter {
-    type Item = Vec2<i32>;
+    type Item = Coord2d<i32>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.remaining_points > 0 {
