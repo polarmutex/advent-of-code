@@ -43,7 +43,7 @@ fn part2(input: &[u64]) -> u64 {
 tests! {
     const EXAMPLE: &str = "\
 3,4,3,1,2";
-    const INPUT: &str = include_str!("../../data/2021/06.txt");
+    const INPUT: &str = include_str!("data/06.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => 5934);
     simple_tests!(parse, part1, part1_input_test, INPUT => 388739);

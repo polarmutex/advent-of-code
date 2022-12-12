@@ -70,7 +70,7 @@ forward 8
 up 3
 down 8
 forward 2";
-    const INPUT: &str = include_str!("../../data/2021/02.txt");
+    const INPUT: &str = include_str!("data/02.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => MulSubmission(15,10));
     simple_tests!(parse, part1, part1_input_test, INPUT => MulSubmission(1909,655));

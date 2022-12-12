@@ -128,7 +128,7 @@ tests! {
 18  8 23 26 20
 22 11 13  6  5
  2  0 12  3  7";
-    const INPUT: &str = include_str!("../../data/2021/04.txt");
+    const INPUT: &str = include_str!("data/04.txt");
 
     simple_tests!(parse, part1, part1_example_test, EXAMPLE => MulSubmission(188,24));
     simple_tests!(parse, part1, part1_input_test, INPUT => MulSubmission(782,60));

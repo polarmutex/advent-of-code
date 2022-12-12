@@ -107,7 +107,7 @@ tests! {
 11001
 00010
 01010";
-    const INPUT: &str = include_str!("../../data/2021/03.txt");
+    const INPUT: &str = include_str!("data/03.txt");
 
     simple_tests!(parse, part1::<5>, part1_example_test, EXAMPLE => MulSubmission(22,9));
     simple_tests!(parse, part1::<12>, part1_input_test, INPUT => MulSubmission(218,3877));
