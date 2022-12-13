@@ -1,26 +1,183 @@
 use crate::prelude::*;
+use std::cmp::Ordering;
 
 day!(13, parse => part1, part2);
 
-fn parse(_input: &str) -> ParseResult<Vec<u8>> {
-    todo!()
+#[derive(Clone, Debug, Eq, PartialEq)]
+enum Packet {
+    Num(u32),
+    List(Vec<Packet>),
+}
+impl std::fmt::Display for Packet {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Packet::Num(num) => write!(f, "{}", num),
+            Packet::List(pkts) => write!(f, "[{}]", pkts.iter().join(",")),
+        }
+    }
 }
 
-fn part1(_input: &[u8]) -> u32 {
-    todo!()
+fn parse_packet(input: &str) -> Packet {
+    if &input[0..1] == "[" {
+        let mut stack = 0_i32;
+        let list: Vec<Packet> = input[1..input.len() - 1]
+            .split(|c| {
+                if c == '[' {
+                    stack += 1
+                } else if c == ']' {
+                    stack -= 1
+                }
+                c == ',' && stack == 0
+            })
+            .filter_map(|s| (!s.is_empty()).then(|| parse_packet(s)))
+            .collect();
+        Packet::List(list)
+    } else {
+        Packet::Num(input.parse().unwrap())
+    }
 }
 
-fn part2(_input: &[u8]) -> u32 {
-    todo!()
+impl FromStr for Packet {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let packet = parse_packet(s);
+        Ok(packet)
+    }
+}
+
+impl Ord for Packet {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match (self, other) {
+            // Num vs Num
+            (Packet::Num(self_num), Packet::Num(other_num)) => {
+                println!("Compare {} vs {}", self_num, other_num);
+                self_num.cmp(other_num)
+            }
+            // List vs List
+            (Packet::List(self_pkts), Packet::List(other_pkts)) => {
+                println!(
+                    "Comparing [{}] vs [{}]",
+                    self_pkts.iter().join(","),
+                    other_pkts.iter().join(",")
+                );
+                self_pkts.cmp(other_pkts)
+            }
+            // Num vs List
+            (Packet::Num(self_num), Packet::List(other_pkts)) => {
+                println!(
+                    "Comparing {} vs [{}]",
+                    self_num,
+                    other_pkts.iter().join(",")
+                );
+                Packet::List(vec![Packet::Num(*self_num)]).cmp(other)
+            }
+            // List vs Num
+            (Packet::List(self_pkts), Packet::Num(other_num)) => {
+                println!(
+                    "Comparing [{}] vs {}",
+                    self_pkts.iter().join(","),
+                    other_num,
+                );
+                self.cmp(&Packet::List(vec![Packet::Num(*other_num)]))
+            }
+        }
+    }
+}
+
+impl PartialOrd for Packet {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+#[derive(Clone, Debug)]
+struct PacketPair {
+    left: Packet,
+    right: Packet,
+}
+
+fn parse(input: &str) -> ParseResult<Vec<PacketPair>> {
+    let packet_pair: Vec<PacketPair> = input
+        .trim()
+        .split("\n\n")
+        .map(|pair| {
+            let (left, right) = pair.split_once('\n').expect("two packets");
+            let (left, right) = (
+                left.parse::<Packet>().expect("valid left packet"),
+                right.parse::<Packet>().expect("valid right packet"),
+            );
+            PacketPair { left, right }
+        })
+        .collect_vec();
+    Ok(packet_pair)
+}
+
+fn part1(input: &[PacketPair]) -> u32 {
+    let mut index_sum = 0_u32;
+    for (i, pair) in input.iter().enumerate() {
+        println!("{}", pair.left);
+        println!("{}", pair.right);
+        let res = pair.left.cmp(&pair.right);
+        match res {
+            Ordering::Equal => println!("{} - left = right", i + 1),
+            Ordering::Less => {
+                println!("{} - left < right", i + 1);
+                index_sum += (i as u32) + 1
+            }
+            Ordering::Greater => {
+                println!("{} - left > right", i + 1);
+            }
+        }
+    }
+    index_sum
+}
+
+fn part2(input: &[PacketPair]) -> usize {
+    let mut packets = input
+        .iter()
+        .flat_map(|pair| [pair.left.clone(), pair.right.clone()])
+        .collect_vec();
+    let divider_packet_1 = "[[2]]".parse::<Packet>().expect("");
+    let divider_packet_2 = "[[6]]".parse::<Packet>().expect("");
+    packets.push(divider_packet_1.clone());
+    packets.push(divider_packet_2.clone());
+    packets.sort();
+
+    (packets.binary_search(&divider_packet_1).unwrap() + 1)
+        * (packets.binary_search(&divider_packet_2).unwrap() + 1)
 }
 
 tests! {
-    const _EXAMPLE: &str = "\
-";
-    //const INPUT: &str = include_str!("data/13.txt");
+    const EXAMPLE: &str = "\
+[1,1,3,1,1]
+[1,1,5,1,1]
 
-    //simple_tests!(parse, part1, part1_example_test, EXAMPLE => 0);
-    //simple_tests!(parse, part1, part1_input_test, INPUT => 0);
-    //simple_tests!(parse, part2, part2_example_test, EXAMPLE => 0);
-    //simple_tests!(parse, part2, part2_input_test, INPUT => 0);
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]
+
+[[4,4],4,4]
+[[4,4],4,4,4]
+
+[7,7,7,7]
+[7,7,7]
+
+[]
+[3]
+
+[[[]]]
+[[]]
+
+[1,[2,[3,[4,[5,6,7]]]],8,9]
+[1,[2,[3,[4,[5,6,0]]]],8,9]
+";
+    const INPUT: &str = include_str!("data/13.txt");
+
+    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 13);
+    simple_tests!(parse, part1, part1_input_test, INPUT => 5529);
+    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 140);
+    simple_tests!(parse, part2, part2_input_test, INPUT => 27690);
 }
