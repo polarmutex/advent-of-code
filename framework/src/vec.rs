@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::ops::AddAssign;
 use std::ops::Sub;
 
@@ -10,6 +11,12 @@ pub struct Coord2d<T> {
 impl<T> Coord2d<T> {
     pub fn from_coords((x, y): (T, T)) -> Self {
         Coord2d::<T> { x, y }
+    }
+}
+
+impl<T: Display> Display for Coord2d<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({},{})", self.x, self.y)
     }
 }
 
