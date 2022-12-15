@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::collections::HashSet;
+use std::collections::VecDeque;
 use std::hash::Hash;
 
 pub fn dijkstra<T, FK, K, FF, FE, E>(
@@ -58,5 +59,36 @@ where
             }
         }
     }
+    None
+}
+
+pub fn bfs<T, FK, K, FF, FE, E>(
+    initial: impl IntoIterator<Item = T>,
+    mut key: FK,
+    mut found: FF,
+    mut expand: FE,
+) -> Option<T>
+where
+    FK: FnMut(&T) -> K,
+    K: Hash + Eq,
+    FF: FnMut(&T) -> bool,
+    FE: FnMut(T) -> E,
+    E: IntoIterator<Item = T>,
+{
+    let mut queue = VecDeque::from_iter(initial);
+    let mut seen = HashSet::new();
+
+    while let Some(item) = queue.pop_front() {
+        if seen.insert(key(&item)) {
+            if found(&item) {
+                return Some(item);
+            }
+
+            for next in expand(item) {
+                queue.push_back(next);
+            }
+        }
+    }
+
     None
 }
