@@ -12,12 +12,12 @@ fn parse(input: &str) -> ParseResult<Vec<Line>> {
                     from: from
                         .split_once(',')
                         .map(|(x, y)| (x.parse::<i32>().expect(""), y.parse::<i32>().expect("")))
-                        .map(Vec2::from_coords)
+                        .map(Coord2d::from_coords)
                         .expect(""),
                     to: to
                         .split_once(',')
                         .map(|(x, y)| (x.parse::<i32>().expect(""), y.parse::<i32>().expect("")))
-                        .map(Vec2::from_coords)
+                        .map(Coord2d::from_coords)
                         .expect(""),
                 })
                 .expect("")
@@ -27,7 +27,7 @@ fn parse(input: &str) -> ParseResult<Vec<Line>> {
 }
 
 fn count_overlap_pts<'i, I: Iterator<Item = &'i Line> + Clone + 'i>(lines: I) -> u32 {
-    let mut board_size: Vec2<u32> = lines
+    let mut board_size: Coord2d<u32> = lines
         .clone()
         .flat_map(|line| [line.from, line.to])
         .fold((0, 0), |(x, y), coord| {
