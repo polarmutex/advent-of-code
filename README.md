@@ -6,8 +6,8 @@
 
 ## 2022
 
-![Alt](https://img.shields.io/badge/stars%20⭐26--yellow)
-![Alt](https://img.shields.io/badge/days%20completed-13-red)
+![Alt](https://img.shields.io/badge/stars%20⭐28--yellow)
+![Alt](https://img.shields.io/badge/days%20completed-14-red)
 ![Alt](https://img.shields.io/badge/rust-blue)
 
 |                      Day                       |          Name           |     Stars     | Notes     |
@@ -25,7 +25,7 @@
 | [Day 11](https://adventofcode.com/2022/day/11) |  Monkey in the Middle   | :star: :star: | Input     |
 | [Day 12](https://adventofcode.com/2022/day/12) | Hill Climbing Algorithm | :star: :star: | Grid, BFS |
 | [Day 13](https://adventofcode.com/2022/day/13) |     Distress Signal     | :star: :star: |           |
-| [Day 14](https://adventofcode.com/2022/day/14) |                         |               |           |
+| [Day 14](https://adventofcode.com/2022/day/14) |   Regolith Reservoir    | :star: :star: |           |
 | [Day 15](https://adventofcode.com/2022/day/15) |                         |               |           |
 | [Day 16](https://adventofcode.com/2022/day/16) |                         |               |           |
 | [Day 17](https://adventofcode.com/2022/day/17) |                         |               |           |
@@ -43,6 +43,7 @@
 ![Alt](https://img.shields.io/badge/stars%20⭐-50-yellow)
 ![Alt](https://img.shields.io/badge/days%20completed-25-red)
 ![Alt](https://img.shields.io/badge/python-3.8-blue)
+![Alt](https://img.shields.io/badge/rust-blue)
 
 <img src="./assets/2021.gif" width="564" align="center">
 
