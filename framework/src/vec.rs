@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use std::fmt::Display;
 use std::ops::AddAssign;
 use std::ops::Sub;
@@ -11,6 +12,12 @@ pub struct Coord2d<T> {
 impl<T> Coord2d<T> {
     pub fn from_coords((x, y): (T, T)) -> Self {
         Coord2d::<T> { x, y }
+    }
+}
+
+impl<T: Sub<Output = isize> + Copy> Coord2d<T> {
+    pub fn manhattan_distance(&self, other: &Coord2d<T>) -> isize {
+        isize::abs(self.x - other.x) + isize::abs(self.y - other.y)
     }
 }
 
