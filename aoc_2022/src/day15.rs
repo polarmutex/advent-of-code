@@ -18,10 +18,6 @@ impl Sensor {
         self.loc.manhattan_distance(coord) <= self.distance
     }
 
-    pub fn outside_range(&self, coord: &Coord2d<isize>) -> bool {
-        self.loc.manhattan_distance(coord) > self.distance
-    }
-
     pub fn get_radius_lines(&self) -> ([isize; 2], [isize; 2]) {
         /*
         Image the four sides of the diamons
@@ -104,35 +100,19 @@ fn part1<const Y: isize>(input: &[Sensor]) -> usize {
     println!("x to try: {} .. {}", x_bounds.start, x_bounds.end);
 
     (x_bounds.start..=x_bounds.end)
-        .filter(|x| {
+        .map(|x| Coord2d::from((x, Y)))
+        .map(|pos| {
             input
                 .iter()
-                .any(|sensor| sensor.contains(&Coord2d::from((*x, Y))))
-            // .map(|s| manhatan_dist(pos, s.sensor) <= s.dist && pos != s.becon)
+                .map(move |s| {
+                    s.loc.manhattan_distance(&pos) <= s.distance && pos != s.closest_beacon
+                })
+                .any(|f| f) as usize
         })
-        .count()
+        .sum()
 }
 
 fn part2<const N: isize>(input: &[Sensor]) -> usize {
-    println!("N: {}", N);
-    let point: Coord2d<isize> = input
-        .iter()
-        .find_map(|s| {
-            ((s.loc.x - s.distance - 1).max(0)..=s.loc.x.min(N))
-                .zip(s.loc.y..=N)
-                .find_map(|pt| {
-                    input
-                        .iter()
-                        .all(|s| !s.contains(&Coord2d::from(pt)))
-                        .then(|| Coord2d::from(pt))
-                })
-        })
-        .unwrap();
-    println!("real pt: {}", point);
-    /* brute force
-    (point.x * 4_000_000 + point.y) as usize
-    */
-
     /*
     As there is only one missing value, it's going to be just outside the
     boundaries of at least two scanners (unless we're incredibly unlucky and
@@ -168,29 +148,15 @@ fn part2<const N: isize>(input: &[Sensor]) -> usize {
             (a, b)
         },
     );
-    for (a, b) in iproduct!(a_vec.iter(), b_vec.iter()) {
-        let p = Coord2d::<isize>::from(((b - a) / 2, (a + b) / 2));
-        //println!("poss point: {}", p);
-        if p == point {
-            println!("OMG");
-        }
-    }
-    //   .map(|(a, b)| Coord2d::<isize>::from(((b - a) / 2, (a + b) / 2)))
-    //.filter(|p| 0 <= p.x && p.x <= N && 0 <= p.y && p.y <= N)
-    //.filter(|p| input.iter().all(|sen| !sen.contains(p)))
-    //.collect_vec();
 
-    /*
-    for p in &possible_pts {
-        //println!("poss point: {}", p);
-        let delta = Coord2d::<isize>::from((isize::abs(point.x - p.x), isize::abs(point.y - p.y)));
-        println!("poss point: {}", delta);
-    }*/
+    let possible_pts = iproduct!(a_vec.iter(), b_vec.iter())
+        .map(|(a, b)| Coord2d::<isize>::from(((b - a) / 2, (a + b) / 2)))
+        .filter(|p| 0 <= p.x && p.x <= N && 0 <= p.y && p.y <= N)
+        .filter(|p| input.iter().all(|sen| !sen.contains(p)))
+        .collect_vec();
 
-    //assert!(possible_pts.contains(&point));
-    //assert!(possible_pts.len() == 1);
-    //(possible_pts[0].x * 4_000_000 + possible_pts[0].y) as usize
-    0
+    assert!(possible_pts.len() == 1);
+    (possible_pts[0].x * 4_000_000 + possible_pts[0].y) as usize
 }
 
 tests! {
@@ -213,7 +179,7 @@ Sensor at x=20, y=1: closest beacon is at x=15, y=3
     const INPUT: &str = include_str!("data/15.txt");
 
     simple_tests!(parse, part1::<10>, part1_example_test, EXAMPLE => 26);
-    // speed upsimple_tests!(parse, part1::<2_000_000>, part1_input_test, INPUT => 5142231);
+    simple_tests!(parse, part1::<2_000_000>, part1_input_test, INPUT => 5142231);
     simple_tests!(parse, part2::<20>, part2_example_test, EXAMPLE => 56000011);
     simple_tests!(parse, part2::<4_000_000>, part2_input_test, INPUT => 10884459367718);
 }

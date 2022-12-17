@@ -17,7 +17,7 @@ impl<T> Coord2d<T> {
 
 impl<T: Sub<Output = isize> + Copy> Coord2d<T> {
     pub fn manhattan_distance(&self, other: &Coord2d<T>) -> isize {
-        isize::abs(self.x - other.x) + isize::abs(self.y - other.y)
+        (self.x - other.x).abs() + (self.y - other.y).abs()
     }
 }
 
