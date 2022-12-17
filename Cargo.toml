@@ -10,3 +10,5 @@ default-members = ["aoc_2022"]
 [profile.release]
 debug = true
 
+[profile.dev]
+opt-level = 1               # Use slightly better optimizations.
