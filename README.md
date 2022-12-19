@@ -6,8 +6,8 @@
 
 ## 2022
 
-![Alt](https://img.shields.io/badge/stars%20⭐28--yellow)
-![Alt](https://img.shields.io/badge/days%20completed-14-red)
+![Alt](https://img.shields.io/badge/stars%20⭐34--yellow)
+![Alt](https://img.shields.io/badge/days%20completed-17-red)
 ![Alt](https://img.shields.io/badge/rust-blue)
 
 |                      Day                       |          Name           |     Stars     | Notes     |
@@ -26,9 +26,9 @@
 | [Day 12](https://adventofcode.com/2022/day/12) | Hill Climbing Algorithm | :star: :star: | Grid, BFS |
 | [Day 13](https://adventofcode.com/2022/day/13) |     Distress Signal     | :star: :star: |           |
 | [Day 14](https://adventofcode.com/2022/day/14) |   Regolith Reservoir    | :star: :star: |           |
-| [Day 15](https://adventofcode.com/2022/day/15) |                         |               |           |
-| [Day 16](https://adventofcode.com/2022/day/16) |                         |               |           |
-| [Day 17](https://adventofcode.com/2022/day/17) |                         |               |           |
+| [Day 15](https://adventofcode.com/2022/day/15) |  Beacon Exclusion Zone  | :star: :star: |           |
+| [Day 16](https://adventofcode.com/2022/day/16) |  Proboscidea Volcanium  | :star: :star: |           |
+| [Day 17](https://adventofcode.com/2022/day/17) |    Pyroclastic Flow     | :star: :star: |           |
 | [Day 18](https://adventofcode.com/2022/day/18) |                         |               |           |
 | [Day 19](https://adventofcode.com/2022/day/19) |                         |               |           |
 | [Day 20](https://adventofcode.com/2022/day/20) |                         |               |           |
