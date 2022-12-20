@@ -6,8 +6,8 @@
 
 ## 2022
 
-![Alt](https://img.shields.io/badge/stars%20⭐36--yellow)
-![Alt](https://img.shields.io/badge/days%20completed-18-red)
+![Alt](https://img.shields.io/badge/stars%20⭐38--yellow)
+![Alt](https://img.shields.io/badge/days%20completed-19-red)
 ![Alt](https://img.shields.io/badge/rust-blue)
 
 |                      Day                       |          Name           |     Stars     | Notes     |
@@ -30,7 +30,7 @@
 | [Day 16](https://adventofcode.com/2022/day/16) |  Proboscidea Volcanium  | :star: :star: |           |
 | [Day 17](https://adventofcode.com/2022/day/17) |    Pyroclastic Flow     | :star: :star: |           |
 | [Day 18](https://adventofcode.com/2022/day/18) |    Boiling Boulders     | :star: :star: |           |
-| [Day 19](https://adventofcode.com/2022/day/19) |                         |               |           |
+| [Day 19](https://adventofcode.com/2022/day/19) |   Not Enough Minerals   | :star: :star: |           |
 | [Day 20](https://adventofcode.com/2022/day/20) |                         |               |           |
 | [Day 21](https://adventofcode.com/2022/day/21) |                         |               |           |
 | [Day 22](https://adventofcode.com/2022/day/22) |                         |               |           |
