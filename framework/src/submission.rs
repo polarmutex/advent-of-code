@@ -43,6 +43,18 @@ impl ToFinalResult for i32 {
 }
 
 /*
+  i64
+*/
+impl ToFinalResult for i64 {
+    fn to_final_answer(self) -> Result<FinalResult, anyhow::Error> {
+        Ok(FinalResult {
+            answer: self.to_string(),
+            display: format!("{}", self.to_string().bold().bright_white()),
+        })
+    }
+}
+
+/*
   usize
 */
 impl ToFinalResult for usize {
