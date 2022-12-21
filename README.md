@@ -6,8 +6,8 @@
 
 ## 2022
 
-![Alt](https://img.shields.io/badge/stars%20⭐40--yellow)
-![Alt](https://img.shields.io/badge/days%20completed-20-red)
+![Alt](https://img.shields.io/badge/stars%20⭐42--yellow)
+![Alt](https://img.shields.io/badge/days%20completed-21-red)
 ![Alt](https://img.shields.io/badge/rust-blue)
 
 |                      Day                       |           Name           |     Stars     | Notes     |
@@ -32,7 +32,7 @@
 | [Day 18](https://adventofcode.com/2022/day/18) |     Boiling Boulders     | :star: :star: |           |
 | [Day 19](https://adventofcode.com/2022/day/19) |   Not Enough Minerals    | :star: :star: |           |
 | [Day 20](https://adventofcode.com/2022/day/20) | Grove Positioning System | :star: :star: |           |
-| [Day 21](https://adventofcode.com/2022/day/21) |                          |               |           |
+| [Day 21](https://adventofcode.com/2022/day/21) |       Monkey Math        | :star: :star: |           |
 | [Day 22](https://adventofcode.com/2022/day/22) |                          |               |           |
 | [Day 23](https://adventofcode.com/2022/day/23) |                          |               |           |
 | [Day 24](https://adventofcode.com/2022/day/24) |                          |               |           |
