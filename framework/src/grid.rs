@@ -1,11 +1,12 @@
 use crate::vec::Coord2d;
 
+#[derive(Clone)]
 pub struct Grid<T> {
     pub vec: Vec<T>,
     pub width: usize,
 }
 
-impl<T> Grid<T> {
+impl<T: Clone> Grid<T> {
     pub fn width(&self) -> usize {
         self.width
     }
@@ -79,9 +80,29 @@ impl<T> Grid<T> {
         iter.filter(move |&pos| 0 <= pos.x && pos.x < width && 0 <= pos.y && pos.y < height)
             .map(|pos| Coord2d::from((pos.x as usize, pos.y as usize)))
     }
+
+    pub fn row(&self, num: usize) -> Vec<T> {
+        let start = num * self.width;
+        let end = (num + 1) * self.width;
+        // TODO
+        self.vec[start..end].to_vec()
+    }
 }
 
-impl<T> std::ops::Index<Coord2d<usize>> for Grid<T> {
+impl<T: std::fmt::Display> std::fmt::Display for Grid<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for (i, c) in self.vec.iter().enumerate() {
+            if (i + 1) % self.width == 0 {
+                writeln!(f, "{}", c).unwrap();
+            } else {
+                write!(f, "{}", c).unwrap();
+            }
+        }
+        writeln!(f)
+    }
+}
+
+impl<T: Clone> std::ops::Index<Coord2d<usize>> for Grid<T> {
     type Output = T;
     fn index(&self, pos: Coord2d<usize>) -> &Self::Output {
         self.get(pos).expect("Index out of bounds")

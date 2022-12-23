@@ -63,6 +63,7 @@ dependencies = [
  "ahash 0.8.2",
  "anyhow",
  "clap 4.0.29",
+ "colored",
  "criterion",
  "criterion-macro",
  "framework",
