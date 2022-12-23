@@ -26,6 +26,7 @@ impl Instruction {
                     Direction::Left => Direction::Down,
                     Direction::Up => Direction::Left,
                 },
+                warp: cur.warp,
             },
             Instruction::RotateRight => Cursor {
                 pos: cur.pos,
@@ -35,83 +36,16 @@ impl Instruction {
                     Direction::Left => Direction::Up,
                     Direction::Up => Direction::Right,
                 },
+                warp: cur.warp,
             },
             Instruction::Move(num) => {
                 let mut new_cur = *cur;
                 for _ in 0..*num {
-                    new_cur = Self::move_cursor(new_cur, grid);
+                    new_cur = (cur.warp)(new_cur, grid);
                 }
                 new_cur
             }
         }
-    }
-    pub fn move_cursor(cur: Cursor, grid: &Grid<char>) -> Cursor {
-        let mut new_cur = cur;
-        let (dx, dy) = cur.direction.delta();
-        new_cur.pos.x = (new_cur.pos.x as i64 + dx) as usize;
-        new_cur.pos.y = (new_cur.pos.y as i64 + dy) as usize;
-
-        match grid.get(new_cur.pos).unwrap_or(&' ') {
-            '#' => new_cur = cur,
-
-            '.' => (),
-            ' ' => {
-                match cur.direction {
-                    Direction::Right => {
-                        new_cur.pos.x = grid
-                            .points()
-                            .iter()
-                            .filter(|coord| coord.y == new_cur.pos.y)
-                            .filter(|coord| coord.x != cur.pos.x)
-                            .filter(|coord| grid.get(**coord).unwrap() != &' ')
-                            .map(|coord| coord.x)
-                            .min()
-                            .unwrap();
-                    }
-                    Direction::Left => {
-                        new_cur.pos.x = grid
-                            .points()
-                            .iter()
-                            .filter(|coord| coord.y == new_cur.pos.y)
-                            .filter(|coord| coord.x != cur.pos.x)
-                            .filter(|coord| grid.get(**coord).unwrap() != &' ')
-                            .map(|coord| coord.x)
-                            .max()
-                            .unwrap();
-                    }
-                    Direction::Up => {
-                        new_cur.pos.y = grid
-                            .points()
-                            .iter()
-                            .filter(|coord| coord.x == new_cur.pos.x)
-                            .filter(|coord| coord.y != cur.pos.y)
-                            .filter(|coord| grid.get(**coord).unwrap() != &' ')
-                            .map(|coord| coord.y)
-                            .max()
-                            .unwrap();
-                    }
-                    Direction::Down => {
-                        println!("wrap down {}", new_cur.pos);
-                        new_cur.pos.y = grid
-                            .points()
-                            .iter()
-                            .filter(|coord| coord.x == new_cur.pos.x)
-                            .filter(|coord| coord.y != cur.pos.y)
-                            .filter(|coord| grid.get(**coord).unwrap() != &' ')
-                            .map(|coord| coord.y)
-                            .min()
-                            .unwrap();
-                        println!("wrap down {}", new_cur.pos);
-                    }
-                }
-                println!("wrapping new coord {}", new_cur);
-                if grid.get(new_cur.pos).unwrap() == &'#' {
-                    new_cur = cur;
-                }
-            }
-            _ => unreachable!(),
-        }
-        new_cur
     }
 }
 
@@ -185,10 +119,80 @@ impl Direction {
     }
 }
 
+pub fn move_cursor(cur: Cursor, grid: &Grid<char>) -> Cursor {
+    let mut new_cur = cur;
+    let (dx, dy) = cur.direction.delta();
+    new_cur.pos.x = (new_cur.pos.x as i64 + dx) as usize;
+    new_cur.pos.y = (new_cur.pos.y as i64 + dy) as usize;
+
+    match grid.get(new_cur.pos).unwrap_or(&' ') {
+        '#' => new_cur = cur,
+
+        '.' => (),
+        ' ' => {
+            match cur.direction {
+                Direction::Right => {
+                    new_cur.pos.x = grid
+                        .points()
+                        .iter()
+                        .filter(|coord| coord.y == new_cur.pos.y)
+                        .filter(|coord| coord.x != cur.pos.x)
+                        .filter(|coord| grid.get(**coord).unwrap() != &' ')
+                        .map(|coord| coord.x)
+                        .min()
+                        .unwrap();
+                }
+                Direction::Left => {
+                    new_cur.pos.x = grid
+                        .points()
+                        .iter()
+                        .filter(|coord| coord.y == new_cur.pos.y)
+                        .filter(|coord| coord.x != cur.pos.x)
+                        .filter(|coord| grid.get(**coord).unwrap() != &' ')
+                        .map(|coord| coord.x)
+                        .max()
+                        .unwrap();
+                }
+                Direction::Up => {
+                    new_cur.pos.y = grid
+                        .points()
+                        .iter()
+                        .filter(|coord| coord.x == new_cur.pos.x)
+                        .filter(|coord| coord.y != cur.pos.y)
+                        .filter(|coord| grid.get(**coord).unwrap() != &' ')
+                        .map(|coord| coord.y)
+                        .max()
+                        .unwrap();
+                }
+                Direction::Down => {
+                    println!("wrap down {}", new_cur.pos);
+                    new_cur.pos.y = grid
+                        .points()
+                        .iter()
+                        .filter(|coord| coord.x == new_cur.pos.x)
+                        .filter(|coord| coord.y != cur.pos.y)
+                        .filter(|coord| grid.get(**coord).unwrap() != &' ')
+                        .map(|coord| coord.y)
+                        .min()
+                        .unwrap();
+                    println!("wrap down {}", new_cur.pos);
+                }
+            }
+            println!("wrapping new coord {}", new_cur);
+            if grid.get(new_cur.pos).unwrap() == &'#' {
+                new_cur = cur;
+            }
+        }
+        _ => unreachable!(),
+    }
+    new_cur
+}
+
 #[derive(Clone, Copy)]
-struct Cursor {
+pub struct Cursor {
     pos: Coord2d<usize>,
     direction: Direction,
+    warp: fn(Cursor, &Grid<char>) -> Cursor,
 }
 impl std::fmt::Display for Cursor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -208,6 +212,7 @@ impl Cursor {
     }
 }
 
+#[allow(dead_code)]
 fn print_map(grid: &Grid<char>, cur: &Cursor) {
     let cur_idx = cur.pos.y as usize * grid.width + cur.pos.x as usize;
     for (i, c) in grid.vec.iter().enumerate() {
@@ -234,6 +239,7 @@ fn part1(input: &Input) -> u64 {
     let mut cur = Cursor {
         pos: Coord2d::from((0_usize, 0_usize)),
         direction: Direction::Right,
+        warp: move_cursor,
     };
     cur.pos.x = input
         .grid
