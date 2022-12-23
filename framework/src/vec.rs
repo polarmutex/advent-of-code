@@ -6,47 +6,36 @@ use std::ops::Sub;
 use std::str::FromStr;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, PartialOrd, Ord)]
-pub struct Coord2d<T> {
-    pub x: T,
-    pub y: T,
+pub struct Coord2d {
+    pub x: i32,
+    pub y: i32,
 }
 
-impl<T> Coord2d<T> {
-    pub fn from_coords((x, y): (T, T)) -> Self {
-        Coord2d::<T> { x, y }
+impl Coord2d {
+    pub fn from_coords(x: i32, y: i32) -> Self {
+        Coord2d { x, y }
     }
-}
 
-impl<T: Sub<Output = isize> + Copy> Coord2d<T> {
-    pub fn manhattan_distance(&self, other: &Coord2d<T>) -> isize {
+    pub fn manhattan_distance(&self, other: &Coord2d) -> i32 {
         (self.x - other.x).abs() + (self.y - other.y).abs()
     }
 }
 
-impl<T: Display> Display for Coord2d<T> {
+impl Display for Coord2d {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "({},{})", self.x, self.y)
     }
 }
 
-impl<T: AddAssign> AddAssign for Coord2d<T> {
+impl AddAssign for Coord2d {
     fn add_assign(&mut self, rhs: Self) {
         self.x.add_assign(rhs.x);
         self.y.add_assign(rhs.y);
     }
 }
 
-impl<F, I: From<F>> From<(F, F)> for Coord2d<I> {
-    fn from((x, y): (F, F)) -> Self {
-        Coord2d {
-            x: x.into(),
-            y: y.into(),
-        }
-    }
-}
-
-impl<T: Sub<Output = T>> Sub for Coord2d<T> {
-    type Output = Coord2d<T>;
+impl Sub for Coord2d {
+    type Output = Coord2d;
 
     fn sub(self, rhs: Self) -> Self::Output {
         Coord2d {

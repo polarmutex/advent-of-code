@@ -3,10 +3,10 @@ use std::collections::HashSet;
 
 day!(14, parse => part1, part2);
 
-type Blocked = HashSet<Coord2d<isize>>;
+type Blocked = HashSet<Coord2d>;
 
 fn parse(input: &str) -> ParseResult<Blocked> {
-    let rock_structures: Vec<Vec<Coord2d<isize>>> = input
+    let rock_structures: Vec<Vec<Coord2d>> = input
         .lines()
         .map(|line| {
             line.split(" -> ")
@@ -15,10 +15,10 @@ fn parse(input: &str) -> ParseResult<Blocked> {
                 .map(|point| {
                     let coord = point.split_once(',').unwrap();
                     let coord = (
-                        coord.0.parse::<isize>().expect(""),
-                        coord.1.parse::<isize>().expect(""),
+                        coord.0.parse::<i32>().expect(""),
+                        coord.1.parse::<i32>().expect(""),
                     );
-                    Coord2d::from_coords(coord)
+                    Coord2d::from_coords(coord.0, coord.1)
                 })
                 .collect_vec()
         })
@@ -49,7 +49,7 @@ fn part1(input: &Blocked) -> u32 {
 
     let abyss = blocked.iter().map(|coord| coord.y).max().unwrap();
     let mut sand = Coord2d { x: 500, y: 0 };
-    let mut sand_path: Vec<Coord2d<isize>> = vec![];
+    let mut sand_path: Vec<Coord2d> = vec![];
 
     while sand.y < abyss {
         let drop_below = Coord2d {
@@ -94,7 +94,7 @@ fn part2(input: &Blocked) -> u32 {
 
     let abyss = blocked.iter().map(|coord| coord.y).max().unwrap() + 2;
     let mut sand = Coord2d { x: 500, y: 0 };
-    let mut sand_path: Vec<Coord2d<isize>> = vec![];
+    let mut sand_path: Vec<Coord2d> = vec![];
 
     loop {
         let drop_below = Coord2d {

@@ -59,12 +59,12 @@ fn parse(input: &str) -> ParseResult<Input> {
 
     let width = grid
         .lines()
-        .fold(0, |size, line| line.bytes().len().max(size));
+        .fold(0, |size, line| line.bytes().len().max(size)) as u32;
     let vec = grid
         .lines()
         .flat_map(|line| {
             let mut v = line.bytes().map(char::from).collect_vec();
-            v.resize(width, ' ');
+            v.resize(width as usize, ' ');
             v
         })
         .collect_vec();
@@ -109,7 +109,7 @@ impl std::fmt::Display for Direction {
     }
 }
 impl Direction {
-    pub fn delta(&self) -> (i64, i64) {
+    pub fn delta(&self) -> (i32, i32) {
         match self {
             Direction::Up => (0, -1),
             Direction::Down => (0, 1),
@@ -122,8 +122,8 @@ impl Direction {
 pub fn move_cursor(cur: Cursor, grid: &Grid<char>) -> Cursor {
     let mut new_cur = cur;
     let (dx, dy) = cur.direction.delta();
-    new_cur.pos.x = (new_cur.pos.x as i64 + dx) as usize;
-    new_cur.pos.y = (new_cur.pos.y as i64 + dy) as usize;
+    new_cur.pos.x += dx;
+    new_cur.pos.y += dy;
 
     match grid.get(new_cur.pos).unwrap_or(&' ') {
         '#' => new_cur = cur,
@@ -185,11 +185,11 @@ pub fn move_cursor(cur: Cursor, grid: &Grid<char>) -> Cursor {
     new_cur
 }
 
-pub fn move_cursor_cube<const FACE_SIZE: usize>(cur: Cursor, grid: &Grid<char>) -> Cursor {
+pub fn move_cursor_cube<const FACE_SIZE: i32>(cur: Cursor, grid: &Grid<char>) -> Cursor {
     let mut new_cur = cur;
     let (dx, dy) = cur.direction.delta();
-    new_cur.pos.x = (new_cur.pos.x as i64 + dx) as usize;
-    new_cur.pos.y = (new_cur.pos.y as i64 + dy) as usize;
+    new_cur.pos.x += dx;
+    new_cur.pos.y += dy;
 
     match grid.get(new_cur.pos).unwrap_or(&' ') {
         '#' => new_cur = cur,
@@ -313,7 +313,7 @@ pub fn move_cursor_cube<const FACE_SIZE: usize>(cur: Cursor, grid: &Grid<char>) 
 
 #[derive(Clone, Copy)]
 pub struct Cursor {
-    pos: Coord2d<usize>,
+    pos: Coord2d,
     direction: Direction,
     warp: fn(Cursor, &Grid<char>) -> Cursor,
 }
@@ -337,10 +337,10 @@ impl Cursor {
 
 #[allow(dead_code)]
 fn print_map(grid: &Grid<char>, cur: &Cursor) {
-    let cur_idx = cur.pos.y as usize * grid.width + cur.pos.x as usize;
+    let cur_idx = cur.pos.y as u32 * grid.width + cur.pos.x as u32;
     for (i, c) in grid.vec.iter().enumerate() {
         let mut s = c.to_string().white();
-        if i == cur_idx {
+        if i == cur_idx as usize {
             s = match cur.direction {
                 Direction::Up => "^".bold().bright_yellow(),
                 Direction::Down => "v".bold().bright_yellow(),
@@ -348,7 +348,7 @@ fn print_map(grid: &Grid<char>, cur: &Cursor) {
                 Direction::Left => "<".bold().bright_yellow(),
             }
         }
-        if (i + 1) % grid.width == 0 {
+        if (i + 1) % grid.width as usize == 0 {
             println!("{}", s);
         } else {
             print!("{}", s);
@@ -360,7 +360,7 @@ fn print_map(grid: &Grid<char>, cur: &Cursor) {
 
 fn part1(input: &Input) -> u64 {
     let mut cur = Cursor {
-        pos: Coord2d::from((0_usize, 0_usize)),
+        pos: Coord2d::from_coords(0, 0),
         direction: Direction::Right,
         warp: move_cursor,
     };
@@ -372,7 +372,7 @@ fn part1(input: &Input) -> u64 {
         .filter(|(_, v)| **v == '.')
         .map(|(i, _)| i)
         .min()
-        .unwrap();
+        .unwrap() as i32;
     println!("starting cursor: {}", cur);
     //print_map(&input.grid, &cur);
 
@@ -388,9 +388,9 @@ fn part1(input: &Input) -> u64 {
     password
 }
 
-fn part2<const FACE_SIZE: usize>(input: &Input) -> u64 {
+fn part2<const FACE_SIZE: i32>(input: &Input) -> u64 {
     let mut cur = Cursor {
-        pos: Coord2d::from((0_usize, 0_usize)),
+        pos: Coord2d::from_coords(0, 0),
         direction: Direction::Right,
         warp: move_cursor_cube::<FACE_SIZE>,
     };
@@ -402,7 +402,7 @@ fn part2<const FACE_SIZE: usize>(input: &Input) -> u64 {
         .filter(|(_, v)| **v == '.')
         .map(|(i, _)| i)
         .min()
-        .unwrap();
+        .unwrap() as i32;
     println!("starting cursor: {}", cur);
     //print_map(&input.grid, &cur);
 

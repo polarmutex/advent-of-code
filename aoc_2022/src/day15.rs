@@ -5,20 +5,20 @@ use std::collections::HashSet;
 day!(15, parse => part1::<2_000_000>, part2::<4_000_000>);
 
 struct Sensor {
-    loc: Coord2d<isize>,
-    closest_beacon: Coord2d<isize>,
-    distance: isize,
+    loc: Coord2d,
+    closest_beacon: Coord2d,
+    distance: i32,
 }
 
 impl Sensor {
-    pub fn contains(&self, coord: &Coord2d<isize>) -> bool {
+    pub fn contains(&self, coord: &Coord2d) -> bool {
         //if *coord == self.closest_beacon {
         //    return false;
         //}
         self.loc.manhattan_distance(coord) <= self.distance
     }
 
-    pub fn get_radius_lines(&self) -> ([isize; 2], [isize; 2]) {
+    pub fn get_radius_lines(&self) -> ([i32; 2], [i32; 2]) {
         /*
         Image the four sides of the diamons
                ^
@@ -66,7 +66,7 @@ fn parse(input: &str) -> ParseResult<Vec<Sensor>> {
                 .trim()
                 .split_once(", ")
                 .map(|(x, y)| {
-                    Coord2d::from((x.parse::<isize>().expect(""), y.parse::<isize>().expect("")))
+                    Coord2d::from_coords(x.parse::<i32>().expect(""), y.parse::<i32>().expect(""))
                 })
                 .unwrap();
             let closest_beacon = beacon
@@ -75,7 +75,7 @@ fn parse(input: &str) -> ParseResult<Vec<Sensor>> {
                 .trim()
                 .split_once(", ")
                 .map(|(x, y)| {
-                    Coord2d::from((x.parse::<isize>().expect(""), y.parse::<isize>().expect("")))
+                    Coord2d::from_coords(x.parse::<i32>().expect(""), y.parse::<i32>().expect(""))
                 })
                 .unwrap();
             let distance = loc.manhattan_distance(&closest_beacon);
@@ -100,7 +100,7 @@ fn part1<const Y: isize>(input: &[Sensor]) -> usize {
     println!("x to try: {} .. {}", x_bounds.start, x_bounds.end);
 
     (x_bounds.start..=x_bounds.end)
-        .map(|x| Coord2d::from((x, Y)))
+        .map(|x| Coord2d::from_coords(x as i32, Y as i32))
         .map(|pos| {
             input
                 .iter()
@@ -112,7 +112,7 @@ fn part1<const Y: isize>(input: &[Sensor]) -> usize {
         .sum()
 }
 
-fn part2<const N: isize>(input: &[Sensor]) -> usize {
+fn part2<const N: i32>(input: &[Sensor]) -> usize {
     /*
     As there is only one missing value, it's going to be just outside the
     boundaries of at least two scanners (unless we're incredibly unlucky and
@@ -140,7 +140,7 @@ fn part2<const N: isize>(input: &[Sensor]) -> usize {
     to check a couple of thousand points at most.
     */
     let (a_vec, b_vec) = input.iter().fold(
-        (HashSet::<isize>::new(), HashSet::<isize>::new()),
+        (HashSet::<i32>::new(), HashSet::<i32>::new()),
         |(mut a, mut b), sensor| {
             let (pos_slope, neg_slope) = sensor.get_radius_lines();
             a.extend(&pos_slope.to_vec());
@@ -150,13 +150,13 @@ fn part2<const N: isize>(input: &[Sensor]) -> usize {
     );
 
     let possible_pts = iproduct!(a_vec.iter(), b_vec.iter())
-        .map(|(a, b)| Coord2d::<isize>::from(((b - a) / 2, (a + b) / 2)))
+        .map(|(a, b)| Coord2d::from_coords((b - a) / 2, (a + b) / 2))
         .filter(|p| 0 <= p.x && p.x <= N && 0 <= p.y && p.y <= N)
         .filter(|p| input.iter().all(|sen| !sen.contains(p)))
         .collect_vec();
 
     assert!(possible_pts.len() == 1);
-    (possible_pts[0].x * 4_000_000 + possible_pts[0].y) as usize
+    (possible_pts[0].x as usize * 4_000_000 + possible_pts[0].y as usize) as usize
 }
 
 tests! {

@@ -6,8 +6,8 @@ day!(12, parse => part1, part2);
 
 struct Input {
     grid: Grid<char>,
-    start: Coord2d<usize>,
-    end: Coord2d<usize>,
+    start: Coord2d,
+    end: Coord2d,
 }
 
 fn parse(input: &str) -> ParseResult<Input> {
@@ -15,18 +15,18 @@ fn parse(input: &str) -> ParseResult<Input> {
         .lines()
         .flat_map(|row| row.chars().collect_vec())
         .collect_vec();
-    let width = input.lines().next().expect("at least one row").len();
+    let width = input.lines().next().expect("at least one row").len() as u32;
 
     let mut grid = Grid { vec, width };
     let start = (0..grid.width())
-        .flat_map(|x| (0..grid.height()).map(move |y| Coord2d::from((x, y))))
+        .flat_map(|x| (0..grid.height()).map(move |y| Coord2d::from_coords(x as i32, y as i32)))
         .filter(|&pos| grid[pos] == 'S')
         .collect_vec();
     assert!(start.len() == 1);
     let start = start[0];
 
     let end = (0..grid.width())
-        .flat_map(|x| (0..grid.height()).map(move |y| Coord2d::from((x, y))))
+        .flat_map(|x| (0..grid.height()).map(move |y| Coord2d::from_coords(x as i32, y as i32)))
         .filter(|&pos| grid[pos] == 'E')
         .collect_vec();
     assert!(end.len() == 1);
@@ -42,7 +42,7 @@ fn parse(input: &str) -> ParseResult<Input> {
 fn part1(input: &Input) -> usize {
     for (pos, val) in input.grid.iter() {
         print!("{}", val);
-        if pos.x == input.grid.width() - 1 {
+        if pos.x == (input.grid.width() - 1) as i32 {
             println!()
         }
     }
@@ -70,7 +70,9 @@ fn part1(input: &Input) -> usize {
 
 fn part2(input: &Input) -> usize {
     let a_nodes = (0..input.grid.width())
-        .flat_map(|x| (0..input.grid.height()).map(move |y| Coord2d::from((x, y))))
+        .flat_map(|x| {
+            (0..input.grid.height()).map(move |y| Coord2d::from_coords(x as i32, y as i32))
+        })
         .filter(|&pos| input.grid[pos] == 'a')
         .map(Coord2d::from)
         .collect_vec();
