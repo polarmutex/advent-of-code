@@ -19,6 +19,60 @@ impl Coord2d {
     pub fn manhattan_distance(&self, other: &Coord2d) -> i32 {
         (self.x - other.x).abs() + (self.y - other.y).abs()
     }
+
+    pub fn surrounding(&self) -> impl Iterator<Item = Coord2d> + '_ {
+        [
+            (-1, -1),
+            (0, -1),
+            (1, -1),
+            (1, 0),
+            (1, 1),
+            (0, 1),
+            (-1, 1),
+            (-1, 0),
+        ]
+        .into_iter()
+        .map(move |(dx, dy)| Coord2d {
+            x: self.x + dx,
+            y: self.y + dy,
+        })
+    }
+
+    pub fn north(&self) -> impl Iterator<Item = Coord2d> + '_ {
+        [(-1, -1), (0, -1), (1, -1)]
+            .into_iter()
+            .map(move |(dx, dy)| Coord2d {
+                x: self.x + dx,
+                y: self.y + dy,
+            })
+    }
+
+    pub fn south(&self) -> impl Iterator<Item = Coord2d> + '_ {
+        [(-1, 1), (0, 1), (1, 1)]
+            .into_iter()
+            .map(move |(dx, dy)| Coord2d {
+                x: self.x + dx,
+                y: self.y + dy,
+            })
+    }
+
+    pub fn west(&self) -> impl Iterator<Item = Coord2d> + '_ {
+        [(-1, -1), (-1, 0), (-1, 1)]
+            .into_iter()
+            .map(move |(dx, dy)| Coord2d {
+                x: self.x + dx,
+                y: self.y + dy,
+            })
+    }
+
+    pub fn east(&self) -> impl Iterator<Item = Coord2d> + '_ {
+        [(1, -1), (1, 0), (1, 1)]
+            .into_iter()
+            .map(move |(dx, dy)| Coord2d {
+                x: self.x + dx,
+                y: self.y + dy,
+            })
+    }
 }
 
 impl Display for Coord2d {
