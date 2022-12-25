@@ -1,12 +1,29 @@
 use crate::vec::Coord2d;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Grid<T> {
     pub vec: Vec<T>,
     pub width: u32,
 }
 
 impl<T: Clone> Grid<T> {
+    pub fn with_dimensions(width: u32, height: u32) -> Self
+    where
+        T: Default,
+    {
+        Self::with_dimensions_init(width, height, |_, _| T::default())
+    }
+
+    pub fn with_dimensions_init<I>(width: u32, height: u32, mut init: I) -> Self
+    where
+        I: FnMut(u32, u32) -> T,
+    {
+        let vec = itertools::iproduct!(0..height, 0..width)
+            .map(|(y, x)| init(x, y))
+            .collect();
+        Self { vec, width }
+    }
+
     pub fn width(&self) -> u32 {
         self.width
     }
@@ -104,7 +121,49 @@ impl<T: std::fmt::Display> std::fmt::Display for Grid<T> {
 
 impl<T: Clone> std::ops::Index<Coord2d> for Grid<T> {
     type Output = T;
-    fn index(&self, pos: Coord2d) -> &Self::Output {
-        self.get(pos).expect("Index out of bounds")
+    #[track_caller]
+    fn index(&self, coord: Coord2d) -> &Self::Output {
+        let (w, h) = (self.width(), self.height());
+        match self.get(coord) {
+            Some(value) => value,
+            None => index_out_of_bounds(w, h, coord),
+        }
     }
+}
+
+impl<T: Clone> std::ops::IndexMut<Coord2d> for Grid<T> {
+    fn index_mut(&mut self, coord: Coord2d) -> &mut Self::Output {
+        let (w, h) = (self.width(), self.height());
+        match self.get_mut(coord) {
+            Some(value) => value,
+            None => index_out_of_bounds(w, h, coord),
+        }
+    }
+}
+
+#[cold]
+#[track_caller]
+fn index_out_of_bounds(w: u32, h: u32, coord: Coord2d) -> ! {
+    let (w, h) = (w as i32, h as i32);
+
+    if coord.x >= w {
+        panic!(
+            "Index out of bounds: the width was {w} but x was {}",
+            coord.x
+        );
+    }
+    if coord.y >= h {
+        panic!(
+            "Index out of bounds: the height was {h} but y was {}",
+            coord.y
+        );
+    }
+    if coord.x < 0 {
+        panic!("Index out of bounds: x is {} which is negative", coord.x);
+    }
+    if coord.y < 0 {
+        panic!("Index out of bounds: y is {} which is negative", coord.y);
+    }
+
+    unreachable!();
 }
