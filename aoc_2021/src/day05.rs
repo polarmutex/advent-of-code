@@ -11,13 +11,21 @@ fn parse(input: &str) -> ParseResult<Vec<Line>> {
                 .map(|(from, to)| Line {
                     from: from
                         .split_once(',')
-                        .map(|(x, y)| (x.parse::<i32>().expect(""), y.parse::<i32>().expect("")))
-                        .map(Coord2d::from_coords)
+                        .map(|(x, y)| {
+                            Coord2d::from_coords(
+                                x.parse::<i32>().expect(""),
+                                y.parse::<i32>().expect(""),
+                            )
+                        })
                         .expect(""),
                     to: to
                         .split_once(',')
-                        .map(|(x, y)| (x.parse::<i32>().expect(""), y.parse::<i32>().expect("")))
-                        .map(Coord2d::from_coords)
+                        .map(|(x, y)| {
+                            Coord2d::from_coords(
+                                x.parse::<i32>().expect(""),
+                                y.parse::<i32>().expect(""),
+                            )
+                        })
                         .expect(""),
                 })
                 .expect("")
@@ -27,13 +35,14 @@ fn parse(input: &str) -> ParseResult<Vec<Line>> {
 }
 
 fn count_overlap_pts<'i, I: Iterator<Item = &'i Line> + Clone + 'i>(lines: I) -> u32 {
-    let mut board_size: Coord2d<u32> = lines
-        .clone()
-        .flat_map(|line| [line.from, line.to])
-        .fold((0, 0), |(x, y), coord| {
-            (x.max(coord.x as u32), y.max(coord.y as u32))
-        })
-        .into();
+    let mut board_size: Coord2d = lines.clone().flat_map(|line| [line.from, line.to]).fold(
+        Coord2d::from_coords(0, 0),
+        |mut size, coord| {
+            size.x = size.x.max(coord.x);
+            size.y = size.x.max(coord.y);
+            size
+        },
+    );
     // to account for zero based indexing
     board_size.x += 1;
     board_size.y += 1;

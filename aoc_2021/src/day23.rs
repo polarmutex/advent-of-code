@@ -16,12 +16,17 @@ fn part2(_input: &[u8]) -> u32 {
 }
 
 tests! {
-    const _EXAMPLE: &str = "\
+    const EXAMPLE: &str = "\
+#############
+#...........#
+###B#C#B#D###
+  #A#D#C#A#
+  #########
 ";
-    //const INPUT: &str = include_str!("../../data/2021/23.txt");
+    const INPUT: &str = include_str!("data/23.txt");
 
-    //simple_tests!(parse, part1, part1_example_test, EXAMPLE => 0);
-    //simple_tests!(parse, part1, part1_input_test, INPUT => 0);
-    //simple_tests!(parse, part2, part2_example_test, EXAMPLE => 0);
-    //simple_tests!(parse, part2, part2_input_test, INPUT => 0);
+    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 12521);
+    simple_tests!(parse, part1, part1_input_test, INPUT => 14350);
+    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 44169);
+    simple_tests!(parse, part2, part2_input_test, INPUT => 49742);
 }

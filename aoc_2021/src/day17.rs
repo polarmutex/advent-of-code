@@ -16,12 +16,13 @@ fn part2(_input: &[u8]) -> u32 {
 }
 
 tests! {
-    const _EXAMPLE: &str = "\
+    const EXAMPLE: &str = "\
+target area: x=20..30, y=-10..-5
 ";
-    //const INPUT: &str = include_str!("../../data/2021/17.txt");
+    const INPUT: &str = include_str!("data/17.txt");
 
-    //simple_tests!(parse, part1, part1_example_test, EXAMPLE => 0);
-    //simple_tests!(parse, part1, part1_input_test, INPUT => 0);
-    //simple_tests!(parse, part2, part2_example_test, EXAMPLE => 0);
-    //simple_tests!(parse, part2, part2_input_test, INPUT => 0);
+    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 45);
+    simple_tests!(parse, part1, part1_input_test, INPUT => 7626);
+    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 112);
+    simple_tests!(parse, part2, part2_input_test, INPUT => 2032);
 }

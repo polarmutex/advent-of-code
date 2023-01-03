@@ -16,12 +16,22 @@ fn part2(_input: &[u8]) -> u32 {
 }
 
 tests! {
-    const _EXAMPLE: &str = "\
+    const EXAMPLE: &str = "\
+1163751742
+1381373672
+2136511328
+3694931569
+7463417111
+1319128137
+1359912421
+3125421639
+1293138521
+2311944581
 ";
-    //const INPUT: &str = include_str!("../../data/2021/15.txt");
+    const INPUT: &str = include_str!("data/15.txt");
 
-    //simple_tests!(parse, part1, part1_example_test, EXAMPLE => 0);
-    //simple_tests!(parse, part1, part1_input_test, INPUT => 0);
-    //simple_tests!(parse, part2, part2_example_test, EXAMPLE => 0);
-    //simple_tests!(parse, part2, part2_input_test, INPUT => 0);
+    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 40);
+    simple_tests!(parse, part1, part1_input_test, INPUT => 609);
+    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 315);
+    simple_tests!(parse, part2, part2_input_test, INPUT => 2925);
 }

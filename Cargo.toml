@@ -5,7 +5,7 @@ members = [
     "aoc_2022",
 ]
 
-default-members = ["aoc_2022"]
+default-members = ["aoc_2021"]
 
 [profile.release]
 debug = true
