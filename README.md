@@ -6,7 +6,7 @@
 
 ## 2022
 
-![Alt](https://img.shields.io/badge/stars%20⭐50--yellow)
+![Alt](https://img.shields.io/badge/stars%20%E2%AD%9050--yellow)
 ![Alt](https://img.shields.io/badge/days%20completed-25-red)
 ![Alt](https://img.shields.io/badge/rust-blue)
 
@@ -40,7 +40,7 @@
 
 ## 2021
 
-![Alt](https://img.shields.io/badge/stars%20⭐-50-yellow)
+![Alt](https://img.shields.io/badge/stars%20%E2%AD%90-50-yellow)
 ![Alt](https://img.shields.io/badge/days%20completed-25-red)
 ![Alt](https://img.shields.io/badge/python-3.8-blue)
 ![Alt](https://img.shields.io/badge/rust-blue)
@@ -77,7 +77,7 @@
 
 ## 2020
 
-![Alt](https://img.shields.io/badge/stars%20⭐-2-yellow)
+![Alt](https://img.shields.io/badge/stars%20%E2%AD%90-2-yellow)
 ![Alt](https://img.shields.io/badge/days%20completed-1-red)
 
 |                      Day                       |          Name           |     Stars     | Notes                          |
@@ -110,7 +110,7 @@
 
 ## 2019
 
-![Alt](https://img.shields.io/badge/stars%20⭐-0-yellow)
+![Alt](https://img.shields.io/badge/stars%20%E2%AD%90-0-yellow)
 ![Alt](https://img.shields.io/badge/days%20completed-0-red)
 
 |                      Day                       |                Name                | Stars | Notes                               |
@@ -143,7 +143,7 @@
 
 ## 2018
 
-![Alt](https://img.shields.io/badge/stars%20⭐-0-yellow)
+![Alt](https://img.shields.io/badge/stars%20%E2%AD%90-0-yellow)
 ![Alt](https://img.shields.io/badge/days%20completed-0-red)
 
 |                      Day                       |                 Name                 | Stars | Notes                             |
@@ -176,7 +176,7 @@
 
 ## 2017
 
-![Alt](https://img.shields.io/badge/stars%20⭐-0-yellow)
+![Alt](https://img.shields.io/badge/stars%20%E2%AD%90-0-yellow)
 ![Alt](https://img.shields.io/badge/days%20completed-0-red)
 
 |                      Day                       |                  Name                   | Stars | Notes                        |
@@ -209,7 +209,7 @@
 
 ## 2016
 
-![Alt](https://img.shields.io/badge/stars%20⭐-0-yellow)
+![Alt](https://img.shields.io/badge/stars%20%E2%AD%90-0-yellow)
 ![Alt](https://img.shields.io/badge/days%20completed-0-red)
 
 |                      Day                       |                  Name                  | Stars | Notes                              |
@@ -242,7 +242,7 @@
 
 ## 2015
 
-![Alt](https://img.shields.io/badge/stars%20⭐-0-yellow)
+![Alt](https://img.shields.io/badge/stars%20%E2%AD%90-0-yellow)
 ![Alt](https://img.shields.io/badge/days%20completed-0-red)
 
 |                      Day                       |                  Name                  | Stars | Notes          |
@@ -287,7 +287,7 @@
 
 ### Strings (Strings)
 
-- [string Processing](https://en.wikipedia.org/wiki/String_(computer_science#String_processing_algorithms)
+- \[string Processing\](https://en.wikipedia.org/wiki/String_(computer_science#String_processing_algorithms)
 - scanning
 - [hashes](https://en.wikipedia.org/wiki/Hash_function)
 - [compression](https://en.wikipedia.org/wiki/Lossless_data_compression)
