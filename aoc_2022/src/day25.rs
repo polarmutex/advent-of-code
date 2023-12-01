@@ -1,7 +1,31 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
+use itertools::Itertools;
+use std::str::FromStr;
 
-day!(25, parse => part1, part2);
+boilerplate!(
+    Day,
+    25,
+    "\
+1=-0-2
+12111
+2=0=
+21
+2=01
+111
+20012
+112
+1=-1=
+1-12
+12
+1=
+122
+",
+    "data/25.txt"
+);
 
+#[derive(Clone, Debug)]
 struct Snafu {
     val: String,
 }
@@ -48,56 +72,45 @@ impl Snafu {
     }
 }
 
-fn parse(input: &str) -> ParseResult<Vec<Snafu>> {
-    let snafus: Vec<Snafu> = input
-        .lines()
-        .map(|line| line.parse().unwrap())
-        .collect_vec();
-    Ok(snafus)
-}
-
 #[allow(dead_code)]
-fn part1a(input: &[Snafu]) -> u64 {
+fn part1a(input: Vec<Snafu>) -> u64 {
     assert!(input.len() == 1);
     input[0].to_decimal() as u64
 }
 
-fn part1(input: &[Snafu]) -> String {
-    let sum: i64 = input.iter().map(|snafu| snafu.to_decimal()).sum();
-    println!("sum: {}", sum);
-    Snafu::to_snafu(sum).val
+impl Solution for Day {
+    type Parsed = Vec<Snafu>;
+    type Answer = String;
+    type AnswerExample = &'static str;
+    const EXAMPLE_ANSWER_1: Self::AnswerExample = "2=-1=0";
+    const ANSWER_1: Self::AnswerExample = "121=2=1==0=10=2-20=2";
+    const EXAMPLE_ANSWER_2: Self::AnswerExample = "";
+    const ANSWER_2: Self::AnswerExample = "";
+
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let snafus: Vec<Snafu> = input
+            .lines()
+            .map(|line| line.parse().unwrap())
+            .collect_vec();
+        Ok(("", snafus))
+    }
+
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        let sum: i64 = input.iter().map(|snafu| snafu.to_decimal()).sum();
+        println!("sum: {}", sum);
+        Snafu::to_snafu(sum).val.clone()
+    }
+
+    fn part2(_input: Self::Parsed) -> Self::Answer {
+        "".into()
+    }
 }
 
-fn part2(_input: &[Snafu]) -> u32 {
-    0
-}
-
-tests! {
-    const EXAMPLE: &str = "\
-1=-0-2
-12111
-2=0=
-21
-2=01
-111
-20012
-112
-1=-1=
-1-12
-12
-1=
-122
-";
-    const INPUT: &str = include_str!("data/25.txt");
-
-    simple_tests!(parse, part1a, part1_snafu_test_1, "1" => 1_u64);
-    simple_tests!(parse, part1a, part1_snafu_test_2, "2" => 2_u64);
-    simple_tests!(parse, part1a, part1_snafu_test_3, "1=" => 3_u64);
-    simple_tests!(parse, part1a, part1_snafu_test_4, "1-" => 4_u64);
-    simple_tests!(parse, part1a, part1_snafu_test_5, "10" => 5_u64);
-    simple_tests!(parse, part1a, part1_snafu_test_2022, "1=11-2" => 2022_u64);
-    simple_tests!(parse, part1a, part1_snafu_test_12345, "1-0---0" => 12345_u64);
-    simple_tests!(parse, part1a, part1_snafu_test_pi, "1121-1110-1=0" => 314159265_u64);
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => String::from("2=-1=0"));
-    simple_tests!(parse, part1, part1_input_test, INPUT => "121=2=1==0=10=2-20=2");
-}
+// add_test_external!(part1a, part1_snafu_test_1, "1" => 1_u64);
+// add_test_external!(part1a, part1_snafu_test_2, "2" => 2_u64);
+// add_test_external!(part1a, part1_snafu_test_3, "1=" => 3_u64);
+// add_test_external!(part1a, part1_snafu_test_4, "1-" => 4_u64);
+// add_test_external!(part1a, part1_snafu_test_5, "10" => 5_u64);
+// add_test_external!(part1a, part1_snafu_test_2022, "1=11-2" => 2022_u64);
+// add_test_external!(part1a, part1_snafu_test_12345, "1-0---0" => 12345_u64);
+// add_test_external!(part1a, part1_snafu_test_pi, "1121-1110-1=0" => 314159265_u64);

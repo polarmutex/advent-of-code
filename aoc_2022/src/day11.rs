@@ -1,7 +1,43 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
+use itertools::Itertools;
 use std::collections::VecDeque;
 
-day!(11, parse => part1, part2);
+boilerplate!(
+    Day,
+    11,
+    "\
+Monkey 0:
+  Starting items: 79, 98
+  Operation: new = old * 19
+  Test: divisible by 23
+    If true: throw to monkey 2
+    If false: throw to monkey 3
+
+Monkey 1:
+  Starting items: 54, 65, 75, 74
+  Operation: new = old + 6
+  Test: divisible by 19
+    If true: throw to monkey 2
+    If false: throw to monkey 0
+
+Monkey 2:
+  Starting items: 79, 60, 97
+  Operation: new = old * old
+  Test: divisible by 13
+    If true: throw to monkey 1
+    If false: throw to monkey 3
+
+Monkey 3:
+  Starting items: 74
+  Operation: new = old + 3
+  Test: divisible by 17
+    If true: throw to monkey 0
+    If false: throw to monkey 1
+",
+    "data/11.txt"
+);
 
 #[derive(Debug, Clone)]
 struct Monkey {
@@ -144,15 +180,7 @@ impl std::fmt::Display for Operation {
     }
 }
 
-fn parse(input: &str) -> ParseResult<Vec<Monkey>> {
-    let monkeys = input
-        .split("\n\n")
-        .map(|monkey| monkey.parse::<Monkey>().expect("valid monkeys"))
-        .collect_vec();
-    Ok(monkeys)
-}
-
-fn keep_away<const ROUNDS: u32, const RELIEF_FACTOR: u8>(monkeys: &[Monkey]) -> MulSubmission<u64> {
+fn keep_away<const ROUNDS: u32, const RELIEF_FACTOR: u8>(monkeys: &[Monkey]) -> u64 {
     let mut monkeys = monkeys.to_vec();
 
     // Key observations is that all divisors are PRIME numbers
@@ -195,51 +223,30 @@ fn keep_away<const ROUNDS: u32, const RELIEF_FACTOR: u8>(monkeys: &[Monkey]) -> 
     let max = *monkey_inspections.iter().max().unwrap();
     let next_max = *monkey_inspections.iter().sorted().nth_back(1).unwrap();
     println!("{} {}", max, next_max);
-    MulSubmission(max, next_max)
+    max * next_max
 }
 
-fn part1(input: &[Monkey]) -> MulSubmission<u64> {
-    keep_away::<20, 3>(input)
-}
+impl Solution for Day {
+    type Parsed = Vec<Monkey>;
+    type Answer = u64;
+    const EXAMPLE_ANSWER_1: Self::Answer = 10605;
+    const ANSWER_1: Self::Answer = 55458;
+    const EXAMPLE_ANSWER_2: Self::Answer = 2713310158;
+    const ANSWER_2: Self::Answer = 14508081294;
 
-fn part2(input: &[Monkey]) -> MulSubmission<u64> {
-    keep_away::<10_000, 1>(input)
-}
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let monkeys = input
+            .split("\n\n")
+            .map(|monkey| monkey.parse::<Monkey>().expect("valid monkeys"))
+            .collect_vec();
+        Ok(("", monkeys))
+    }
 
-tests! {
-    const EXAMPLE: &str = "\
-Monkey 0:
-  Starting items: 79, 98
-  Operation: new = old * 19
-  Test: divisible by 23
-    If true: throw to monkey 2
-    If false: throw to monkey 3
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        keep_away::<20, 3>(&input)
+    }
 
-Monkey 1:
-  Starting items: 54, 65, 75, 74
-  Operation: new = old + 6
-  Test: divisible by 19
-    If true: throw to monkey 2
-    If false: throw to monkey 0
-
-Monkey 2:
-  Starting items: 79, 60, 97
-  Operation: new = old * old
-  Test: divisible by 13
-    If true: throw to monkey 1
-    If false: throw to monkey 3
-
-Monkey 3:
-  Starting items: 74
-  Operation: new = old + 3
-  Test: divisible by 17
-    If true: throw to monkey 0
-    If false: throw to monkey 1
-";
-    const INPUT: &str = include_str!("data/11.txt");
-
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => MulSubmission(105,101));
-    simple_tests!(parse, part1, part1_input_test, INPUT => MulSubmission(237,234)); //55458
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => MulSubmission(52166,52013));
-    simple_tests!(parse, part2, part2_input_test, INPUT => MulSubmission(120477,120422));
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        keep_away::<10_000, 1>(&input)
+    }
 }

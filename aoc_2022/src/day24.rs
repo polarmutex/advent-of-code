@@ -1,33 +1,27 @@
-use crate::prelude::*;
 use framework::algorithms::a_star;
+use framework::boilerplate;
 use framework::grid::Grid;
+use framework::vec::Coord2d;
+use framework::IResult;
+use framework::SolutionData;
+use itertools::Itertools;
 use std::slice::Iter;
 
-day!(24, parse => part1, part2);
+boilerplate!(
+    Day,
+    24,
+    "\
+#.######
+#>>.<^<#
+#.<..<<#
+#>v.><>#
+#<^v^^>#
+######.#
+",
+    "data/24.txt"
+);
 
-fn parse(input: &str) -> ParseResult<Grid<Blizzard>> {
-    let x_len = input.lines().next().unwrap().len() as u32 - 2;
-    let y_len = input.lines().count() as u32 - 2;
-
-    let mut blizzards: Grid<Blizzard> =
-        Grid::with_dimensions_init(x_len, y_len, |_, _| Blizzard::None);
-    for (y, line) in input.lines().dropping(1).dropping_back(1).enumerate() {
-        for (x, c) in line.chars().dropping(1).dropping_back(1).enumerate() {
-            let coord = Coord2d::from_coords(x as i32, y as i32);
-            match c {
-                '.' => {}
-                '>' => blizzards[coord] = Blizzard::East,
-                '<' => blizzards[coord] = Blizzard::West,
-                '^' => blizzards[coord] = Blizzard::North,
-                'v' => blizzards[coord] = Blizzard::South,
-                _ => unreachable!(),
-            }
-        }
-    }
-    Ok(blizzards)
-}
-
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 enum Blizzard {
     North,
     South,
@@ -118,65 +112,80 @@ fn solve(input: &Grid<Blizzard>, start: &Node, end: &Node) -> usize {
     answer.0 + 1
 }
 
-fn part1(input: &Grid<Blizzard>) -> usize {
-    let start: Node = Node {
-        pos: Coord2d::from_coords(0, -1),
-        steps: 0,
-    };
-    let end: Node = Node {
-        pos: Coord2d::from_coords(input.width() as i32 - 1, input.height() as i32 - 1),
-        steps: 0,
-    };
-    solve(input, &start, &end)
-}
+impl Solution for Day {
+    type Parsed = Grid<Blizzard>;
+    type Answer = usize;
+    const EXAMPLE_ANSWER_1: Self::Answer = 18;
+    const ANSWER_1: Self::Answer = 255;
+    const EXAMPLE_ANSWER_2: Self::Answer = 54;
+    const ANSWER_2: Self::Answer = 809;
 
-fn part2(input: &Grid<Blizzard>) -> usize {
-    let start_coord = Coord2d::from_coords(0, -1);
-    let start_coord_grid = Coord2d::from_coords(0, 0);
-    let end_coord = Coord2d::from_coords(input.width() as i32 - 1, input.height() as i32);
-    let end_coord_grid = Coord2d::from_coords(input.width() as i32 - 1, input.height() as i32 - 1);
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let x_len = input.lines().next().unwrap().len() as u32 - 2;
+        let y_len = input.lines().count() as u32 - 2;
 
-    let mut start: Node = Node {
-        pos: start_coord,
-        steps: 0,
-    };
-    let mut end: Node = Node {
-        pos: end_coord_grid,
-        steps: 0,
-    };
+        let mut blizzards: Grid<Blizzard> =
+            Grid::with_dimensions_init(x_len, y_len, |_, _| Blizzard::None);
+        for (y, line) in input.lines().dropping(1).dropping_back(1).enumerate() {
+            for (x, c) in line.chars().dropping(1).dropping_back(1).enumerate() {
+                let coord = Coord2d::from_coords(x as i32, y as i32);
+                match c {
+                    '.' => {}
+                    '>' => blizzards[coord] = Blizzard::East,
+                    '<' => blizzards[coord] = Blizzard::West,
+                    '^' => blizzards[coord] = Blizzard::North,
+                    'v' => blizzards[coord] = Blizzard::South,
+                    _ => unreachable!(),
+                }
+            }
+        }
+        Ok(("", blizzards))
+    }
 
-    let to_end = solve(input, &start, &end);
-    println!("to end {}", to_end);
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        let start: Node = Node {
+            pos: Coord2d::from_coords(0, -1),
+            steps: 0,
+        };
+        let end: Node = Node {
+            pos: Coord2d::from_coords(input.width() as i32 - 1, input.height() as i32 - 1),
+            steps: 0,
+        };
+        solve(&input, &start, &end)
+    }
 
-    end.steps = to_end as i32;
-    end.pos = end_coord;
-    start.pos = start_coord_grid;
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        let start_coord = Coord2d::from_coords(0, -1);
+        let start_coord_grid = Coord2d::from_coords(0, 0);
+        let end_coord = Coord2d::from_coords(input.width() as i32 - 1, input.height() as i32);
+        let end_coord_grid =
+            Coord2d::from_coords(input.width() as i32 - 1, input.height() as i32 - 1);
 
-    let back_for_snacks = solve(input, &end, &start);
-    println!("back for snacks {}", back_for_snacks);
+        let mut start: Node = Node {
+            pos: start_coord,
+            steps: 0,
+        };
+        let mut end: Node = Node {
+            pos: end_coord_grid,
+            steps: 0,
+        };
 
-    start.steps = (to_end + back_for_snacks) as i32;
-    start.pos = start_coord;
-    end.pos = end_coord_grid;
+        let to_end = solve(&input, &start, &end);
+        println!("to end {}", to_end);
 
-    let back_to_end = solve(input, &start, &end);
-    println!("back to end {}", back_to_end);
-    to_end + back_for_snacks + back_to_end
-}
+        end.steps = to_end as i32;
+        end.pos = end_coord;
+        start.pos = start_coord_grid;
 
-tests! {
-    const EXAMPLE: &str = "\
-#.######
-#>>.<^<#
-#.<..<<#
-#>v.><>#
-#<^v^^>#
-######.#
-";
-    const INPUT: &str = include_str!("data/24.txt");
+        let back_for_snacks = solve(&input, &end, &start);
+        println!("back for snacks {}", back_for_snacks);
 
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 18);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 255);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 54);
-    simple_tests!(parse, part2, part2_input_test, INPUT => 809);
+        start.steps = (to_end + back_for_snacks) as i32;
+        start.pos = start_coord;
+        end.pos = end_coord_grid;
+
+        let back_to_end = solve(&input, &start, &end);
+        println!("back to end {}", back_to_end);
+        to_end + back_for_snacks + back_to_end
+    }
 }

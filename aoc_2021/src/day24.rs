@@ -1,27 +1,34 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::tests;
+use framework::IResult;
+use framework::SolutionData;
 
-day!(24, parse => part1, part2);
+boilerplate!(
+    Day,
+    24,
+    "\
+",
+    "data/24.txt"
+);
 
-fn parse(_input: &str) -> ParseResult<Vec<u8>> {
-    let i = vec![];
-    Ok(i)
-}
+impl Solution for Day {
+    type Parsed = Vec<u32>;
+    type Answer = u64;
+    const EXAMPLE_ANSWER_1: Self::Answer = 13579246899999;
+    const ANSWER_1: Self::Answer = 94399898949959;
+    const EXAMPLE_ANSWER_2: Self::Answer = 0;
+    const ANSWER_2: Self::Answer = 21176121611511;
 
-fn part1(_input: &[u8]) -> u64 {
-    todo!()
-}
+    fn parse(_input: &str) -> IResult<Self::Parsed> {
+        let i = vec![];
+        Ok(("", i))
+    }
 
-fn part2(_input: &[u8]) -> u64 {
-    todo!()
-}
+    fn part1(_input: Self::Parsed) -> Self::Answer {
+        todo!()
+    }
 
-tests! {
-    const _EXAMPLE: &str = "\
-";
-    const INPUT: &str = include_str!("data/24.txt");
-
-    //simple_tests!(parse, part1, part1_example_test, EXAMPLE => 0);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 94399898949959);
-    //simple_tests!(parse, part2, part2_example_test, EXAMPLE => 0);
-    simple_tests!(parse, part2, part2_input_test, INPUT => 21176121611511);
+    fn part2(_input: Self::Parsed) -> Self::Answer {
+        todo!()
+    }
 }

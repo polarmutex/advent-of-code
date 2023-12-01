@@ -1,38 +1,25 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::line::Line;
+use framework::vec::Coord2d;
+use framework::IResult;
+use framework::SolutionData;
 
-day!(5, parse => part1, part2);
-
-fn parse(input: &str) -> ParseResult<Vec<Line>> {
-    //Ok(input_parser().parse(input).unwrap())
-    let lines: Vec<Line> = input
-        .lines()
-        .map(|line| {
-            line.split_once(" -> ")
-                .map(|(from, to)| Line {
-                    from: from
-                        .split_once(',')
-                        .map(|(x, y)| {
-                            Coord2d::from_coords(
-                                x.parse::<i32>().expect(""),
-                                y.parse::<i32>().expect(""),
-                            )
-                        })
-                        .expect(""),
-                    to: to
-                        .split_once(',')
-                        .map(|(x, y)| {
-                            Coord2d::from_coords(
-                                x.parse::<i32>().expect(""),
-                                y.parse::<i32>().expect(""),
-                            )
-                        })
-                        .expect(""),
-                })
-                .expect("")
-        })
-        .collect();
-    Ok(lines)
-}
+boilerplate!(
+    Day,
+    5,
+    "\
+0,9 -> 5,9
+8,0 -> 0,8
+9,4 -> 3,4
+2,2 -> 2,1
+7,0 -> 7,4
+6,4 -> 2,0
+0,9 -> 2,9
+3,4 -> 1,4
+0,0 -> 8,8
+5,5 -> 8,2",
+    "data/05.txt"
+);
 
 fn count_overlap_pts<'i, I: Iterator<Item = &'i Line> + Clone + 'i>(lines: I) -> u32 {
     let mut board_size: Coord2d = lines.clone().flat_map(|line| [line.from, line.to]).fold(
@@ -65,35 +52,55 @@ fn count_overlap_pts<'i, I: Iterator<Item = &'i Line> + Clone + 'i>(lines: I) ->
     }
     count
 }
+impl Solution for Day {
+    type Parsed = Vec<Line>;
+    type Answer = u32;
+    const EXAMPLE_ANSWER_1: Self::Answer = 5;
+    const ANSWER_1: Self::Answer = 7269;
+    const EXAMPLE_ANSWER_2: Self::Answer = 12;
+    const ANSWER_2: Self::Answer = 21140;
 
-fn part1(input: &[Line]) -> u32 {
-    count_overlap_pts(
-        input
-            .iter()
-            .filter(|line| line.is_horizontal() || line.is_vertical()),
-    )
-}
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        //Ok(input_parser().parse(input).unwrap())
+        let lines: Vec<Line> = input
+            .lines()
+            .map(|line| {
+                line.split_once(" -> ")
+                    .map(|(from, to)| Line {
+                        from: from
+                            .split_once(',')
+                            .map(|(x, y)| {
+                                Coord2d::from_coords(
+                                    x.parse::<i32>().expect(""),
+                                    y.parse::<i32>().expect(""),
+                                )
+                            })
+                            .expect(""),
+                        to: to
+                            .split_once(',')
+                            .map(|(x, y)| {
+                                Coord2d::from_coords(
+                                    x.parse::<i32>().expect(""),
+                                    y.parse::<i32>().expect(""),
+                                )
+                            })
+                            .expect(""),
+                    })
+                    .expect("")
+            })
+            .collect();
+        Ok(("", lines))
+    }
 
-fn part2(input: &[Line]) -> u32 {
-    count_overlap_pts(input.iter())
-}
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        count_overlap_pts(
+            input
+                .iter()
+                .filter(|line| line.is_horizontal() || line.is_vertical()),
+        )
+    }
 
-tests! {
-    const EXAMPLE: &str = "\
-0,9 -> 5,9
-8,0 -> 0,8
-9,4 -> 3,4
-2,2 -> 2,1
-7,0 -> 7,4
-6,4 -> 2,0
-0,9 -> 2,9
-3,4 -> 1,4
-0,0 -> 8,8
-5,5 -> 8,2";
-    const INPUT: &str = include_str!("data/05.txt");
-
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 5);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 7269);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 12);
-    simple_tests!(parse, part2, part2_input_test, INPUT => 21140);
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        count_overlap_pts(input.iter())
+    }
 }

@@ -1,10 +1,33 @@
-use crate::prelude::*;
 use colored::Colorize;
+use framework::boilerplate;
 use framework::grid::Grid;
+use framework::vec::Coord2d;
+use framework::IResult;
+use framework::SolutionData;
+use itertools::Itertools;
 
-day!(22, parse => part1, part2::<50>);
+boilerplate!(
+    Day,
+    22,
+    "\
+        .#..
+        #...
+        ....
+...#.......#
+........#...
+..#....#....
+..........#.
+        ...#....
+        .....#..
+        .#......
+        ......#.
 
-#[derive(Debug)]
+10R5L5R10L4R5L5
+",
+    "data/22.txt"
+);
+
+#[derive(Clone, Debug)]
 enum Instruction {
     RotateLeft,
     RotateRight,
@@ -49,51 +72,10 @@ impl Instruction {
     }
 }
 
+#[derive(Clone, Debug)]
 struct Input {
     instructions: Vec<Instruction>,
     grid: Grid<char>,
-}
-
-fn parse(input: &str) -> ParseResult<Input> {
-    let (grid, path) = input.split_once("\n\n").unwrap();
-
-    let width = grid
-        .lines()
-        .fold(0, |size, line| line.bytes().len().max(size)) as u32;
-    let vec = grid
-        .lines()
-        .flat_map(|line| {
-            let mut v = line.bytes().map(char::from).collect_vec();
-            v.resize(width as usize, ' ');
-            v
-        })
-        .collect_vec();
-
-    let mut instructions = vec![];
-    let mut chars = path.trim().chars().peekable();
-    while let Some(c) = chars.next() {
-        let instr = match c {
-            'L' => Instruction::RotateLeft,
-            'R' => Instruction::RotateRight,
-            c => {
-                let mut s = c.to_string();
-                while let Some(ch) = chars.peek() {
-                    if !ch.is_ascii_digit() {
-                        break;
-                    };
-                    s.push(chars.next().unwrap());
-                }
-                Instruction::Move(s.parse().unwrap())
-            }
-        };
-        instructions.push(instr);
-    }
-
-    let input: Input = Input {
-        instructions,
-        grid: Grid { vec, width },
-    };
-    Ok(input)
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -358,37 +340,101 @@ fn print_map(grid: &Grid<char>, cur: &Cursor) {
     println!();
 }
 
-fn part1(input: &Input) -> u64 {
-    let mut cur = Cursor {
-        pos: Coord2d::from_coords(0, 0),
-        direction: Direction::Right,
-        warp: move_cursor,
-    };
-    cur.pos.x = input
-        .grid
-        .row(0)
-        .iter()
-        .enumerate()
-        .filter(|(_, v)| **v == '.')
-        .map(|(i, _)| i)
-        .min()
-        .unwrap() as i32;
-    println!("starting cursor: {}", cur);
-    //print_map(&input.grid, &cur);
+impl AdvSolution for Day {
+    type Parsed = Input;
+    type Answer = u64;
+    const EXAMPLE_ANSWER_1: Self::Answer = 6032;
+    const ANSWER_1: Self::Answer = 36518;
+    const EXAMPLE_ANSWER_2: Self::Answer = 5031;
+    const ANSWER_2: Self::Answer = 143208;
 
-    for instr in &input.instructions {
-        cur = instr.execute(&cur, &input.grid);
-        println!("{}", instr);
-        println!("cursor: {}", cur);
-        //print_map(&input.grid, &cur);
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let (grid, path) = input.split_once("\n\n").unwrap();
+
+        let width = grid
+            .lines()
+            .fold(0, |size, line| line.bytes().len().max(size)) as u32;
+        let vec = grid
+            .lines()
+            .flat_map(|line| {
+                let mut v = line.bytes().map(char::from).collect_vec();
+                v.resize(width as usize, ' ');
+                v
+            })
+            .collect_vec();
+
+        let mut instructions = vec![];
+        let mut chars = path.trim().chars().peekable();
+        while let Some(c) = chars.next() {
+            let instr = match c {
+                'L' => Instruction::RotateLeft,
+                'R' => Instruction::RotateRight,
+                c => {
+                    let mut s = c.to_string();
+                    while let Some(ch) = chars.peek() {
+                        if !ch.is_ascii_digit() {
+                            break;
+                        };
+                        s.push(chars.next().unwrap());
+                    }
+                    Instruction::Move(s.parse().unwrap())
+                }
+            };
+            instructions.push(instr);
+        }
+
+        let input: Input = Input {
+            instructions,
+            grid: Grid { vec, width },
+        };
+        Ok(("", input))
+    }
+    fn parse_example(input: &'static str) -> IResult<Self::ParsedExample> {
+        Self::parse(input)
     }
 
-    let password = cur.password();
-    println!("answer: {}", password);
-    password
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        let mut cur = Cursor {
+            pos: Coord2d::from_coords(0, 0),
+            direction: Direction::Right,
+            warp: move_cursor,
+        };
+        cur.pos.x = input
+            .grid
+            .row(0)
+            .iter()
+            .enumerate()
+            .filter(|(_, v)| **v == '.')
+            .map(|(i, _)| i)
+            .min()
+            .unwrap() as i32;
+        println!("starting cursor: {}", cur);
+        //print_map(&input.grid, &cur);
+
+        for instr in &input.instructions {
+            cur = instr.execute(&cur, &input.grid);
+            println!("{}", instr);
+            println!("cursor: {}", cur);
+            //print_map(&input.grid, &cur);
+        }
+
+        let password = cur.password();
+        println!("answer: {}", password);
+        password
+    }
+    fn part1_example(input: Self::ParsedExample) -> Self::Answer {
+        Self::part1(input)
+    }
+
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        solve_part2::<50>(&input)
+    }
+    fn part2_example(input: Self::ParsedExample) -> Self::Answer {
+        solve_part2::<4>(&input)
+    }
 }
 
-fn part2<const FACE_SIZE: i32>(input: &Input) -> u64 {
+fn solve_part2<const FACE_SIZE: i32>(input: &Input) -> u64 {
     let mut cur = Cursor {
         pos: Coord2d::from_coords(0, 0),
         direction: Direction::Right,
@@ -417,28 +463,4 @@ fn part2<const FACE_SIZE: i32>(input: &Input) -> u64 {
     println!("answer: {}", password);
     // highter than 108_159
     password
-}
-
-tests! {
-    const EXAMPLE: &str = "        ...#
-        .#..
-        #...
-        ....
-...#.......#
-........#...
-..#....#....
-..........#.
-        ...#....
-        .....#..
-        .#......
-        ......#.
-
-10R5L5R10L4R5L5
-";
-    const INPUT: &str = include_str!("data/22.txt");
-
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 6032);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 36518);
-    //HARD CODED FOR MY INPUT - simple_tests!(parse, part2::<4>, part2_example_test, EXAMPLE => 0);
-    simple_tests!(parse, part2::<50>, part2_input_test, INPUT => 143208);
 }

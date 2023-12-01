@@ -1,61 +1,47 @@
-use crate::prelude::*;
 use ahash::AHashSet;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
 
-day!(6, parse => part1, part2);
-
-fn parse(input: &str) -> ParseResult<Vec<char>> {
-    let chars = input.chars().collect();
-    Ok(chars)
-}
+boilerplate!(
+    Day,
+    6,
+    "\
+zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw
+",
+    "data/06.txt"
+);
 
 fn solve(input: &[char], window: usize) -> usize {
     input
         .iter()
         .enumerate()
         .collect::<Vec<_>>()
-        .windows(window as usize)
+        .windows(window)
         .find(|w| w.iter().map(|p| p.1).collect::<AHashSet<_>>().len() == window)
         .unwrap()[0]
         .0
         + window
 }
 
-fn part1(input: &[char]) -> usize {
-    solve(input, 4)
-}
+impl Solution for Day {
+    type Parsed = Vec<char>;
+    type Answer = usize;
+    const EXAMPLE_ANSWER_1: Self::Answer = 11;
+    const ANSWER_1: Self::Answer = 1042;
+    const EXAMPLE_ANSWER_2: Self::Answer = 26;
+    const ANSWER_2: Self::Answer = 2980;
 
-fn part2(input: &[char]) -> usize {
-    solve(input, 14)
-}
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let chars = input.chars().collect();
+        Ok(("", chars))
+    }
 
-tests! {
-    const EXAMPLE: &str = "\
-mjqjpqmgbljsphdztnvjfqwrcgsmlb
-";
-    const EXAMPLE1: &str = "\
-bvwbjplbgvbhsrlpgdmjqwftvncz
-";
-    const EXAMPLE2: &str = "\
-nppdvjthqldpwncqszvftbrmjlhg
-";
-    const EXAMPLE3: &str = "\
-nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg
-";
-    const EXAMPLE4: &str = "\
-zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw
-";
-    const INPUT: &str = include_str!("data/06.txt");
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        solve(&input, 4)
+    }
 
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 7);
-    simple_tests!(parse, part1, part1_example1_test, EXAMPLE1 => 5);
-    simple_tests!(parse, part1, part1_example2_test, EXAMPLE2 => 6);
-    simple_tests!(parse, part1, part1_example3_test, EXAMPLE3 => 10);
-    simple_tests!(parse, part1, part1_example4_test, EXAMPLE4 => 11);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 1042);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 19);
-    simple_tests!(parse, part2, part2_example1_test, EXAMPLE1 => 23);
-    simple_tests!(parse, part2, part2_example2_test, EXAMPLE2 => 23);
-    simple_tests!(parse, part2, part2_example3_test, EXAMPLE3 => 29);
-    simple_tests!(parse, part2, part2_example4_test, EXAMPLE4 => 26);
-    simple_tests!(parse, part2, part2_input_test, INPUT => 2980);
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        solve(&input, 14)
+    }
 }

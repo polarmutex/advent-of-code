@@ -1,14 +1,22 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
+use itertools::Itertools;
 
-day!(20, parse => part1, part2);
-
-fn parse(input: &str) -> ParseResult<Vec<i64>> {
-    let vec = input
-        .lines()
-        .map(|line| line.parse::<i64>().unwrap())
-        .collect_vec();
-    Ok(vec)
-}
+boilerplate!(
+    Day,
+    20,
+    "\
+1
+2
+-3
+3
+-2
+0
+4
+",
+    "data/20.txt"
+);
 
 fn mix<const ITERATIONS: u32, const DECRYPTION_KEY: i64>(input: &[i64]) -> i64 {
     let input = input.iter().map(|x| x * DECRYPTION_KEY).collect_vec();
@@ -29,28 +37,27 @@ fn mix<const ITERATIONS: u32, const DECRYPTION_KEY: i64>(input: &[i64]) -> i64 {
         .sum()
 }
 
-fn part1(input: &[i64]) -> i64 {
-    mix::<1, 1>(input)
-}
+impl Solution for Day {
+    type Parsed = Vec<i64>;
+    type Answer = i64;
+    const EXAMPLE_ANSWER_1: Self::Answer = 3;
+    const ANSWER_1: Self::Answer = 5962;
+    const EXAMPLE_ANSWER_2: Self::Answer = 1623178306;
+    const ANSWER_2: Self::Answer = 9862431387256;
 
-fn part2(input: &[i64]) -> i64 {
-    mix::<10, 811_589_153>(input)
-}
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let vec = input
+            .lines()
+            .map(|line| line.parse::<i64>().unwrap())
+            .collect_vec();
+        Ok(("", vec))
+    }
 
-tests! {
-    const EXAMPLE: &str = "\
-1
-2
--3
-3
--2
-0
-4
-";
-    const INPUT: &str = include_str!("data/20.txt");
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        mix::<1, 1>(&input)
+    }
 
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 3);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 5962);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 1623178306);
-    simple_tests!(parse, part2, part2_input_test, INPUT => 9862431387256);
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        mix::<10, 811_589_153>(&input)
+    }
 }

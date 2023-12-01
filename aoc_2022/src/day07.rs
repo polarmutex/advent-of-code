@@ -1,7 +1,38 @@
-use crate::prelude::*;
 use ahash::AHashMap;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
 
-day!(7, parse => part1, part2);
+boilerplate!(
+    Day,
+    7,
+    "\
+$ cd /
+$ ls
+dir a
+14848514 b.txt
+8504156 c.dat
+dir d
+$ cd a
+$ ls
+dir e
+29116 f
+2557 g
+62596 h.lst
+$ cd e
+$ ls
+584 i
+$ cd ..
+$ cd ..
+$ cd d
+$ ls
+4060174 j
+8033020 d.log
+5626152 d.ext
+7214296 k
+",
+    "data/07.txt"
+);
 
 #[derive(Debug, Clone)]
 pub enum Command {
@@ -98,18 +129,6 @@ impl std::fmt::Display for TerminalOutput {
     }
 }
 
-fn parse(input: &str) -> ParseResult<Vec<TerminalOutput>> {
-    let term_outputs = input
-        .split('$')
-        .skip(1)
-        .map(|cmd| {
-            cmd.parse::<TerminalOutput>()
-                .expect("Can parse terminal cmd")
-        })
-        .collect();
-    Ok(term_outputs)
-}
-
 fn calculate_dir_sizes(input: &[TerminalOutput]) -> AHashMap<String, u64> {
     let mut cwd: Vec<String> = vec![];
     let mut size_map: AHashMap<String, u64> = AHashMap::new();
@@ -154,65 +173,52 @@ fn calculate_dir_sizes(input: &[TerminalOutput]) -> AHashMap<String, u64> {
     size_map
 }
 
-fn part1(input: &[TerminalOutput]) -> u64 {
-    let size_map = calculate_dir_sizes(input);
-    for (k, v) in size_map.iter() {
-        println!("folder: {} size: {}", k, v);
+impl Solution for Day {
+    type Parsed = Vec<TerminalOutput>;
+    type Answer = u64;
+    const EXAMPLE_ANSWER_1: Self::Answer = 95437;
+    const ANSWER_1: Self::Answer = 1886043;
+    const EXAMPLE_ANSWER_2: Self::Answer = 24933642;
+    const ANSWER_2: Self::Answer = 3842121;
+
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let term_outputs = input
+            .split('$')
+            .skip(1)
+            .map(|cmd| {
+                cmd.parse::<TerminalOutput>()
+                    .expect("Can parse terminal cmd")
+            })
+            .collect();
+        Ok(("", term_outputs))
     }
-    let answer = size_map.values().filter(|v| **v <= 100_000).sum();
-    println!("ans: {}", answer);
-    answer
-}
 
-fn part2(input: &[TerminalOutput]) -> u64 {
-    let size_map = calculate_dir_sizes(input);
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        let size_map = calculate_dir_sizes(&input);
+        for (k, v) in size_map.iter() {
+            println!("folder: {} size: {}", k, v);
+        }
+        let answer = size_map.values().filter(|v| **v <= 100_000).sum();
+        println!("ans: {}", answer);
+        answer
+    }
 
-    let current_size = size_map.get("/").expect("root to be map");
-    println!("current_size: {}", current_size);
-    let current_freespace = 70_000_000 - current_size;
-    println!("current_freespace: {}", current_freespace);
-    let space_needed = 30_000_000 - current_freespace;
-    println!("space_needed: {}", space_needed);
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        let size_map = calculate_dir_sizes(&input);
 
-    let answer = size_map
-        .values()
-        .filter(|v| **v > space_needed)
-        .min()
-        .unwrap();
-    println!("ans: {}", answer);
-    *answer
-}
+        let current_size = size_map.get("/").expect("root to be map");
+        println!("current_size: {}", current_size);
+        let current_freespace = 70_000_000 - current_size;
+        println!("current_freespace: {}", current_freespace);
+        let space_needed = 30_000_000 - current_freespace;
+        println!("space_needed: {}", space_needed);
 
-tests! {
-    const EXAMPLE: &str = "\
-$ cd /
-$ ls
-dir a
-14848514 b.txt
-8504156 c.dat
-dir d
-$ cd a
-$ ls
-dir e
-29116 f
-2557 g
-62596 h.lst
-$ cd e
-$ ls
-584 i
-$ cd ..
-$ cd ..
-$ cd d
-$ ls
-4060174 j
-8033020 d.log
-5626152 d.ext
-7214296 k
-";
-    const INPUT: &str = include_str!("data/07.txt");
-
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 95437);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 1886043);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 24933642);
-    simple_tests!(parse, part2, part2_input_test, INPUT => 3842121);
+        let answer = size_map
+            .values()
+            .filter(|v| **v > space_needed)
+            .min()
+            .unwrap();
+        println!("ans: {}", answer);
+        *answer
+    }
 }

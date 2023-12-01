@@ -1,23 +1,21 @@
+#![feature(associated_type_defaults)]
+
 pub mod algorithms;
-pub mod day;
+pub mod aoc_cli;
+pub mod commands;
 pub mod grid;
-pub mod inputs;
 pub mod line;
 pub mod ocr;
-mod parser;
-pub mod prelude;
-mod submission;
-mod submit;
 pub mod vec;
 
-use crate::submission::FinalResult;
-//use ahash::AHashSet;
-use crate::day::Part;
-use anyhow::Result;
-use colored::Colorize;
-use day::{Day, DayResult};
-use inputs::Inputs;
-use submit::Submit;
+// use colored::Colorize;
+use nom::character::complete::line_ending;
+use nom_supreme::{final_parser::final_parser, ParserExt};
+use std::fmt::{Debug, Display};
+
+pub type OutResult = Result<(), Box<dyn std::error::Error>>;
+pub type SubmissionResult = Result<String, Box<dyn std::error::Error>>;
+pub type IResult<'a, T> = nom::IResult<&'a str, T>;
 
 #[macro_export]
 macro_rules! main {
@@ -25,198 +23,296 @@ macro_rules! main {
         $(mod $day;)*
 
         use clap::{Args, Parser, Subcommand};
-        use framework::day::Part;
-
-        #[derive(Parser)]
-        #[command(author, version, about, long_about = None)]
-        #[command(propagate_version = true)]
-        struct Cli {
-            #[command(subcommand)]
-            command: Commands,
-        }
-
-        #[derive(Subcommand)]
-        enum Commands {
-            Run(Run),
-            Submit(Submit),
-        }
-
-        #[derive(Args)]
-        struct Run {
-            days: Vec<u32>,
-        }
-
-        #[derive(Args)]
-        struct Submit {
-            day: u32,
-            #[arg(value_enum)]
-            part: Part,
-        }
+        use framework::commands::Cli;
+        use framework::commands::Commands;
+        use framework::commands::all;
+        use framework::commands::download;
+        use framework::commands::scaffold;
+        use framework::commands::submit;
 
         pub const YEAR:u32 = $year;
 
         pub fn main() {
-            let cli = Cli::parse();
-            match &cli.command {
-                Commands::Run(obj) => {
-                    framework::run($year, &[
+            let args = Cli::parse();
+
+            match args.command {
+                Commands::All {} => all::handle(),
+                Commands::Download {day} => download::handle($year, day),
+                Commands::Scaffold {day} => scaffold::handle($year, day),
+                Commands::Submit {day, part} => submit::handle($year, &[
                         $(&$day::day(),)*
-                    ], &obj.days);
-                },
-                Commands::Submit(obj) => {
-                    framework::submit($year, &[
-                        $(&$day::day(),)*
-                    ], obj.day, obj.part);
-                }
+                    ], day, part),
             }
         }
     };
 }
 
-pub fn run(year: u32, days: &[&dyn Day], specific_days: &[u32]) {
-    println!(
-        "\n🎄 {} {} {} {} 🎄\n",
-        "Advent".bright_red().bold(),
-        "of".bright_green(),
-        "Code".blue().bold(),
-        "2021".white().bold()
-    );
+#[macro_export]
+macro_rules! boilerplate {
+    ($day:ident,$nr:literal,$example:literal,$input:literal) => {
+        struct $day;
+        use framework::AdvSolution;
+        use framework::OutResult;
+        use framework::Runner;
+        use framework::Solution;
 
-    //let args = sd::env::args().collect::<Vec<String>>();
-    //let is_bench = args.iter().any(|x| x == "--bench");
-    //let is_submit = args.iter().any(|x| x == "--submit");
-    //let specific_days = args
-    //    .iter()
-    //    .filter_map(|x| x.parse::<u32>().ok())
-    //    .collect::<AHashSet<u32>>();
-
-    let mut inputs = Inputs::new();
-    for &day in days {
-        if !specific_days.is_empty() && !specific_days.contains(&day.nr()) {
-            continue;
+        impl SolutionData for $day {
+            const INPUT_DATA: &'static str = include_str!($input);
+            const EXAMPLE_DATA: &'static str = $example;
         }
-        //if is_bench {
-        //    bench_day(&mut inputs, day);
-        //} else {
-        exec_day(&mut inputs, year, day);
-        //}
-    }
-    println!();
-}
-
-fn exec_day(inputs: &mut Inputs, year: u32, day: &dyn Day) {
-    let day_nr = day.nr();
-    println!(
-        "{} {}",
-        "Day".bright_blue(),
-        format!("{day_nr:>2}").bright_red().bold()
-    );
-    let result = match inputs.get(year, day_nr) {
-        Ok(input) => day.exec(&input),
-        Err(e) => DayResult::NoInput(e),
-    };
-    fn err_to_str(e: anyhow::Error) -> FinalResult {
-        FinalResult {
-            answer: "".bold().bright_red().to_string(),
-            display: e.to_string().red().bold().to_string(),
-        }
-    }
-    fn fmt_output(result: Result<FinalResult>) -> FinalResult {
-        result.unwrap_or_else(err_to_str)
-    }
-    let (pt1_key, pt1_value, pt2_value) = match result {
-        DayResult::NoInput(e) => ("no input".bright_red(), err_to_str(e), None),
-        DayResult::ParseFailed(e) => ("parse error".bright_red(), err_to_str(e), None),
-        DayResult::Ran { part1, part2 } => (
-            "part1".bright_green(),
-            fmt_output(part1),
-            Some(format!("{}", part2.unwrap()).bright_green().to_string()),
-        ),
-    };
-    print!(" :: {} {}", pt1_key, pt1_value);
-    if let Some(pt2_value) = pt2_value {
-        print!(" :: {} {}", "part2".bright_green(), pt2_value);
-    }
-    println!();
-}
-
-pub fn submit(year: u32, days: &[&dyn Day], specific_day: u32, part: Part) {
-    println!(
-        "\n🎄 {} {} {} {} 🎄\n",
-        "Advent".bright_red().bold(),
-        "of".bright_green(),
-        "Code".blue().bold(),
-        "2021".white().bold()
-    );
-
-    let mut inputs = Inputs::new();
-    let mut submit = Submit::new();
-    for &day in days {
-        if day.nr() == specific_day {
-            let day_nr = day.nr();
-            print!(
-                "{} {} {} :: ",
-                "Submitting".bright_white(),
-                "Day".bright_blue(),
-                format!("{day_nr:>2}").bright_red().bold()
-            );
-            let result = match inputs.get(year, day_nr) {
-                Ok(input) => day.exec(&input),
-                Err(e) => DayResult::NoInput(e),
-            };
-            fn process_result(result: Result<submit::SubmitResult>) {
-                match result.unwrap() {
-                    submit::SubmitResult::TooQuick => {
-                        println!("{}", "Too Quick".bright_red());
-                    }
-                    submit::SubmitResult::Wrong => {
-                        println!("{}", "Wrong".bright_red())
-                    }
-                    submit::SubmitResult::AlreadyDone => {
-                        println!("{}", "already done".bright_yellow())
-                    }
-                    submit::SubmitResult::Error => println!("{}", "error".bright_red()),
-                    submit::SubmitResult::Right => {
-                        println!("{}", "RIGHT".bright_green())
-                    }
-                };
+        impl Runner for $day {
+            fn nr(&self) -> u8 {
+                $nr
             }
-            match result {
-                DayResult::NoInput(e) => println!("{}: {}", "no input".bright_red(), e),
-                DayResult::ParseFailed(e) => {
-                    println!("{}: {}", "parsed failed".bright_red(), e)
-                }
-                DayResult::Ran { part1, part2 } => {
-                    match part {
-                        Part::Part1 => match part1 {
-                            Err(_) => println!("{}", "Part1 failed:".bright_red()),
-                            _ => {
-                                let result = submit.submit(
-                                    year,
-                                    specific_day,
-                                    Part::Part1,
-                                    &part1.unwrap().answer,
-                                );
-                                process_result(result);
-                            }
-                        },
-                        Part::Part2 => match part2 {
-                            Err(_) => println!("Part2 failed:"),
-                            _ => {
-                                let result = submit.submit(
-                                    year,
-                                    specific_day,
-                                    Part::Part2,
-                                    &part2.unwrap().answer,
-                                );
-                                process_result(result);
-                            }
-                        },
-                    };
-                }
-            };
-            break;
+            fn get_part1_submission(&self) -> String {
+                Self::part1_submission().unwrap()
+            }
+
+            fn get_part2_submission(&self) -> String {
+                Self::part2_submission().unwrap()
+            }
         }
-    }
-    println!();
+        pub fn day() -> impl Runner {
+            $day
+        }
+
+        #[cfg(test)]
+        mod tests {
+            use super::*;
+
+            #[test]
+            fn test_part1_example() -> OutResult {
+                $day::test_part1_example()
+            }
+
+            #[test]
+            fn test_part1_input() -> OutResult {
+                $day::test_part1_input()
+            }
+
+            #[test]
+            fn test_part2_example() -> OutResult {
+                $day::test_part2_example()
+            }
+
+            #[test]
+            fn test_part2_input() -> OutResult {
+                $day::test_part2_input()
+            }
+        }
+    };
 }
+
+#[macro_export]
+macro_rules! tests {
+    ($($x:tt)*) => {
+        #[cfg(test)]
+        mod tests {
+            use super::*;
+            use framework::add_test;
+            use framework::add_test_external;
+            use framework::OutResult;
+            // use $crate::input_tests;
+            // use $crate::simple_tests;
+
+            $($x)*
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! add_test {
+    ($pt:ident, $pt_name:ident, $input:expr => $expected:expr) => {
+        #[test]
+        fn $pt_name() -> OutResult {
+            assert_eq!(Day::$pt(Day::final_parse_test($input)?), $expected);
+            //println!("a: {}", Self::a(Self::final_parse(Self::DATA)?));
+            Ok(())
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! add_test_external {
+    ($pt:ident, $pt_name:ident, $input:expr => $expected:expr) => {
+        #[test]
+        fn $pt_name() -> OutResult {
+            assert_eq!($pt(Day::final_parse_test($input)?), $expected);
+            //println!("a: {}", Self::a(Self::final_parse(Self::DATA)?));
+            Ok(())
+        }
+    };
+}
+
+pub trait Runner {
+    fn nr(&self) -> u8;
+    fn get_part1_submission(&self) -> String;
+    fn get_part2_submission(&self) -> String;
+    //fn exec_bench(&self, input: &str) -> Result<BenchOutputs>;
+}
+
+pub trait SolutionData {
+    const INPUT_DATA: &'static str;
+    const EXAMPLE_DATA: &'static str;
+}
+
+pub trait Solution: SolutionData {
+    type Parsed: Debug + Clone = &'static str;
+    type Answer: Debug + Display + PartialEq<Self::AnswerExample>;
+    type AnswerExample: Debug = Self::Answer;
+    const EXAMPLE_ANSWER_1: Self::AnswerExample;
+    const EXAMPLE_ANSWER_2: Self::AnswerExample;
+    const ANSWER_1: Self::AnswerExample;
+    const ANSWER_2: Self::AnswerExample;
+
+    fn parse(data: &'static str) -> IResult<Self::Parsed>;
+    fn part1(data: Self::Parsed) -> Self::Answer;
+    fn part2(data: Self::Parsed) -> Self::Answer;
+}
+
+pub trait AdvSolution: SolutionData {
+    type Parsed: Debug + Clone = &'static str;
+    type ParsedExample: Debug + Clone = Self::Parsed;
+    type Answer: Debug + Display + PartialEq<Self::AnswerExample>;
+    type AnswerExample: Debug = Self::Answer;
+    const EXAMPLE_ANSWER_1: Self::AnswerExample;
+    const EXAMPLE_ANSWER_2: Self::AnswerExample;
+    const ANSWER_1: Self::AnswerExample; //why not Answer?
+    const ANSWER_2: Self::AnswerExample;
+
+    fn parse(data: &'static str) -> IResult<Self::Parsed>;
+    fn part1(data: Self::Parsed) -> Self::Answer;
+    fn part2(data: Self::Parsed) -> Self::Answer;
+    fn parse_example(data: &'static str) -> IResult<Self::ParsedExample>;
+    fn part1_example(data: Self::ParsedExample) -> Self::Answer;
+    fn part2_example(data: Self::ParsedExample) -> Self::Answer;
+
+    fn final_parse(data: &'static str) -> Result<Self::Parsed, nom::error::Error<&str>> {
+        final_parser(Self::parse.terminated(line_ending.opt()))(data)
+    }
+
+    fn final_parse_example(
+        data: &'static str,
+    ) -> Result<Self::ParsedExample, nom::error::Error<&str>> {
+        final_parser(Self::parse_example.terminated(line_ending.opt()))(data)
+    }
+
+    fn part1_submission() -> SubmissionResult {
+        let result = Self::part1(Self::final_parse(Self::INPUT_DATA)?);
+        Ok(result.to_string())
+    }
+
+    fn part2_submission() -> SubmissionResult {
+        let result = Self::part2(Self::final_parse(Self::INPUT_DATA)?);
+        Ok(result.to_string())
+    }
+
+    fn test_part1_example() -> OutResult
+    where
+        <Self as AdvSolution>::AnswerExample: PartialEq,
+    {
+        dbg!(Self::EXAMPLE_DATA);
+        assert_eq!(
+            Self::part1_example(Self::final_parse_example(Self::EXAMPLE_DATA)?),
+            Self::EXAMPLE_ANSWER_1
+        );
+        Ok(())
+    }
+
+    fn test_part1_input() -> OutResult {
+        assert_eq!(
+            Self::part1(Self::final_parse(Self::INPUT_DATA)?),
+            //Self::part1(Self::final_parse(Self::INPUT_DATA)?),
+            Self::ANSWER_1
+        );
+        Ok(())
+    }
+
+    fn test_part2_example() -> OutResult
+    where
+        <Self as AdvSolution>::AnswerExample: PartialEq,
+    {
+        assert_eq!(
+            Self::part2_example(Self::final_parse_example(Self::EXAMPLE_DATA)?),
+            Self::EXAMPLE_ANSWER_2
+        );
+        Ok(())
+    }
+
+    fn test_part2_input() -> OutResult {
+        assert_eq!(
+            Self::part2(Self::final_parse(Self::INPUT_DATA)?),
+            Self::ANSWER_2
+        );
+        Ok(())
+    }
+
+    fn submit_part1() {}
+}
+
+impl<T: Solution> AdvSolution for T {
+    type Parsed = <Self as Solution>::Parsed;
+    type ParsedExample = Self::Parsed;
+    type Answer = <Self as Solution>::Answer;
+    type AnswerExample = <Self as Solution>::AnswerExample;
+    const EXAMPLE_ANSWER_1: <Self as Solution>::AnswerExample =
+        <Self as Solution>::EXAMPLE_ANSWER_1;
+    const EXAMPLE_ANSWER_2: <Self as Solution>::AnswerExample =
+        <Self as Solution>::EXAMPLE_ANSWER_2;
+    const ANSWER_1: <Self as Solution>::AnswerExample = <Self as Solution>::ANSWER_1;
+    const ANSWER_2: <Self as Solution>::AnswerExample = <Self as Solution>::ANSWER_2;
+
+    fn parse(data: &'static str) -> IResult<Self::Parsed> {
+        <Self as Solution>::parse(data)
+    }
+
+    fn part1(data: Self::Parsed) -> Self::Answer {
+        <Self as Solution>::part1(data)
+    }
+
+    fn part2(data: Self::Parsed) -> Self::Answer {
+        <Self as Solution>::part2(data)
+    }
+
+    fn parse_example(data: &'static str) -> IResult<Self::ParsedExample> {
+        Self::parse(data)
+    }
+    fn part1_example(data: Self::ParsedExample) -> Self::Answer {
+        Self::part1(data)
+    }
+    fn part2_example(data: Self::ParsedExample) -> Self::Answer {
+        Self::part2(data)
+    }
+}
+
+// println!(
+//     "\n🎄 {} {} {} {} 🎄\n",
+//     "Advent".bright_red().bold(),
+//     "of".bright_green(),
+//     "Code".blue().bold(),
+//     "2021".white().bold()
+// );
+
+// print!(
+//     "{} {} {} :: ",
+//     "Submitting".bright_white(),
+//     "Day".bright_blue(),
+//     format!("{day_nr:>2}").bright_red().bold()
+// );
+// fn process_result(result: Result<submit::SubmitResult>) {
+//     match result.unwrap() {
+//         submit::SubmitResult::TooQuick => {
+//             println!("{}", "Too Quick".bright_red());
+//         }
+//         submit::SubmitResult::Wrong => {
+//             println!("{}", "Wrong".bright_red())
+//         }
+//         submit::SubmitResult::AlreadyDone => {
+//             println!("{}", "already done".bright_yellow())
+//         }
+//         submit::SubmitResult::Error => println!("{}", "error".bright_red()),
+//         submit::SubmitResult::Right => {
+//             println!("{}", "RIGHT".bright_green())
+//         }
+//     };
+// }

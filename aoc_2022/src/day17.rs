@@ -1,9 +1,20 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
+use itertools::Itertools;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
-day!(17, parse => part1, part2);
+boilerplate!(
+    Day,
+    17,
+    "\
+>>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>
+",
+    "data/17.txt"
+);
 
+#[derive(Clone, Debug)]
 enum JetPattern {
     Left,
     Right,
@@ -168,19 +179,6 @@ impl std::fmt::Display for Chamber {
     }
 }
 
-fn parse(input: &str) -> ParseResult<Vec<JetPattern>> {
-    let jet_pattern = input
-        .trim()
-        .chars()
-        .map(|c| match c {
-            '<' => JetPattern::Left,
-            '>' => JetPattern::Right,
-            _ => unreachable!("unexpected input for jet pattern"),
-        })
-        .collect_vec();
-    Ok(jet_pattern)
-}
-
 #[allow(dead_code)]
 fn print_scenario(chamber: &Chamber, shape: &Shape, height: usize) {
     let mut new_chamber = chamber.clone();
@@ -285,22 +283,32 @@ fn sim<const NUM_ROCKS: usize>(jet_pattern: &[JetPattern]) -> usize {
     chamber.grid.len() + cycle_height
 }
 
-fn part1(input: &[JetPattern]) -> usize {
-    sim::<2022>(input)
-}
+impl Solution for Day {
+    type Parsed = Vec<JetPattern>;
+    type Answer = usize;
+    const EXAMPLE_ANSWER_1: Self::Answer = 3068;
+    const ANSWER_1: Self::Answer = 3219;
+    const EXAMPLE_ANSWER_2: Self::Answer = 1514285714288;
+    const ANSWER_2: Self::Answer = 1582758620701;
 
-fn part2(input: &[JetPattern]) -> usize {
-    sim::<1_000_000_000_000>(input)
-}
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let jet_pattern = input
+            .trim()
+            .chars()
+            .map(|c| match c {
+                '<' => JetPattern::Left,
+                '>' => JetPattern::Right,
+                _ => unreachable!("unexpected input for jet pattern"),
+            })
+            .collect_vec();
+        Ok(("", jet_pattern))
+    }
 
-tests! {
-    const EXAMPLE: &str = "\
->>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>
-";
-    const INPUT: &str = include_str!("data/17.txt");
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        sim::<2022>(&input)
+    }
 
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 3068);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 3219);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 1514285714288);
-    simple_tests!(parse, part2, part2_input_test, INPUT => 1582758620701);
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        sim::<1_000_000_000_000>(&input)
+    }
 }

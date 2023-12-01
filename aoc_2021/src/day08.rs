@@ -1,9 +1,29 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
+use itertools::Itertools;
 
-day!(8, parse => part1, part2);
+boilerplate!(
+    Day,
+    8,
+    "\
+be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe
+edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc
+fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg
+fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb
+aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea
+fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb
+dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe
+bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef
+egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb
+gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
+",
+    "data/08.txt"
+);
 
 type Segments = u8;
 
+#[derive(Clone, Debug)]
 struct Record {
     signal_patterns: Vec<Segments>,
     output: Vec<Segments>,
@@ -86,74 +106,62 @@ impl Record {
     }
 }
 
-fn parse(input: &str) -> ParseResult<Vec<Record>> {
-    let records: Vec<Record> = input
-        .lines()
-        .map(|line| {
-            let (measurements, digits) = line.split_once(" | ").unwrap();
-            let signal_patterns = measurements
-                .split_whitespace()
-                .map(convert_to_signals)
-                .collect_vec();
-            let output = digits
-                .split_whitespace()
-                .map(convert_to_signals)
-                .collect_vec();
-            Record {
-                signal_patterns,
-                output,
-            }
-        })
-        .collect_vec();
-    Ok(records)
-}
+impl Solution for Day {
+    type Parsed = Vec<Record>;
+    type Answer = usize;
+    const EXAMPLE_ANSWER_1: Self::Answer = 26;
+    const ANSWER_1: Self::Answer = 294;
+    const EXAMPLE_ANSWER_2: Self::Answer = 61229;
+    const ANSWER_2: Self::Answer = 973292;
 
-fn part1(input: &[Record]) -> usize {
-    input
-        .iter()
-        .flat_map(|record| &record.output)
-        .filter(|digit| matches!(digit.count_ones(), 2 | 3 | 4 | 7))
-        .count()
-}
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let records: Vec<Record> = input
+            .lines()
+            .map(|line| {
+                let (measurements, digits) = line.split_once(" | ").unwrap();
+                let signal_patterns = measurements
+                    .split_whitespace()
+                    .map(convert_to_signals)
+                    .collect_vec();
+                let output = digits
+                    .split_whitespace()
+                    .map(convert_to_signals)
+                    .collect_vec();
+                Record {
+                    signal_patterns,
+                    output,
+                }
+            })
+            .collect_vec();
+        Ok(("", records))
+    }
 
-fn part2(input: &[Record]) -> usize {
-    input
-        .iter()
-        .map(|record| {
-            let found = record.match_signals();
-            let nums = record
-                .output
-                .iter()
-                .map(|digit| found.iter().position(|y| digit == y).unwrap())
-                .collect_vec();
-            for n in &nums {
-                print!("{}", n);
-            }
-            println!();
-            let ans = nums.iter().fold(0, |res, nr| res * 10 + nr);
-            println!("ans: {}", ans);
-            ans
-        })
-        .sum()
-}
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        input
+            .iter()
+            .flat_map(|record| &record.output)
+            .filter(|digit| matches!(digit.count_ones(), 2 | 3 | 4 | 7))
+            .count()
+    }
 
-tests! {
-    const EXAMPLE: &str = "\
-be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe
-edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc
-fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg
-fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb
-aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea
-fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb
-dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe
-bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef
-egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb
-gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
-";
-    const INPUT: &str = include_str!("data/08.txt");
-
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 26);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 294);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 61229);
-    simple_tests!(parse, part2, part2_input_test, INPUT => 973292);
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        input
+            .iter()
+            .map(|record| {
+                let found = record.match_signals();
+                let nums = record
+                    .output
+                    .iter()
+                    .map(|digit| found.iter().position(|y| digit == y).unwrap())
+                    .collect_vec();
+                for n in &nums {
+                    print!("{}", n);
+                }
+                println!();
+                let ans = nums.iter().fold(0, |res, nr| res * 10 + nr);
+                println!("ans: {}", ans);
+                ans
+            })
+            .sum()
+    }
 }

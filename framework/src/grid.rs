@@ -1,6 +1,6 @@
 use crate::vec::Coord2d;
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Grid<T> {
     pub vec: Vec<T>,
     pub width: u32,

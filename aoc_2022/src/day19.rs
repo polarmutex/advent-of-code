@@ -1,8 +1,16 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
+use itertools::Itertools;
 use std::collections::VecDeque;
 
-day!(19, parse => part1, part2);
+boilerplate!(Day, 19, "\
+Blueprint 1: Each ore robot costs 4 ore.  Each clay robot costs 2 ore.  Each obsidian robot costs 3 ore and 14 clay.  Each geode robot costs 2 ore and 7 obsidian.
+Blueprint 2:  Each ore robot costs 2 ore.  Each clay robot costs 3 ore.  Each obsidian robot costs 3 ore and 8 clay.  Each geode robot costs 3 ore and 12 obsidian.
+", "data/19.txt"
+);
 
+#[derive(Clone, Debug)]
 struct Blueprint {
     robot_costs: [[u16; 4]; 4],
 }
@@ -130,40 +138,36 @@ fn find_max_geodes(time: u16, blueprint: &Blueprint) -> u16 {
     max_geodes
 }
 
-fn parse(input: &str) -> ParseResult<Vec<Blueprint>> {
-    let blueprints: Vec<Blueprint> = input
-        .lines()
-        .map(|line| line.parse::<Blueprint>().unwrap())
-        .collect_vec();
-    Ok(blueprints)
-}
+impl Solution for Day {
+    type Parsed = Vec<Blueprint>;
+    type Answer = usize;
+    const EXAMPLE_ANSWER_1: Self::Answer = 33;
+    const ANSWER_1: Self::Answer = 1023;
+    const EXAMPLE_ANSWER_2: Self::Answer = 62;
+    const ANSWER_2: Self::Answer = 13520;
 
-fn part1(input: &[Blueprint]) -> usize {
-    input
-        .iter()
-        .map(|blueprint| find_max_geodes(24, blueprint))
-        .enumerate()
-        .map(|(i, max_geodes)| (i + 1) * usize::from(max_geodes))
-        .sum()
-}
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let blueprints: Vec<Blueprint> = input
+            .lines()
+            .map(|line| line.parse::<Blueprint>().unwrap())
+            .collect_vec();
+        Ok(("", blueprints))
+    }
 
-fn part2(input: &[Blueprint]) -> usize {
-    input
-        .iter()
-        .take(3)
-        .map(|blueprint| usize::from(find_max_geodes(32, blueprint)))
-        .product()
-}
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        input
+            .iter()
+            .map(|blueprint| find_max_geodes(24, blueprint))
+            .enumerate()
+            .map(|(i, max_geodes)| (i + 1) * usize::from(max_geodes))
+            .sum()
+    }
 
-tests! {
-    const EXAMPLE: &str = "\
-Blueprint 1: Each ore robot costs 4 ore.  Each clay robot costs 2 ore.  Each obsidian robot costs 3 ore and 14 clay.  Each geode robot costs 2 ore and 7 obsidian.
-Blueprint 2:  Each ore robot costs 2 ore.  Each clay robot costs 3 ore.  Each obsidian robot costs 3 ore and 8 clay.  Each geode robot costs 3 ore and 12 obsidian.
-";
-    const INPUT: &str = include_str!("data/19.txt");
-
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 33);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 1023);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 3472);
-    simple_tests!(parse, part2, part2_input_test, INPUT => 13520);
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        input
+            .iter()
+            .take(3)
+            .map(|blueprint| usize::from(find_max_geodes(32, blueprint)))
+            .product()
+    }
 }

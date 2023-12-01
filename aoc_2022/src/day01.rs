@@ -1,54 +1,17 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
+use itertools::Itertools;
+use nom::character::complete::line_ending;
+use nom::character::complete::u32;
+use nom::multi::{fold_many1, separated_list1};
+use nom_supreme::ParserExt;
+use std::cmp::Reverse;
 
-day!(1, parse => part1, part2);
-
-#[derive(Debug, Clone)]
-struct Elf {
-    food: Vec<u32>,
-}
-
-//fn input_parser() -> impl Parser<char, Vec<Vec<u32>>, Error = Simple<char>> {
-//    let elf_line = c::text::int(10)
-//        .map(|s: String| s.parse().unwrap())
-//        .separated_by(c::text::newline());
-//    (c::text::int(10)).separated_by(just("\n\n"))
-//}
-
-fn parse(input: &str) -> ParseResult<Vec<Elf>> {
-    //Ok(input_parser().parse(input).unwrap())
-    let elfs: Vec<Elf> = input
-        .split("\n\n")
-        .map(|a| Elf {
-            food: a
-                .split('\n')
-                .map(|f| f.parse::<u32>().unwrap_or(0))
-                .collect(),
-        })
-        .collect();
-
-    Ok(elfs)
-}
-
-fn part1(input: &[Elf]) -> u32 {
-    input
-        .iter()
-        .map(|elf| elf.food.iter().sum::<u32>())
-        .max()
-        .unwrap()
-}
-
-fn part2(input: &[Elf]) -> u32 {
-    input
-        .iter()
-        .map(|elf| elf.food.iter().sum::<u32>())
-        .sorted()
-        .rev()
-        .take(3)
-        .sum()
-}
-
-tests! {
-    const EXAMPLE: &str = "\
+boilerplate!(
+    Day,
+    1,
+    "\
 1000
 2000
 3000
@@ -62,11 +25,38 @@ tests! {
 8000
 9000
 
-10000";
-    const INPUT: &str = include_str!("data/01.txt");
+10000
+",
+    "data/01.txt"
+);
 
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 24000);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 68802);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 45000); // 24000 + 11000 + 45000
-    simple_tests!(parse, part2, part2_input_test, INPUT => 205370);
+impl Solution for Day {
+    type Parsed = Vec<u32>;
+    type Answer = u32;
+    const EXAMPLE_ANSWER_1: Self::Answer = 24000;
+    const ANSWER_1: Self::Answer = 68802;
+    const EXAMPLE_ANSWER_2: Self::Answer = 45000;
+    const ANSWER_2: Self::Answer = 205370;
+
+    fn parse(data: &str) -> IResult<Self::Parsed> {
+        separated_list1(
+            line_ending,
+            fold_many1(
+                u32.terminated(line_ending),
+                || 0,
+                |total, item| total + item,
+            ),
+        )(data)
+    }
+
+    fn part1(data: Self::Parsed) -> Self::Answer {
+        data.into_iter().max().expect("At least one elf")
+    }
+
+    fn part2(data: Self::Parsed) -> Self::Answer {
+        data.into_iter()
+            .sorted_unstable_by_key(|&cals| Reverse(cals))
+            .take(3)
+            .sum()
+    }
 }

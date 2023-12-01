@@ -1,13 +1,38 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
 
-day!(6, parse => part1, part2);
+boilerplate!(
+    Day,
+    6,
+    "\
+3,4,3,1,2",
+    "data/06.txt"
+);
 
-fn parse(input: &str) -> ParseResult<Vec<u64>> {
-    let i = input
-        .split(',')
-        .map(|num| num.parse::<u64>().expect("u8 digit"))
-        .collect();
-    Ok(i)
+impl Solution for Day {
+    type Parsed = Vec<u64>;
+    type Answer = u64;
+    const EXAMPLE_ANSWER_1: Self::Answer = 5934;
+    const ANSWER_1: Self::Answer = 388739;
+    const EXAMPLE_ANSWER_2: Self::Answer = 26984457539;
+    const ANSWER_2: Self::Answer = 1741362314973;
+
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let i = input
+            .split(',')
+            .map(|num| num.parse::<u64>().expect("u8 digit"))
+            .collect();
+        Ok(("", i))
+    }
+
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        sim_fish(80, &input)
+    }
+
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        sim_fish(256, &input)
+    }
 }
 
 fn sim_fish(days: u32, input: &[u64]) -> u64 {
@@ -30,23 +55,4 @@ fn sim_fish(days: u32, input: &[u64]) -> u64 {
         laternfish_timer_state[8] = new_fish;
     }
     laternfish_timer_state.iter().sum()
-}
-
-fn part1(input: &[u64]) -> u64 {
-    sim_fish(80, input)
-}
-
-fn part2(input: &[u64]) -> u64 {
-    sim_fish(256, input)
-}
-
-tests! {
-    const EXAMPLE: &str = "\
-3,4,3,1,2";
-    const INPUT: &str = include_str!("data/06.txt");
-
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 5934);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 388739);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 26984457539);
-    simple_tests!(parse, part2, part2_input_test, INPUT => 1741362314973);
 }

@@ -1,8 +1,26 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
+use itertools::Itertools;
 use std::collections::HashMap;
 use std::collections::VecDeque;
+use std::str::FromStr;
 
-day!(5, parse => part1, part2);
+boilerplate!(
+    Day,
+    5,
+    "\
+    [D]
+[N] [C]
+[Z] [M] [P]
+ 1   2   3
+
+move 1 from 2 to 1
+move 3 from 1 to 3
+move 2 from 2 to 1
+move 1 from 1 to 2",
+    "data/05.txt"
+);
 
 #[derive(Debug, Clone, Copy)]
 struct Move {
@@ -58,90 +76,78 @@ impl std::fmt::Display for Stacks {
     }
 }
 
-fn parse(input: &str) -> ParseResult<Stacks> {
-    let (stack_str, moves_str) = input.split_once("\n\n").unwrap();
-    let stacks = stack_str
-        .lines()
-        .rev()
-        .flat_map(|line| {
-            line.chars()
-                .skip(1)
-                .step_by(4)
-                // this maps to crane num
-                .enumerate()
-                // fiter numbered stacks
-                .filter(|(_, c)| c.is_alphabetic())
-        })
-        .into_grouping_map()
-        .collect::<VecDeque<char>>();
+impl Solution for Day {
+    type Parsed = Stacks;
+    type Answer = String;
+    type AnswerExample = &'static str;
+    const EXAMPLE_ANSWER_1: Self::AnswerExample = "CMZ";
+    const ANSWER_1: Self::AnswerExample = "QNNTGTPFN";
+    const EXAMPLE_ANSWER_2: Self::AnswerExample = "MCD";
+    const ANSWER_2: Self::AnswerExample = "GGNPJBTTR";
 
-    let moves = moves_str
-        .lines()
-        .map(|line| line.parse::<Move>().unwrap())
-        .collect();
-    Ok(Stacks { stacks, moves })
-}
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let (stack_str, moves_str) = input.split_once("\n\n").unwrap();
+        let stacks = stack_str
+            .lines()
+            .rev()
+            .flat_map(|line| {
+                line.chars()
+                    .skip(1)
+                    .step_by(4)
+                    // this maps to crane num
+                    .enumerate()
+                    // fiter numbered stacks
+                    .filter(|(_, c)| c.is_alphabetic())
+            })
+            .into_grouping_map()
+            .collect::<VecDeque<char>>();
 
-fn part1(input: &Stacks) -> String {
-    let mut stacks = input.stacks.clone();
-
-    println!("{}", input);
-
-    for m in &input.moves {
-        for _ in 0..m.num {
-            let item = stacks.get_mut(&m.from).unwrap().pop_back().unwrap();
-            stacks.get_mut(&m.to).unwrap().push_back(item);
-        }
+        let moves = moves_str
+            .lines()
+            .map(|line| line.parse::<Move>().unwrap())
+            .collect();
+        Ok(("", Stacks { stacks, moves }))
     }
 
-    let ans = stacks
-        .iter()
-        .sorted_by_key(|(i, _)| *i)
-        .map(|(_, v)| v.back().unwrap())
-        .collect();
-    println!("answer: {}", ans);
-    ans
-}
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        let mut stacks = input.stacks.clone();
 
-fn part2(input: &Stacks) -> String {
-    let mut stacks = input.stacks.clone();
+        for m in &input.moves {
+            for _ in 0..m.num {
+                let item = stacks.get_mut(&m.from).unwrap().pop_back().unwrap();
+                stacks.get_mut(&m.to).unwrap().push_back(item);
+            }
+        }
 
-    for m in &input.moves {
-        let mut holding = VecDeque::<char>::new();
-        for _ in 0..m.num {
-            let item = stacks.get_mut(&m.from).unwrap().pop_back().unwrap();
-            holding.push_front(item);
-        }
-        for val in holding.iter() {
-            stacks.get_mut(&m.to).unwrap().push_back(*val);
-        }
+        let ans = stacks
+            .iter()
+            .sorted_by_key(|(i, _)| *i)
+            .map(|(_, v)| v.back().unwrap())
+            .collect();
+        println!("answer: {}", ans);
+        ans
     }
 
-    let ans = stacks
-        .iter()
-        .sorted_by_key(|(i, _)| *i)
-        .map(|(_, v)| v.back().unwrap())
-        .collect();
-    println!("answer: {}", ans);
-    ans
-}
+    fn part2(data: Self::Parsed) -> Self::Answer {
+        let mut stacks = data.stacks.clone();
 
-tests! {
-    const EXAMPLE: &str = "
-    [D]
-[N] [C]
-[Z] [M] [P]
- 1   2   3
+        for m in &data.moves {
+            let mut holding = VecDeque::<char>::new();
+            for _ in 0..m.num {
+                let item = stacks.get_mut(&m.from).unwrap().pop_back().unwrap();
+                holding.push_front(item);
+            }
+            for val in holding.iter() {
+                stacks.get_mut(&m.to).unwrap().push_back(*val);
+            }
+        }
 
-move 1 from 2 to 1
-move 3 from 1 to 3
-move 2 from 2 to 1
-move 1 from 1 to 2
-";
-    const INPUT: &str = include_str!("data/05.txt");
-
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => "CMZ");
-    simple_tests!(parse, part1, part1_input_test, INPUT => "QNNTGTPFN");
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => "MCD");
-    simple_tests!(parse, part2, part2_input_test, INPUT => "GGNPJBTTR");
+        let ans = stacks
+            .iter()
+            .sorted_by_key(|(i, _)| *i)
+            .map(|(_, v)| v.back().unwrap())
+            .collect();
+        println!("answer: {}", ans);
+        ans
+    }
 }

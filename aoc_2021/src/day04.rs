@@ -1,7 +1,34 @@
-use crate::prelude::*;
 use ahash::AHashSet;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
+use itertools::Itertools;
 
-day!(4, parse => part1, part2);
+boilerplate!(
+    Day,
+    4,
+    "\
+7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
+
+22 13 17 11  0
+ 8  2 23  4 24
+21  9 14 16  7
+ 6 10  3 18  5
+ 1 12 20 15 19
+
+ 3 15  0  2 22
+ 9 18 13 17  5
+19  8  7 25 23
+20 11 10 24  4
+14 21 16 12  6
+
+14 21 17 24  4
+10 16 15  9 19
+18  8 23 26 20
+22 11 13  6  5
+ 2  0 12  3  7",
+    "data/04.txt"
+);
 
 type BingoBoard = Vec<Vec<u32>>;
 
@@ -47,11 +74,6 @@ impl std::str::FromStr for Input {
     }
 }
 
-fn parse(input: &str) -> ParseResult<Input> {
-    let i: Input = input.parse::<Input>().expect("valid input");
-    Ok(i)
-}
-
 fn is_bingo(board: &BingoBoard, seen_digits: &AHashSet<u32>) -> bool {
     let check_row = (0..5).any(|y| {
         (0..5)
@@ -74,65 +96,49 @@ fn get_unmarked_sum(board: &BingoBoard, seen_digits: &AHashSet<u32>) -> u32 {
         .sum()
 }
 
-fn part1(input: &Input) -> Result<MulSubmission<u32>> {
-    let mut seen_digits = AHashSet::with_capacity(input.numbers.len());
-    for &num in &input.numbers {
-        seen_digits.insert(num);
+impl Solution for Day {
+    type Parsed = Input;
+    type Answer = u32;
+    const EXAMPLE_ANSWER_1: Self::Answer = 4512;
+    const ANSWER_1: Self::Answer = 46920;
+    const EXAMPLE_ANSWER_2: Self::Answer = 1924;
+    const ANSWER_2: Self::Answer = 12635;
 
-        let board = match input
-            .bingo_boards
-            .iter()
-            .find(|board| is_bingo(board, &seen_digits))
-        {
-            Some(x) => x,
-            None => continue,
-        };
-        let unmarked_sum = get_unmarked_sum(board, &seen_digits);
-        return Ok(MulSubmission(unmarked_sum, num));
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let i: Input = input.parse::<Input>().expect("valid input");
+        Ok(("", i))
     }
-    Err(anyhow!("no solution"))
-}
 
-fn part2(input: &Input) -> Result<MulSubmission<u32>> {
-    let mut seen_digits = AHashSet::with_capacity(input.numbers.len());
-    let mut remaining_boards = input.bingo_boards.clone();
-    for &num in &input.numbers {
-        seen_digits.insert(num);
-        if remaining_boards.len() == 1 && is_bingo(&remaining_boards[0], &seen_digits) {
-            let unmarked_sum = get_unmarked_sum(&remaining_boards[0], &seen_digits);
-            return Ok(MulSubmission(unmarked_sum, num));
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        let mut seen_digits = AHashSet::with_capacity(input.numbers.len());
+        for &num in &input.numbers {
+            seen_digits.insert(num);
+
+            let board = match input
+                .bingo_boards
+                .iter()
+                .find(|board| is_bingo(board, &seen_digits))
+            {
+                Some(x) => x,
+                None => continue,
+            };
+            let unmarked_sum = get_unmarked_sum(board, &seen_digits);
+            return unmarked_sum * num;
         }
-        remaining_boards.retain(|board| !is_bingo(board, &seen_digits));
+        0
     }
-    Err(anyhow!("no solution"))
-}
 
-tests! {
-    const EXAMPLE: &str = "\
-7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
-
-22 13 17 11  0
- 8  2 23  4 24
-21  9 14 16  7
- 6 10  3 18  5
- 1 12 20 15 19
-
- 3 15  0  2 22
- 9 18 13 17  5
-19  8  7 25 23
-20 11 10 24  4
-14 21 16 12  6
-
-14 21 17 24  4
-10 16 15  9 19
-18  8 23 26 20
-22 11 13  6  5
- 2  0 12  3  7";
-    const INPUT: &str = include_str!("data/04.txt");
-
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => MulSubmission(188,24));
-    simple_tests!(parse, part1, part1_input_test, INPUT => MulSubmission(782,60));
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => MulSubmission(148,13));
-    simple_tests!(parse, part2, part2_input_test, INPUT => MulSubmission(361, 35));
-
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        let mut seen_digits = AHashSet::with_capacity(input.numbers.len());
+        let mut remaining_boards = input.bingo_boards.clone();
+        for &num in &input.numbers {
+            seen_digits.insert(num);
+            if remaining_boards.len() == 1 && is_bingo(&remaining_boards[0], &seen_digits) {
+                let unmarked_sum = get_unmarked_sum(&remaining_boards[0], &seen_digits);
+                return unmarked_sum * num;
+            }
+            remaining_boards.retain(|board| !is_bingo(board, &seen_digits));
+        }
+        0
+    }
 }

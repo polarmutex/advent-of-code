@@ -1,8 +1,29 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::vec::Coord2d;
+use framework::IResult;
+use framework::SolutionData;
 use std::collections::HashSet;
 use std::slice::Iter;
 
-day!(23, parse => part1, part2);
+boilerplate!(
+    Day,
+    23,
+    "\
+..............
+..............
+.......#......
+.....###.#....
+...#...#.#....
+....#...##....
+...#.###......
+...##.#.##....
+....#..#......
+..............
+..............
+..............
+",
+    "data/23.txt"
+);
 
 #[derive(Clone, Debug)]
 struct Grove {
@@ -99,21 +120,6 @@ fn proposed(positions: &HashSet<Coord2d>, elf_pos: Coord2d, round: u32) -> Coord
     }
 }
 
-fn parse(input: &str) -> ParseResult<Grove> {
-    let elf_pos: HashSet<Coord2d> = input
-        .lines()
-        .enumerate()
-        .flat_map(|(y, row)| {
-            row.chars()
-                .enumerate()
-                .filter(|(_, val)| *val == '#')
-                .map(move |(x, _)| Coord2d::from_coords(x as i32, y as i32))
-        })
-        .collect();
-    let grove = Grove { positions: elf_pos };
-    Ok(grove)
-}
-
 #[derive(Debug)]
 enum Direction {
     North,
@@ -133,49 +139,50 @@ impl Direction {
     }
 }
 
-fn part1(input: &Grove) -> usize {
-    let mut grove = input.clone();
-    println!("init");
-    println!("{}", grove);
-    for i in 0..10 {
-        println!("round: {}", i + 1);
-        grove.round(i);
+impl Solution for Day {
+    type Parsed = Grove;
+    type Answer = usize;
+    const EXAMPLE_ANSWER_1: Self::Answer = 110;
+    const ANSWER_1: Self::Answer = 3940;
+    const EXAMPLE_ANSWER_2: Self::Answer = 20;
+    const ANSWER_2: Self::Answer = 990;
+
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let elf_pos: HashSet<Coord2d> = input
+            .lines()
+            .enumerate()
+            .flat_map(|(y, row)| {
+                row.chars()
+                    .enumerate()
+                    .filter(|(_, val)| *val == '#')
+                    .map(move |(x, _)| Coord2d::from_coords(x as i32, y as i32))
+            })
+            .collect();
+        let grove = Grove { positions: elf_pos };
+        Ok(("", grove))
+    }
+
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        let mut grove = input.clone();
+        println!("init");
         println!("{}", grove);
-    }
-    grove.check()
-}
-
-fn part2(input: &Grove) -> u32 {
-    let mut grove = input.clone();
-    let mut ans = 0;
-    for i in 0.. {
-        if !grove.round(i) {
-            ans = i + 1;
-            break;
+        for i in 0..10 {
+            println!("round: {}", i + 1);
+            grove.round(i);
+            println!("{}", grove);
         }
+        grove.check()
     }
-    ans
-}
 
-tests! {
-    const EXAMPLE: &str = "\
-..............
-..............
-.......#......
-.....###.#....
-...#...#.#....
-....#...##....
-...#.###......
-...##.#.##....
-....#..#......
-..............
-..............
-..............
-";
-    const INPUT: &str = include_str!("data/23.txt");
-
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 110);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 3940);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 20);
-    simple_tests!(parse, part2, part2_input_test, INPUT => 990);
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        let mut grove = input.clone();
+        let mut ans = 0;
+        for i in 0.. {
+            if !grove.round(i) {
+                ans = i + 1;
+                break;
+            }
+        }
+        ans as usize
+    }
 }

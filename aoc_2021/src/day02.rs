@@ -1,6 +1,20 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
 
-day!(2, parse => part1, part2);
+boilerplate!(
+    Day,
+    2,
+    "\
+forward 5
+down 5
+forward 8
+up 3
+down 8
+forward 2
+",
+    "data/02.txt"
+); //, "data/example/01.txt", "data/input/01.txt");
 
 #[derive(Debug, Copy, Clone)]
 pub enum Instruction {
@@ -23,57 +37,50 @@ impl std::str::FromStr for Instruction {
     }
 }
 
-fn parse(input: &str) -> ParseResult<Vec<Instruction>> {
-    let instructions: Vec<Instruction> = input
-        .lines()
-        .map(|line| line.parse::<Instruction>().expect("valid instructions"))
-        .collect();
-    Ok(instructions)
-    //Ok(input_parser().parse(input).unwrap())
-}
+impl Solution for Day {
+    type Parsed = Vec<Instruction>;
+    type Answer = u32;
+    const EXAMPLE_ANSWER_1: Self::Answer = 150;
+    const ANSWER_1: Self::Answer = 1250395;
+    const EXAMPLE_ANSWER_2: Self::Answer = 900;
+    const ANSWER_2: Self::Answer = 1451210346;
 
-fn part1(input: &[Instruction]) -> MulSubmission<u32> {
-    let mut hpos = 0;
-    let mut depth = 0;
-    for instr in input {
-        match instr {
-            Instruction::Forward(amount) => hpos += amount,
-            Instruction::Down(amount) => depth += amount,
-            Instruction::Up(amount) => depth -= amount,
-        }
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let instructions: Vec<Instruction> = input
+            .lines()
+            .map(|line| line.parse::<Instruction>().expect("valid instructions"))
+            .collect();
+        Ok(("", instructions))
+        //Ok(input_parser().parse(input).unwrap())
     }
-    MulSubmission(hpos, depth)
-}
 
-fn part2(input: &[Instruction]) -> MulSubmission<u32> {
-    let mut aim = 0;
-    let mut hpos = 0;
-    let mut depth = 0;
-    for instr in input {
-        match instr {
-            Instruction::Forward(amount) => {
-                hpos += amount;
-                depth += aim * amount;
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        let mut hpos = 0;
+        let mut depth = 0;
+        for instr in input {
+            match instr {
+                Instruction::Forward(amount) => hpos += amount,
+                Instruction::Down(amount) => depth += amount,
+                Instruction::Up(amount) => depth -= amount,
             }
-            Instruction::Down(amount) => aim += amount,
-            Instruction::Up(amount) => aim -= amount,
         }
+        hpos * depth
     }
-    MulSubmission(hpos, depth)
-}
 
-tests! {
-    const EXAMPLE: &str = "\
-forward 5
-down 5
-forward 8
-up 3
-down 8
-forward 2";
-    const INPUT: &str = include_str!("data/02.txt");
-
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => MulSubmission(15,10));
-    simple_tests!(parse, part1, part1_input_test, INPUT => MulSubmission(1909,655));
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => MulSubmission(15,60));
-    simple_tests!(parse, part2, part2_input_test, INPUT => MulSubmission(1909,760194));
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        let mut aim = 0;
+        let mut hpos = 0;
+        let mut depth = 0;
+        for instr in input {
+            match instr {
+                Instruction::Forward(amount) => {
+                    hpos += amount;
+                    depth += aim * amount;
+                }
+                Instruction::Down(amount) => aim += amount,
+                Instruction::Up(amount) => aim -= amount,
+            }
+        }
+        hpos * depth
+    }
 }

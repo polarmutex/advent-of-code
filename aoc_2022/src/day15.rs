@@ -1,9 +1,34 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::vec::Coord2d;
+use framework::IResult;
+use framework::SolutionData;
 use itertools::iproduct;
+use itertools::Itertools;
 use std::collections::HashSet;
 
-day!(15, parse => part1::<2_000_000>, part2::<4_000_000>);
+boilerplate!(
+    Day,
+    15,
+    "\
+Sensor at x=2, y=18: closest beacon is at x=-2, y=15
+Sensor at x=9, y=16: closest beacon is at x=10, y=16
+Sensor at x=13, y=2: closest beacon is at x=15, y=3
+Sensor at x=12, y=14: closest beacon is at x=10, y=16
+Sensor at x=10, y=20: closest beacon is at x=10, y=16
+Sensor at x=14, y=17: closest beacon is at x=10, y=16
+Sensor at x=8, y=7: closest beacon is at x=2, y=10
+Sensor at x=2, y=0: closest beacon is at x=2, y=10
+Sensor at x=0, y=11: closest beacon is at x=2, y=10
+Sensor at x=20, y=14: closest beacon is at x=25, y=17
+Sensor at x=17, y=20: closest beacon is at x=21, y=22
+Sensor at x=16, y=7: closest beacon is at x=15, y=3
+Sensor at x=14, y=3: closest beacon is at x=15, y=3
+Sensor at x=20, y=1: closest beacon is at x=15, y=3
+",
+    "data/15.txt"
+);
 
+#[derive(Clone, Debug)]
 struct Sensor {
     loc: Coord2d,
     closest_beacon: Coord2d,
@@ -55,41 +80,64 @@ impl std::fmt::Display for Sensor {
     }
 }
 
-fn parse(input: &str) -> ParseResult<Vec<Sensor>> {
-    let sensors = input
-        .lines()
-        .map(|line| {
-            let (sensor, beacon) = line.split_once(':').unwrap();
-            let loc = sensor
-                .replace("Sensor at x=", "")
-                .replace("y=", "")
-                .trim()
-                .split_once(", ")
-                .map(|(x, y)| {
-                    Coord2d::from_coords(x.parse::<i32>().expect(""), y.parse::<i32>().expect(""))
-                })
-                .unwrap();
-            let closest_beacon = beacon
-                .replace("closest beacon is at x=", "")
-                .replace("y=", "")
-                .trim()
-                .split_once(", ")
-                .map(|(x, y)| {
-                    Coord2d::from_coords(x.parse::<i32>().expect(""), y.parse::<i32>().expect(""))
-                })
-                .unwrap();
-            let distance = loc.manhattan_distance(&closest_beacon);
-            Sensor {
-                loc,
-                closest_beacon,
-                distance,
-            }
-        })
-        .collect_vec();
-    Ok(sensors)
+impl Solution for Day {
+    type Parsed = Vec<Sensor>;
+    type Answer = usize;
+    const EXAMPLE_ANSWER_1: Self::Answer = 26;
+    const ANSWER_1: Self::Answer = 5142231;
+    const EXAMPLE_ANSWER_2: Self::Answer = 56000011;
+    const ANSWER_2: Self::Answer = 10884459367718;
+
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let sensors = input
+            .lines()
+            .map(|line| {
+                let (sensor, beacon) = line.split_once(':').unwrap();
+                let loc = sensor
+                    .replace("Sensor at x=", "")
+                    .replace("y=", "")
+                    .trim()
+                    .split_once(", ")
+                    .map(|(x, y)| {
+                        Coord2d::from_coords(
+                            x.parse::<i32>().expect(""),
+                            y.parse::<i32>().expect(""),
+                        )
+                    })
+                    .unwrap();
+                let closest_beacon = beacon
+                    .replace("closest beacon is at x=", "")
+                    .replace("y=", "")
+                    .trim()
+                    .split_once(", ")
+                    .map(|(x, y)| {
+                        Coord2d::from_coords(
+                            x.parse::<i32>().expect(""),
+                            y.parse::<i32>().expect(""),
+                        )
+                    })
+                    .unwrap();
+                let distance = loc.manhattan_distance(&closest_beacon);
+                Sensor {
+                    loc,
+                    closest_beacon,
+                    distance,
+                }
+            })
+            .collect_vec();
+        Ok(("", sensors))
+    }
+
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        solve_part1::<2_000_000>(&input)
+    }
+
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        solve_part2::<4_000_000>(&input)
+    }
 }
 
-fn part1<const Y: isize>(input: &[Sensor]) -> usize {
+fn solve_part1<const Y: isize>(input: &[Sensor]) -> usize {
     let fsensor = &input[0];
     let init_range = fsensor.loc.x - fsensor.distance..fsensor.loc.x + fsensor.distance;
     let x_bounds = input.iter().fold(init_range, |mut range, sensor| {
@@ -100,7 +148,7 @@ fn part1<const Y: isize>(input: &[Sensor]) -> usize {
     println!("x to try: {} .. {}", x_bounds.start, x_bounds.end);
 
     (x_bounds.start..=x_bounds.end)
-        .map(|x| Coord2d::from_coords(x as i32, Y as i32))
+        .map(|x| Coord2d::from_coords(x, Y as i32))
         .map(|pos| {
             input
                 .iter()
@@ -112,7 +160,7 @@ fn part1<const Y: isize>(input: &[Sensor]) -> usize {
         .sum()
 }
 
-fn part2<const N: i32>(input: &[Sensor]) -> usize {
+fn solve_part2<const N: i32>(input: &[Sensor]) -> usize {
     /*
     As there is only one missing value, it's going to be just outside the
     boundaries of at least two scanners (unless we're incredibly unlucky and
@@ -156,30 +204,5 @@ fn part2<const N: i32>(input: &[Sensor]) -> usize {
         .collect_vec();
 
     assert!(possible_pts.len() == 1);
-    (possible_pts[0].x as usize * 4_000_000 + possible_pts[0].y as usize) as usize
-}
-
-tests! {
-    const EXAMPLE: &str = "\
-Sensor at x=2, y=18: closest beacon is at x=-2, y=15
-Sensor at x=9, y=16: closest beacon is at x=10, y=16
-Sensor at x=13, y=2: closest beacon is at x=15, y=3
-Sensor at x=12, y=14: closest beacon is at x=10, y=16
-Sensor at x=10, y=20: closest beacon is at x=10, y=16
-Sensor at x=14, y=17: closest beacon is at x=10, y=16
-Sensor at x=8, y=7: closest beacon is at x=2, y=10
-Sensor at x=2, y=0: closest beacon is at x=2, y=10
-Sensor at x=0, y=11: closest beacon is at x=2, y=10
-Sensor at x=20, y=14: closest beacon is at x=25, y=17
-Sensor at x=17, y=20: closest beacon is at x=21, y=22
-Sensor at x=16, y=7: closest beacon is at x=15, y=3
-Sensor at x=14, y=3: closest beacon is at x=15, y=3
-Sensor at x=20, y=1: closest beacon is at x=15, y=3
-";
-    const INPUT: &str = include_str!("data/15.txt");
-
-    simple_tests!(parse, part1::<10>, part1_example_test, EXAMPLE => 26);
-    simple_tests!(parse, part1::<2_000_000>, part1_input_test, INPUT => 5142231);
-    simple_tests!(parse, part2::<20>, part2_example_test, EXAMPLE => 56000011);
-    simple_tests!(parse, part2::<4_000_000>, part2_input_test, INPUT => 10884459367718);
+    possible_pts[0].x as usize * 4_000_000_usize + possible_pts[0].y as usize
 }

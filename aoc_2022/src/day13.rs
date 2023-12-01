@@ -1,7 +1,40 @@
-use crate::prelude::*;
+use framework::boilerplate;
+use framework::IResult;
+use framework::SolutionData;
+use itertools::Itertools;
 use std::cmp::Ordering;
+use std::str::FromStr;
 
-day!(13, parse => part1, part2);
+boilerplate!(
+    Day,
+    13,
+    "\
+[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]
+
+[[4,4],4,4]
+[[4,4],4,4,4]
+
+[7,7,7,7]
+[7,7,7]
+
+[]
+[3]
+
+[[[]]]
+[[]]
+
+[1,[2,[3,[4,[5,6,7]]]],8,9]
+[1,[2,[3,[4,[5,6,0]]]],8,9]
+",
+    "data/13.txt"
+);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 enum Packet {
@@ -97,87 +130,62 @@ struct PacketPair {
     right: Packet,
 }
 
-fn parse(input: &str) -> ParseResult<Vec<PacketPair>> {
-    let packet_pair: Vec<PacketPair> = input
-        .trim()
-        .split("\n\n")
-        .map(|pair| {
-            let (left, right) = pair.split_once('\n').expect("two packets");
-            let (left, right) = (
-                left.parse::<Packet>().expect("valid left packet"),
-                right.parse::<Packet>().expect("valid right packet"),
-            );
-            PacketPair { left, right }
-        })
-        .collect_vec();
-    Ok(packet_pair)
-}
+impl Solution for Day {
+    type Parsed = Vec<PacketPair>;
+    type Answer = usize;
+    const EXAMPLE_ANSWER_1: Self::Answer = 13;
+    const ANSWER_1: Self::Answer = 5529;
+    const EXAMPLE_ANSWER_2: Self::Answer = 140;
+    const ANSWER_2: Self::Answer = 27690;
 
-fn part1(input: &[PacketPair]) -> u32 {
-    let mut index_sum = 0_u32;
-    for (i, pair) in input.iter().enumerate() {
-        println!("{}", pair.left);
-        println!("{}", pair.right);
-        let res = pair.left.cmp(&pair.right);
-        match res {
-            Ordering::Equal => println!("{} - left = right", i + 1),
-            Ordering::Less => {
-                println!("{} - left < right", i + 1);
-                index_sum += (i as u32) + 1
-            }
-            Ordering::Greater => {
-                println!("{} - left > right", i + 1);
+    fn parse(input: &str) -> IResult<Self::Parsed> {
+        let packet_pair: Vec<PacketPair> = input
+            .trim()
+            .split("\n\n")
+            .map(|pair| {
+                let (left, right) = pair.split_once('\n').expect("two packets");
+                let (left, right) = (
+                    left.parse::<Packet>().expect("valid left packet"),
+                    right.parse::<Packet>().expect("valid right packet"),
+                );
+                PacketPair { left, right }
+            })
+            .collect_vec();
+        Ok(("", packet_pair))
+    }
+
+    fn part1(input: Self::Parsed) -> Self::Answer {
+        let mut index_sum = 0_u32;
+        for (i, pair) in input.iter().enumerate() {
+            println!("{}", pair.left);
+            println!("{}", pair.right);
+            let res = pair.left.cmp(&pair.right);
+            match res {
+                Ordering::Equal => println!("{} - left = right", i + 1),
+                Ordering::Less => {
+                    println!("{} - left < right", i + 1);
+                    index_sum += (i as u32) + 1
+                }
+                Ordering::Greater => {
+                    println!("{} - left > right", i + 1);
+                }
             }
         }
+        index_sum as usize
     }
-    index_sum
-}
 
-fn part2(input: &[PacketPair]) -> usize {
-    let mut packets = input
-        .iter()
-        .flat_map(|pair| [pair.left.clone(), pair.right.clone()])
-        .collect_vec();
-    let divider_packet_1 = "[[2]]".parse::<Packet>().expect("");
-    let divider_packet_2 = "[[6]]".parse::<Packet>().expect("");
-    packets.push(divider_packet_1.clone());
-    packets.push(divider_packet_2.clone());
-    packets.sort();
+    fn part2(input: Self::Parsed) -> Self::Answer {
+        let mut packets = input
+            .iter()
+            .flat_map(|pair| [pair.left.clone(), pair.right.clone()])
+            .collect_vec();
+        let divider_packet_1 = "[[2]]".parse::<Packet>().expect("");
+        let divider_packet_2 = "[[6]]".parse::<Packet>().expect("");
+        packets.push(divider_packet_1.clone());
+        packets.push(divider_packet_2.clone());
+        packets.sort();
 
-    (packets.binary_search(&divider_packet_1).unwrap() + 1)
-        * (packets.binary_search(&divider_packet_2).unwrap() + 1)
-}
-
-tests! {
-    const EXAMPLE: &str = "\
-[1,1,3,1,1]
-[1,1,5,1,1]
-
-[[1],[2,3,4]]
-[[1],4]
-
-[9]
-[[8,7,6]]
-
-[[4,4],4,4]
-[[4,4],4,4,4]
-
-[7,7,7,7]
-[7,7,7]
-
-[]
-[3]
-
-[[[]]]
-[[]]
-
-[1,[2,[3,[4,[5,6,7]]]],8,9]
-[1,[2,[3,[4,[5,6,0]]]],8,9]
-";
-    const INPUT: &str = include_str!("data/13.txt");
-
-    simple_tests!(parse, part1, part1_example_test, EXAMPLE => 13);
-    simple_tests!(parse, part1, part1_input_test, INPUT => 5529);
-    simple_tests!(parse, part2, part2_example_test, EXAMPLE => 140);
-    simple_tests!(parse, part2, part2_input_test, INPUT => 27690);
+        (packets.binary_search(&divider_packet_1).unwrap() + 1)
+            * (packets.binary_search(&divider_packet_2).unwrap() + 1)
+    }
 }
