@@ -11,7 +11,11 @@ pub fn handle(year: u32, days: &[&dyn Runner], specific_day: u8, part: Part) {
 
     for &day in days {
         if day.nr() == specific_day {
-            let answer = day.get_part1_submission();
+            let answer = if part == Part::Part1 {
+                day.get_part1_submission()
+            } else {
+                day.get_part2_submission()
+            };
             println!("Submitting result via aoc-cli...");
             if let Err(e) = aoc_cli::submit(specific_day, part.to_number(), answer.as_str()) {
                 eprintln!("failed to call aoc-cli: {e}");

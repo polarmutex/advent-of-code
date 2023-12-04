@@ -76,30 +76,30 @@ macro_rules! boilerplate {
             $day
         }
 
-        #[cfg(test)]
-        mod tests {
-            use super::*;
-
-            #[test]
-            fn test_part1_example() -> OutResult {
-                $day::test_part1_example()
-            }
-
-            #[test]
-            fn test_part1_input() -> OutResult {
-                $day::test_part1_input()
-            }
-
-            #[test]
-            fn test_part2_example() -> OutResult {
-                $day::test_part2_example()
-            }
-
-            #[test]
-            fn test_part2_input() -> OutResult {
-                $day::test_part2_input()
-            }
-        }
+        // #[cfg(test)]
+        // mod tests {
+        //     use super::*;
+        //
+        //     #[test]
+        //     fn test_part1_example() -> OutResult {
+        //         $day::test_part1_example()
+        //     }
+        //
+        //     #[test]
+        //     fn test_part1_input() -> OutResult {
+        //         $day::test_part1_input()
+        //     }
+        //
+        //     #[test]
+        //     fn test_part2_example() -> OutResult {
+        //         $day::test_part2_example()
+        //     }
+        //
+        //     #[test]
+        //     fn test_part2_input() -> OutResult {
+        //         $day::test_part2_input()
+        //     }
+        // }
     };
 }
 
@@ -125,7 +125,10 @@ macro_rules! add_test {
     ($pt:ident, $pt_name:ident, $input:expr => $expected:expr) => {
         #[test]
         fn $pt_name() -> OutResult {
-            assert_eq!(Day::$pt(Day::final_parse_test($input)?), $expected);
+            assert_eq!(
+                <Day as AdvSolution>::$pt(Day::final_parse_example($input)?),
+                $expected
+            );
             //println!("a: {}", Self::a(Self::final_parse(Self::DATA)?));
             Ok(())
         }
@@ -137,7 +140,7 @@ macro_rules! add_test_external {
     ($pt:ident, $pt_name:ident, $input:expr => $expected:expr) => {
         #[test]
         fn $pt_name() -> OutResult {
-            assert_eq!($pt(Day::final_parse_test($input)?), $expected);
+            assert_eq!(Day::$pt(Day::final_parse_example($input)?), $expected);
             //println!("a: {}", Self::a(Self::final_parse(Self::DATA)?));
             Ok(())
         }
@@ -175,10 +178,10 @@ pub trait AdvSolution: SolutionData {
     type ParsedExample: Debug + Clone = Self::Parsed;
     type Answer: Debug + Display + PartialEq<Self::AnswerExample>;
     type AnswerExample: Debug = Self::Answer;
-    const EXAMPLE_ANSWER_1: Self::AnswerExample;
-    const EXAMPLE_ANSWER_2: Self::AnswerExample;
-    const ANSWER_1: Self::AnswerExample; //why not Answer?
-    const ANSWER_2: Self::AnswerExample;
+    // const EXAMPLE_ANSWER_1: Self::AnswerExample;
+    // const EXAMPLE_ANSWER_2: Self::AnswerExample;
+    // const ANSWER_1: Self::AnswerExample; //why not Answer?
+    // const ANSWER_2: Self::AnswerExample;
 
     fn parse(data: &'static str) -> IResult<Self::Parsed>;
     fn part1(data: Self::Parsed) -> Self::Answer;
@@ -207,45 +210,44 @@ pub trait AdvSolution: SolutionData {
         Ok(result.to_string())
     }
 
-    fn test_part1_example() -> OutResult
-    where
-        <Self as AdvSolution>::AnswerExample: PartialEq,
-    {
-        dbg!(Self::EXAMPLE_DATA);
-        assert_eq!(
-            Self::part1_example(Self::final_parse_example(Self::EXAMPLE_DATA)?),
-            Self::EXAMPLE_ANSWER_1
-        );
-        Ok(())
-    }
+    // fn test_part1_example() -> OutResult
+    // where
+    //     <Self as AdvSolution>::AnswerExample: PartialEq,
+    // {
+    //     dbg!(Self::EXAMPLE_DATA);
+    //     assert_eq!(
+    //         Self::part1_example(Self::final_parse_example(Self::EXAMPLE_DATA)?),
+    //         Self::EXAMPLE_ANSWER_1
+    //     );
+    //     Ok(())
+    // }
 
-    fn test_part1_input() -> OutResult {
-        assert_eq!(
-            Self::part1(Self::final_parse(Self::INPUT_DATA)?),
-            //Self::part1(Self::final_parse(Self::INPUT_DATA)?),
-            Self::ANSWER_1
-        );
-        Ok(())
-    }
+    // fn test_part1_input() -> OutResult {
+    //     assert_eq!(
+    //         Self::part1(Self::final_parse(Self::INPUT_DATA)?),
+    //         Self::ANSWER_1
+    //     );
+    //     Ok(())
+    // }
 
-    fn test_part2_example() -> OutResult
-    where
-        <Self as AdvSolution>::AnswerExample: PartialEq,
-    {
-        assert_eq!(
-            Self::part2_example(Self::final_parse_example(Self::EXAMPLE_DATA)?),
-            Self::EXAMPLE_ANSWER_2
-        );
-        Ok(())
-    }
+    // fn test_part2_example() -> OutResult
+    // where
+    //     <Self as AdvSolution>::AnswerExample: PartialEq,
+    // {
+    //     assert_eq!(
+    //         Self::part2_example(Self::final_parse_example(Self::EXAMPLE_DATA)?),
+    //         Self::EXAMPLE_ANSWER_2
+    //     );
+    //     Ok(())
+    // }
 
-    fn test_part2_input() -> OutResult {
-        assert_eq!(
-            Self::part2(Self::final_parse(Self::INPUT_DATA)?),
-            Self::ANSWER_2
-        );
-        Ok(())
-    }
+    // fn test_part2_input() -> OutResult {
+    //     assert_eq!(
+    //         Self::part2(Self::final_parse(Self::INPUT_DATA)?),
+    //         Self::ANSWER_2
+    //     );
+    //     Ok(())
+    // }
 
     fn submit_part1() {}
 }
@@ -255,12 +257,12 @@ impl<T: Solution> AdvSolution for T {
     type ParsedExample = Self::Parsed;
     type Answer = <Self as Solution>::Answer;
     type AnswerExample = <Self as Solution>::AnswerExample;
-    const EXAMPLE_ANSWER_1: <Self as Solution>::AnswerExample =
-        <Self as Solution>::EXAMPLE_ANSWER_1;
-    const EXAMPLE_ANSWER_2: <Self as Solution>::AnswerExample =
-        <Self as Solution>::EXAMPLE_ANSWER_2;
-    const ANSWER_1: <Self as Solution>::AnswerExample = <Self as Solution>::ANSWER_1;
-    const ANSWER_2: <Self as Solution>::AnswerExample = <Self as Solution>::ANSWER_2;
+    // const EXAMPLE_ANSWER_1: <Self as Solution>::AnswerExample =
+    //     <Self as Solution>::EXAMPLE_ANSWER_1;
+    // const EXAMPLE_ANSWER_2: <Self as Solution>::AnswerExample =
+    //     <Self as Solution>::EXAMPLE_ANSWER_2;
+    // const ANSWER_1: <Self as Solution>::AnswerExample = <Self as Solution>::ANSWER_1;
+    // const ANSWER_2: <Self as Solution>::AnswerExample = <Self as Solution>::ANSWER_2;
 
     fn parse(data: &'static str) -> IResult<Self::Parsed> {
         <Self as Solution>::parse(data)
