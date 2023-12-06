@@ -112,6 +112,7 @@ macro_rules! tests {
             use framework::add_test;
             use framework::add_test_external;
             use framework::OutResult;
+            use test_log;
             // use $crate::input_tests;
             // use $crate::simple_tests;
 
@@ -123,7 +124,8 @@ macro_rules! tests {
 #[macro_export]
 macro_rules! add_test {
     ($pt:ident, $pt_name:ident, $input:expr => $expected:expr) => {
-        #[test]
+        // #[test]
+        #[test_log::test]
         fn $pt_name() -> OutResult {
             assert_eq!(
                 <Day as AdvSolution>::$pt(Day::final_parse_example($input)?),

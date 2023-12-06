@@ -139,6 +139,7 @@
           #rustc
           rustTarget
           clippy
+          just
           rustfmt
           pkg-config
           openssl.dev
