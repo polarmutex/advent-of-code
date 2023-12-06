@@ -14,8 +14,9 @@ itertools = { workspace = true }
 nom = { workspace = true }
 nom-supreme = { workspace = true }
 nom_locate = { workspace = true }
-petgraph = "0.6.4"
+petgraph = { workspace = true }
 rstest = { workspace = true }
 rstest_reuse = { workspace = true }
+test-log = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
