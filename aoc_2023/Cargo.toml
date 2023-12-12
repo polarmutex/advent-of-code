@@ -11,6 +11,7 @@ framework = { workspace = true }
 glam = { workspace = true }
 hex = "0.4.3"
 itertools = { workspace = true }
+lending-iterator = { workspace = true }
 nom = { workspace = true }
 nom-supreme = { workspace = true }
 nom_locate = { workspace = true }

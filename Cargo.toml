@@ -19,6 +19,7 @@ framework = { path = "./framework" }
 glam = "0.24.2"
 hex = "0.4.3"
 itertools = "0.10"
+lending-iterator = "0.1.7"
 miette = { version = "5.10", features = ["fancy"] }
 ndarray = "0.15.6"
 nom = "7.1.3"
