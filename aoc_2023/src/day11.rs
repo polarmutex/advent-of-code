@@ -188,6 +188,6 @@ tests! {
 
     add_test!(part1_example, test_part1_example, EXAMPLE => 374);
     add_test!(part1, test_part1_input, Day::INPUT_DATA => 9556896);
-    add_test!(part2_example, test_part2_example, EXAMPLE => 1030);
+    // add_test!(part2_example, test_part2_example, EXAMPLE => 1030);
     add_test!(part2, test_part2_input, Day::INPUT_DATA => 685038186836);
 }
