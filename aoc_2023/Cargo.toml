@@ -15,6 +15,7 @@ lending-iterator = { workspace = true }
 nom = { workspace = true }
 nom-supreme = { workspace = true }
 nom_locate = { workspace = true }
+pathfinding = { workspace = true }
 petgraph = { workspace = true }
 rstest = { workspace = true }
 rstest_reuse = { workspace = true }
