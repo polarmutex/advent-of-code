@@ -1,25 +1,16 @@
-use std::collections::BTreeMap;
-
 use framework::boilerplate;
 use framework::tests;
 use framework::IResult;
 use framework::SolutionData;
 use itertools::Itertools;
 use lending_iterator::prelude::*;
-use nom::branch::alt;
 use nom::character::complete;
-use nom::character::complete::alphanumeric1;
 use nom::character::complete::line_ending;
-use nom::character::complete::multispace1;
 use nom::character::complete::space0;
-use nom::combinator::eof;
-use nom::multi::fold_many1;
 use nom::multi::many1;
 use nom::multi::separated_list1;
-use nom::sequence::delimited;
 use nom::sequence::terminated;
 use nom::Parser;
-use nom_supreme::tag::complete::tag;
 // use nom_supreme::ParserExt;
 // use tracing::info;
 
@@ -80,7 +71,7 @@ impl Solution for Day {
                     } else {
                         let mut it = nums.windows_mut();
                         while let Some(&mut [ref mut left, right]) = it.next() {
-                            *left = *left - right;
+                            *left -= right;
                         }
                         dbg!(&nums);
                         nums.pop()

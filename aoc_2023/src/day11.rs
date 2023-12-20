@@ -120,13 +120,13 @@ fn solve<const EXPANSION: usize>(data: HashMap<IVec2, SpaceType>) -> u64 {
                 .iter()
                 .copied()
                 .filter(|p| p < &v.0.x)
-                .count() as usize
+                .count()
                 * (EXPANSION - 1)) as i32;
             let row_exp = (non_empty_rows
                 .iter()
                 .copied()
                 .filter(|p| p < &v.0.y)
-                .count() as usize
+                .count()
                 * (EXPANSION - 1)) as i32;
             dbg!(&v.0);
             dbg!(col_exp);
@@ -141,7 +141,7 @@ fn solve<const EXPANSION: usize>(data: HashMap<IVec2, SpaceType>) -> u64 {
         .map(|pair| {
             // dbg!(&pair);
             let diff = (pair[0].1 - pair[1].1).abs();
-            (diff.x + diff.y).abs() as u64
+            (diff.x + diff.y).unsigned_abs() as u64
         })
         .sum()
 }

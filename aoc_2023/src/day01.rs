@@ -29,7 +29,7 @@ impl Solution for Day {
     const ANSWER_2: Self::Answer = 1;
 
     fn parse(data: &str) -> IResult<Self::Parsed> {
-        let line_parser = map(alphanumeric1, |s| String::from(s));
+        let line_parser = map(alphanumeric1, String::from);
         separated_list1(line_ending, line_parser)(data)
     }
 

@@ -88,7 +88,7 @@ impl Solution for Day {
             .sum::<i64>()
             + {
                 let last = vertices.iter().last().unwrap();
-                let first = vertices.iter().next().unwrap();
+                let first = vertices.first().unwrap();
                 let d = (*first - *last).abs();
                 d.x + d.y
             };
@@ -143,7 +143,7 @@ impl Solution for Day {
             .sum::<i64>()
             + {
                 let last = vertices.iter().last().unwrap();
-                let first = vertices.iter().next().unwrap();
+                let first = vertices.first().unwrap();
                 let d = (*first - *last).abs();
                 d.x + d.y
             };
@@ -162,6 +162,7 @@ impl Solution for Day {
     }
 }
 
+#[allow(dead_code)]
 fn print(d: &HashSet<I64Vec2>, size: &I64Vec2) {
     for y in 0..size.y {
         for x in 0..size.x {
@@ -173,7 +174,7 @@ fn print(d: &HashSet<I64Vec2>, size: &I64Vec2) {
                 None => print!("."),
             }
         }
-        println!("");
+        println!();
     }
 }
 

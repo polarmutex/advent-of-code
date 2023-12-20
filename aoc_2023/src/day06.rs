@@ -2,21 +2,16 @@ use framework::boilerplate;
 use framework::tests;
 use framework::IResult;
 use framework::SolutionData;
-use itertools::Itertools;
 use nom::bytes::complete::is_not;
-use nom::bytes::complete::take_until;
 use nom::character::complete;
 use nom::character::complete::line_ending;
 use nom::character::complete::space1;
-use nom::multi::many1;
 use nom::multi::separated_list1;
 use nom::sequence::separated_pair;
-use nom::sequence::tuple;
 use nom::Parser;
-use nom_supreme::tag::complete::tag;
 use nom_supreme::ParserExt;
-use std::ops::Range;
 use tracing::info;
+// use itertools::Itertools;
 
 boilerplate!(
     Day,

@@ -11,8 +11,6 @@ use nom::multi::separated_list1;
 use nom::sequence::separated_pair;
 use nom::Parser;
 use nom_supreme::tag::complete::tag;
-use nom_supreme::ParserExt;
-use tracing::info;
 
 boilerplate!(
     Day,

@@ -3,22 +3,20 @@ use framework::tests;
 use framework::IResult;
 use framework::SolutionData;
 use glam::IVec2;
-// use itertools::Itertools;
 use nom::branch::alt;
-use nom::bytes::complete::tag;
-// use nom::character::complete;
 use nom::bytes::complete::is_a;
-use nom::combinator::iterator;
+use nom::bytes::complete::tag;
 use nom::combinator::opt;
 use nom::multi::many1;
 use nom::sequence::delimited;
 use nom::IResult as IBaseResult;
 use nom::Parser;
 use nom_locate::LocatedSpan;
-use petgraph::Directed;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt::Display;
+// use itertools::Itertools;
+// use nom::character::complete;
 // use nom_supreme::ParserExt;
 // use tracing::info;
 
@@ -55,7 +53,6 @@ enum MirrorType {
     ReflectedBackward,
     SplitterVertical,
     SplitterHorizontal,
-    NewLine,
 }
 impl Display for MirrorType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -68,7 +65,6 @@ impl Display for MirrorType {
                 MirrorType::ReflectedBackward => r#"\"#,
                 MirrorType::SplitterVertical => "|",
                 MirrorType::SplitterHorizontal => "-",
-                _ => "",
             }
         )
     }
@@ -125,7 +121,7 @@ fn parse_grid(input: Span) -> IBaseResult<Span, MirrorMap> {
         opt(is_a("\n")),
     ))
     .parse(input)?;
-    Ok((input, grid.iter().map(|v| v.clone()).collect::<MirrorMap>()))
+    Ok((input, grid.iter().cloned().collect::<MirrorMap>()))
 }
 
 impl Solution for Day {
@@ -186,7 +182,7 @@ fn num_energized(data: &Input, start: (Direction, IVec2)) -> u32 {
             let next_pos = cur_dir.next(cur_pos);
             let next_mirror = data.grid.get(&next_pos);
             // dbg!(&cur_pos, &cur_dir, &next_pos, &next_mirror);
-            energized_cells.insert(cur_pos.clone());
+            energized_cells.insert(*cur_pos);
 
             match (cur_dir, next_mirror) {
                 (_, None) => {
@@ -319,7 +315,6 @@ fn num_energized(data: &Input, start: (Direction, IVec2)) -> u32 {
                             }
                         }
                     },
-                    _ => {}
                 },
             }
         }
@@ -329,6 +324,7 @@ fn num_energized(data: &Input, start: (Direction, IVec2)) -> u32 {
     energized_cells.len() as u32 - 1 // 1 for initial point
 }
 
+#[allow(dead_code)]
 fn print(d: &MirrorMap, size: &IVec2, e: &HashSet<IVec2>) {
     for y in 0..size.y {
         for x in 0..size.x {
@@ -344,7 +340,7 @@ fn print(d: &MirrorMap, size: &IVec2, e: &HashSet<IVec2>) {
                 None => print!("x"),
             }
         }
-        println!("");
+        println!();
     }
 }
 

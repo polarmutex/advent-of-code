@@ -4,27 +4,19 @@ use framework::IResult;
 use framework::SolutionData;
 use glam::IVec2;
 use itertools::Itertools;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-// use nom::character::complete;
-use nom::bytes::complete::is_a;
 use nom::character::complete::line_ending;
 use nom::character::complete::one_of;
-use nom::combinator::iterator;
-use nom::combinator::opt;
 use nom::multi::many1;
 use nom::multi::separated_list1;
-use nom::sequence::delimited;
 use nom::IResult as IBaseResult;
 use nom::Parser;
 use nom_locate::position;
 use nom_locate::LocatedSpan;
 use pathfinding::prelude::dijkstra;
-use petgraph::Directed;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::VecDeque;
-use std::fmt::Display;
+// use nom::character::complete;
 // use nom_supreme::ParserExt;
 // use tracing::info;
 
@@ -92,7 +84,7 @@ impl Solution for Day {
         dbg!(&data);
         let start = (IVec2::new(0, 0), VecDeque::from([IVec2::new(0, 0)]));
         let end = IVec2::new(data.size.x - 1, data.size.y - 1);
-        let (path, ret) = dijkstra(
+        let (_, ret) = dijkstra(
             &start,
             |(pos, deque)| {
                 [
@@ -155,7 +147,7 @@ impl Solution for Day {
     fn part2(data: Self::Parsed) -> Self::Answer {
         let start = (IVec2::new(0, 0), VecDeque::from([IVec2::new(0, 0)]));
         let end = IVec2::new(data.size.x - 1, data.size.y - 1);
-        let (path, ret) = dijkstra(
+        let (_, ret) = dijkstra(
             &start,
             |(pos, deque)| {
                 let diffs = deque
@@ -169,7 +161,7 @@ impl Solution for Day {
                         if num < 4 {
                             // must go straight
                             [*dir].into_iter().collect_vec()
-                        } else if (num == 10) {
+                        } else if num == 10 {
                             // must turn
                             [
                                 IVec2::new(0, 1),
@@ -252,6 +244,7 @@ impl Solution for Day {
     }
 }
 
+#[allow(dead_code)]
 fn print(d: &HashSet<IVec2>, size: &IVec2) {
     for y in 0..size.y {
         for x in 0..size.x {
@@ -263,7 +256,7 @@ fn print(d: &HashSet<IVec2>, size: &IVec2) {
                 None => print!("."),
             }
         }
-        println!("");
+        println!();
     }
 }
 

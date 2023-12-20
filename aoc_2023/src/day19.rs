@@ -167,7 +167,7 @@ fn find_accepted_combinations(p: PartRange, w: &HashMap<String, Workflow>, t: &T
             let mut cur_p = p;
             for r in &cur_wf.rules {
                 match r {
-                    Rule::Target(t) => sum += find_accepted_combinations(cur_p.clone(), w, &t),
+                    Rule::Target(t) => sum += find_accepted_combinations(cur_p.clone(), w, t),
                     Rule::Condition {
                         field,
                         op,
@@ -200,14 +200,12 @@ fn find_accepted_combinations(p: PartRange, w: &HashMap<String, Workflow>, t: &T
                                     sum += find_accepted_combinations(p_prime, w, target)
                                 }
                             }
+                        } else if (val.end() < &(*value as u64) && op == &Operation::LessThan)
+                            || (val.start() > &(*value as u64) && op == &Operation::GreaterThan)
+                        {
+                            sum += find_accepted_combinations(cur_p.clone(), w, target)
                         } else {
-                            if (val.end() < &(*value as u64) && op == &Operation::LessThan)
-                                || (val.start() > &(*value as u64) && op == &Operation::GreaterThan)
-                            {
-                                sum += find_accepted_combinations(cur_p.clone(), w, &target)
-                            } else {
-                                sum += 0
-                            }
+                            sum += 0
                         }
                     }
                 }
@@ -221,9 +219,7 @@ fn parse_target(input: &str) -> IResult<Target> {
     alt((
         tag("A").map(|_| Target::Accepted),
         tag("R").map(|_| Target::Rejected),
-        alpha1
-            .map(ToString::to_string)
-            .map(|id| Target::Workflow(id)),
+        alpha1.map(ToString::to_string).map(Target::Workflow),
     ))
     .parse(input)
 }
@@ -252,10 +248,7 @@ fn parse_workflow(input: &str) -> IResult<Workflow> {
     let (input, id) = alpha1.map(ToString::to_string).parse(input)?;
     let (input, rules) = delimited(
         tag("{"),
-        separated_list1(
-            tag(","),
-            alt((parse_rule, parse_target.map(|v| Rule::Target(v)))),
-        ),
+        separated_list1(tag(","), alt((parse_rule, parse_target.map(Rule::Target)))),
         tag("}"),
     )
     .parse(input)?;

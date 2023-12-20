@@ -43,8 +43,8 @@ fn detect_horiz(p: &Pattern, allowed_mismatches: u8) -> Option<Fold> {
                     == allowed_mismatches as usize)
         })
         .find_map(|((i, _), (j, _))| {
-            let before = (&p[0..=i]).iter().rev();
-            let after = (&p[j..]).iter();
+            let before = (p[0..=i]).iter().rev();
+            let after = (p[j..]).iter();
             let num: u32 = before
                 .zip(after)
                 .map(|(a, b)| (a.iter().zip(b.iter()).filter(|(x, y)| x != y).count() as u32))
@@ -58,17 +58,16 @@ fn detect_vert(p: &Pattern, allowed_mismatches: u8) -> Option<Fold> {
         .map(|n| p.iter().map(|l| l[n]).collect_vec())
         .collect_vec();
     cols.iter()
-        .map(|l| l)
         .enumerate()
         .tuple_windows()
-        .filter(|((i, a), (j, b))| {
+        .filter(|((_, a), (_, b))| {
             a == b
                 || (a.iter().zip(b.iter()).filter(|(x, y)| x != y).count()
                     == allowed_mismatches as usize)
         })
-        .find_map(|((i, a), (j, b))| {
-            let before = (&cols[0..=i]).iter().rev();
-            let after = (&cols[j..]).iter();
+        .find_map(|((i, _), (j, _))| {
+            let before = (cols[0..=i]).iter().rev();
+            let after = (cols[j..]).iter();
             let num: u32 = before
                 .zip(after)
                 .map(|(a, b)| (a.iter().zip(b.iter()).filter(|(x, y)| x != y).count() as u32))

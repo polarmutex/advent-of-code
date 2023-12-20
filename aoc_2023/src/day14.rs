@@ -3,10 +3,8 @@ use framework::tests;
 use framework::IResult;
 use framework::SolutionData;
 use glam::IVec2;
-// use itertools::Itertools;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-// use nom::character::complete;
 use nom::combinator::iterator;
 use nom::IResult as IBaseResult;
 use nom::Parser;
@@ -14,6 +12,7 @@ use nom_locate::LocatedSpan;
 use std::collections::HashMap;
 use std::fmt::Display;
 // use nom_supreme::ParserExt;
+// use itertools::Itertools;
 // use tracing::info;
 
 boilerplate!(
@@ -148,7 +147,6 @@ impl Solution for Day {
         let dir = [Direction::North].iter();
         let final_map = dir.fold(data.grid, |old_map, dir| match dir {
             Direction::North => tilt_north(&old_map, &data.size),
-            _ => old_map,
         });
         dbg!(print(&final_map, &data.size));
         final_map
@@ -230,10 +228,10 @@ fn find_cycle(d: &RockState, s: &IVec2) -> (usize, usize, RockState) {
 
 fn spin(d: &RockState, s: &IVec2) -> RockState {
     let mut state = d.clone();
-    state = tilt_north(&state, &s);
-    state = tilt_west(&state, &s);
-    state = tilt_south(&state, &s);
-    state = tilt_east(&state, &s);
+    state = tilt_north(&state, s);
+    state = tilt_west(&state, s);
+    state = tilt_south(&state, s);
+    state = tilt_east(&state, s);
     state
 }
 
@@ -343,22 +341,19 @@ fn print(d: &RockState, size: &IVec2) {
                 None => print!("."),
             }
         }
-        println!("");
+        println!();
     }
 }
 
 fn grid_as_str(d: &RockState, size: &IVec2) -> String {
     (0..size.y)
-        .into_iter()
         .flat_map(|y| {
-            (0..size.x)
-                .into_iter()
-                .map(move |x| match d.get(&IVec2::new(x, y)) {
-                    Some(RockType::Rounded) => "O",
-                    Some(RockType::Cube) => "#",
-                    None => ".",
-                    _ => "",
-                })
+            (0..size.x).map(move |x| match d.get(&IVec2::new(x, y)) {
+                Some(RockType::Rounded) => "O",
+                Some(RockType::Cube) => "#",
+                None => ".",
+                _ => "",
+            })
         })
         .collect::<String>()
 }

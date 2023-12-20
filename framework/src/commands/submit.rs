@@ -3,7 +3,7 @@ use crate::commands::Part;
 use crate::Runner;
 use std::process;
 
-pub fn handle(year: u32, days: &[&dyn Runner], specific_day: u8, part: Part) {
+pub fn handle(_year: u32, days: &[&dyn Runner], specific_day: u8, part: Part) {
     if aoc_cli::check().is_err() {
         eprintln!("command \"aoc\" not found or not callable. Try running \"cargo install aoc-cli\" to install it.");
         process::exit(1);

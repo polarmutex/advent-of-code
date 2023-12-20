@@ -11,8 +11,8 @@ pub enum Part {
     Part2,
 }
 impl Part {
-    fn to_number(&self) -> u8 {
-        if *self == Part::Part2 {
+    fn to_number(self) -> u8 {
+        if self == Part::Part2 {
             2
         } else {
             1

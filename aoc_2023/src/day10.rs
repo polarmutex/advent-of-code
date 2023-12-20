@@ -120,36 +120,44 @@ fn find_loop(data: HashMap<IVec2, PipeType>) -> Vec<IVec2> {
     let north_start = *start_position + IVec2::new(0, -1);
     let north = data
         .get(&north_start)
-        .is_some_and(|v| match v {
-            PipeType::Vertical | PipeType::SouthWest | PipeType::SouthEast => true,
-            _ => false,
+        .is_some_and(|v| {
+            matches!(
+                v,
+                PipeType::Vertical | PipeType::SouthWest | PipeType::SouthEast
+            )
         })
         .then_some((Direction::South, north_start));
     dbg!(&north);
     let south_start = *start_position + IVec2::new(0, 1);
     let south = data
         .get(&south_start)
-        .is_some_and(|v| match v {
-            PipeType::Vertical | PipeType::NorthWest | PipeType::NorthEast => true,
-            _ => false,
+        .is_some_and(|v| {
+            matches!(
+                v,
+                PipeType::Vertical | PipeType::NorthWest | PipeType::NorthEast
+            )
         })
         .then_some((Direction::North, south_start));
     dbg!(&south);
     let east_start = *start_position + IVec2::new(1, 0);
     let east = data
         .get(&east_start)
-        .is_some_and(|v| match v {
-            PipeType::Horizontal | PipeType::NorthWest | PipeType::SouthWest => true,
-            _ => false,
+        .is_some_and(|v| {
+            matches!(
+                v,
+                PipeType::Horizontal | PipeType::NorthWest | PipeType::SouthWest
+            )
         })
         .then_some((Direction::West, east_start));
     dbg!(&east);
     let west_start = *start_position + IVec2::new(-1, 0);
     let west = data
         .get(&west_start)
-        .is_some_and(|v| match v {
-            PipeType::Horizontal | PipeType::NorthEast | PipeType::SouthEast => true,
-            _ => false,
+        .is_some_and(|v| {
+            matches!(
+                v,
+                PipeType::Horizontal | PipeType::NorthEast | PipeType::SouthEast
+            )
         })
         .then_some((Direction::East, west_start));
     dbg!(&west);
@@ -159,7 +167,7 @@ fn find_loop(data: HashMap<IVec2, PipeType>) -> Vec<IVec2> {
             if cur_pos == start_position {
                 Some((Direction::North, *cur_pos))
             } else {
-                let cur_type = data.get(&cur_pos).expect("pos");
+                let cur_type = data.get(cur_pos).expect("pos");
                 let next_direction = match (direction, cur_type) {
                     (Direction::North, PipeType::Vertical) => Direction::North,
                     (Direction::North, PipeType::NorthEast) => Direction::West,

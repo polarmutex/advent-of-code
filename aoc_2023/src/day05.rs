@@ -71,7 +71,7 @@ struct Map {
 
 impl Map {
     fn convert(&self, val: u64) -> u64 {
-        let valid_mapping = self.mappings.iter().find(|(src, dst)| src.contains(&val));
+        let valid_mapping = self.mappings.iter().find(|(src, _)| src.contains(&val));
         if let Some((src, dst)) = valid_mapping {
             dst.start + (val - src.start)
         } else {

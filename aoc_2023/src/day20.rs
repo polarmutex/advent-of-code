@@ -5,20 +5,13 @@ use framework::SolutionData;
 use itertools::Itertools;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::character::complete;
 use nom::character::complete::alpha1;
 use nom::character::complete::line_ending;
-use nom::character::complete::multispace1;
-use nom::combinator::opt;
-use nom::multi::fold_many1;
 use nom::multi::separated_list1;
-use nom::sequence::delimited;
-use nom::sequence::separated_pair;
-use nom::sequence::terminated;
 use nom::Parser;
 use std::collections::HashMap;
 use std::collections::VecDeque;
-use std::ops::RangeInclusive;
+// use nom::character::complete;
 // use nom_supreme::ParserExt;
 // use tracing::info;
 
@@ -61,7 +54,7 @@ impl Module {
             ModuleType::Broadcast => self
                 .destinations
                 .iter()
-                .map(|v| (self.id.clone(), v.clone(), signal.clone()))
+                .map(|v| (self.id.clone(), v.clone(), *signal))
                 .collect_vec(),
             ModuleType::FlipFlop { ref mut status } => match (signal, &status) {
                 (Signal::High, _) => vec![],
@@ -82,14 +75,14 @@ impl Module {
             },
             ModuleType::Conjunction { memory } => {
                 *memory.get_mut(&from_id).unwrap() = *signal;
-                let next = memory
-                    .values()
-                    .all(|v| v == &Signal::High)
-                    .then_some(Signal::Low)
-                    .unwrap_or(Signal::High);
+                let next = if memory.values().all(|v| v == &Signal::High) {
+                    Signal::Low
+                } else {
+                    Signal::High
+                };
                 self.destinations
                     .iter()
-                    .map(|v| (self.id.clone(), v.clone(), next.clone()))
+                    .map(|v| (self.id.clone(), v.clone(), next))
                     .collect_vec()
             }
         }

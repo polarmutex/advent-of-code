@@ -2,20 +2,14 @@ use framework::boilerplate;
 use framework::tests;
 use framework::IResult;
 use framework::SolutionData;
-use glam::IVec2;
-use nom::branch::alt;
 use nom::bytes::complete::is_a;
 use nom::bytes::complete::tag;
 use nom::character::complete;
 use nom::character::complete::alpha1;
-use nom::combinator::iterator;
 use nom::combinator::opt;
 use nom::multi::separated_list1;
-use nom::IResult as IBaseResult;
 use nom::Parser;
-use nom_locate::LocatedSpan;
 use std::collections::HashMap;
-use std::fmt::Display;
 // use nom::character::complete;
 // use nom_supreme::ParserExt;
 // use tracing::info;
@@ -51,7 +45,7 @@ struct Lense {
     focal_lengh: u8,
 }
 
-fn hash(s: &String) -> u32 {
+fn hash(s: &str) -> u32 {
     s.chars().fold(0, |mut acc, c| {
         let acsii_code = c as u32;
         acc += acsii_code;
@@ -66,10 +60,10 @@ fn parse_instruction(input: &str) -> IResult<Instruction> {
     let (input, operation) = is_a("-=").parse(input)?;
     let (input, focal_length) = opt(complete::u8).parse(input)?;
 
-    let focal_length_str = if focal_length.is_none() {
-        String::from("")
+    let focal_length_str = if let Some(x) = focal_length {
+        x.to_string()
     } else {
-        focal_length.unwrap().to_string()
+        String::from("")
     };
 
     Ok((
@@ -124,16 +118,16 @@ impl Solution for Day {
                 let box_num = hash(&i.label);
                 match i.operation {
                     Operation::Dash => {
-                        boxes.entry(box_num).or_insert(vec![]);
+                        boxes.entry(box_num).or_default();
                         let b = boxes.get_mut(&box_num).expect("");
                         let existing_idx = b.iter().position(|v| v.label == i.label);
-                        if existing_idx.is_some() {
-                            b.remove(existing_idx.unwrap());
+                        if let Some(x) = existing_idx {
+                            b.remove(x);
                         }
                     }
                     Operation::Equal => {
                         // make sure entry exists
-                        boxes.entry(box_num).or_insert(vec![]);
+                        boxes.entry(box_num).or_default();
                         let b = boxes.get_mut(&box_num).expect("");
                         let existing_idx = b.iter().position(|v| v.label == i.label);
                         if existing_idx.is_none() {

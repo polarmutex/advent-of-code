@@ -2,10 +2,8 @@ use framework::boilerplate;
 use framework::tests;
 use framework::IResult;
 use framework::SolutionData;
-use glam::IVec2;
 use itertools::repeat_n;
 use itertools::Itertools;
-use nom::branch::alt;
 use nom::bytes::complete::is_a;
 use nom::bytes::complete::tag;
 use nom::character::complete;
@@ -13,14 +11,8 @@ use nom::character::complete::line_ending;
 use nom::character::complete::space1;
 use nom::multi::separated_list1;
 use nom::sequence::separated_pair;
-// use nom::character::complete;
-use nom::combinator::iterator;
-use nom::IResult as IBaseResult;
 use nom::Parser;
-use nom_locate::LocatedSpan;
-use std::collections::HashMap;
-use std::collections::HashSet;
-use std::str::SplitInclusive;
+// use nom::character::complete;
 // use nom_supreme::ParserExt;
 // use tracing::info;
 
@@ -69,6 +61,7 @@ impl Record {
         .collect_vec()
     }
     // brute force
+    #[allow(dead_code)]
     fn num_valid_arrangement(&self) -> u32 {
         let poss_arangements = self.possible_arrangements();
         poss_arangements

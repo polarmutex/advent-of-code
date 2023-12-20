@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 use framework::boilerplate;
 use framework::tests;
 use framework::IResult;
@@ -18,6 +16,7 @@ use nom::sequence::separated_pair;
 use nom::sequence::terminated;
 use nom::Parser;
 use nom_supreme::tag::complete::tag;
+use std::collections::BTreeMap;
 // use nom_supreme::ParserExt;
 // use tracing::info;
 
@@ -100,7 +99,7 @@ impl Solution for Day {
             .cycle()
             .enumerate()
             .find_map(|(i, direction)| {
-                if current_node == String::from("ZZZ") {
+                if current_node == *"ZZZ" {
                     return Some(i as u64);
                 }
                 let node = data.maps.get(&current_node).expect("to get something");
