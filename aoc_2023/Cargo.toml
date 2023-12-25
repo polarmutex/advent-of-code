@@ -22,3 +22,4 @@ rstest_reuse = { workspace = true }
 test-log = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
+z3 = { workspace = true }

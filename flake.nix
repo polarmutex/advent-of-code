@@ -131,6 +131,15 @@
       devShells.default = pkgs.mkShell {
         inputsFrom = builtins.attrValues self.checks;
 
+        LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
+        Z3_SYS_Z3_HEADER = "${pkgs.z3.dev}/include/z3.h";
+        LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+          "${pkgs.z3.lib}"
+          # pkgs.stdenv.cc.cc
+          # Add any missing library needed
+          # You can use the nix-index package to locate them, e.g. nix-locate -w --top-level --at-root /lib/libudev.so.1
+        ];
+
         # Extra inputs can be added here
         nativeBuildInputs = with pkgs; [
           aoc-cli
@@ -144,6 +153,8 @@
           pkg-config
           openssl.dev
           nodePackages.prettier
+          clang
+          z3.lib
         ];
       };
     });

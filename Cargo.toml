@@ -34,6 +34,7 @@ test-log = { version = "0.2.13", default-features = false, features = [
 ] }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["fmt", "env-filter"] }
+z3 = {version="0.12", features = []}
 
 [profile.release]
 debug = true

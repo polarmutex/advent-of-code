@@ -221,6 +221,9 @@ impl Solution for Day {
 
     #[tracing::instrument(skip(input))]
     fn part2(input: Self::Parsed) -> Self::Answer {
+        /*timized with edge contraction. For nodes with only two neighbours you can remove it
+        (i.e a corridor in the graph) and connect those two nodes instead. This reduces my input
+        graph from 9412 nodes to only 36 for in part 2! Now it runs in about 550ms.*/
         let start = *input.map.iter().min_by_key(|(k, v)| v.pos.y).unwrap().0;
         let end = *input.map.iter().max_by_key(|(k, v)| v.pos.y).unwrap().0;
         let mut graph = DiGraph::<&Trail, u32>::new();
