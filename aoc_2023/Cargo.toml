@@ -19,6 +19,7 @@ pathfinding = { workspace = true }
 petgraph = { workspace = true }
 rstest = { workspace = true }
 rstest_reuse = { workspace = true }
+rustworkx-core = { workspace = true }
 test-log = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }

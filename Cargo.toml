@@ -29,6 +29,7 @@ pathfinding = "4.6.0"
 petgraph = "0.6.4"
 rstest = "0.18.2"
 rstest_reuse = "0.6.0"
+rustworkx-core = "0.13.2"
 test-log = { version = "0.2.13", default-features = false, features = [
     "trace",
 ] }
