@@ -13,15 +13,14 @@ mod session;
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    println!("{:#?}", args.token);
     let session = match &args.token {
         Some(token) => Ok(Session::new(token)),
         None => Session::from_file(),
     };
-    println!("Here");
 
     match &args.subcommand {
         Commands::Verify => commands::verify::verify(&session?, &args.address)?,
+        Commands::Timer(e) => commands::timer::timer(e)?,
         Commands::Init(e) => commands::init::init(&session?, e, &args)?,
         // Commands::Run(cmd) => commands::run::run(cmd)?,
         // Commands::RunAll(cmd) => commands::run_all::run(cmd)?,

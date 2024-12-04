@@ -23,6 +23,7 @@ criterion = { version = "0.4", features = ["html_reports"] }
 divan = "0.1.4"
 glam = "0.24.2"
 hex = "0.4.3"
+humantime = "2.1"
 indoc = "2.0"
 itertools = "0.10"
 lending-iterator = "0.1.7"
