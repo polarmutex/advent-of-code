@@ -4,9 +4,10 @@ use args::{Args, Commands};
 use clap::Parser;
 use common::Solution;
 mod args;
-mod commands;
 #[macro_use]
 mod misc;
+mod commands;
+mod formatter;
 mod session;
 
 fn main() -> Result<()> {
@@ -21,6 +22,7 @@ fn main() -> Result<()> {
 
     match &args.subcommand {
         Commands::Verify => commands::verify::verify(&session?, &args.address)?,
+        Commands::Init(e) => commands::init::init(&session?, e, &args)?,
         // Commands::Run(cmd) => commands::run::run(cmd)?,
         // Commands::RunAll(cmd) => commands::run_all::run(cmd)?,
         // Commands::List(cmd) => commands::list::list(cmd)?,

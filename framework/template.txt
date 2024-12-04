@@ -1,0 +1,30 @@
+use common::{Answer, solution};
+
+solution!("{{problem_name}}", {{day}});
+
+fn part_1(input: &str) -> Answer {
+    Answer::Unimplemented
+}
+
+fn part_2(input: &str) -> Answer {
+    Answer::Unimplemented
+}
+
+#[cfg(test)]
+mod test {
+    use indoc::indoc;
+
+    const CASE: &str = indoc! {"
+        ...
+    "};
+
+    #[test]
+    fn part_1() {
+        assert_eq!(super::part_1(CASE), ().into());
+    }
+
+    #[test]
+    fn part_2() {
+        assert_eq!(super::part_2(CASE), ().into());
+    }
+}

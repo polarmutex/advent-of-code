@@ -14,7 +14,10 @@ itertools = { workspace = true }
 nom = { workspace = true }
 nom-supreme = { workspace = true }
 once_cell = { workspace = true }
+regex = { workspace = true }
 scraper = { workspace = true }
 shellexpand = { workspace = true }
+shell-words = { workspace = true }
+which = { workspace = true }
 ureq = { workspace = true }
 url = { workspace = true }
