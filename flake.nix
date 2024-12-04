@@ -45,7 +45,7 @@
 
       inherit (pkgs) lib;
 
-      rustTarget = pkgs.rust-bin.nightly."2023-10-01".default.override {
+      rustTarget = pkgs.rust-bin.nightly."2024-11-01".default.override {
         extensions = ["rust-src" "rust-analyzer" "clippy"];
       };
 

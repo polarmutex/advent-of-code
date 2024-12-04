@@ -325,7 +325,7 @@
 
 ### Strings (Strings)
 
-- \[string Processing\](https://en.wikipedia.org/wiki/String_(computer_science#String_processing_algorithms)
+- \[string Processing\](https://en.wikipedia.org/wiki/String\_(computer_science#String_processing_algorithms)
 - scanning
 - [hashes](https://en.wikipedia.org/wiki/Hash_function)
 - [compression](https://en.wikipedia.org/wiki/Lossless_data_compression)
