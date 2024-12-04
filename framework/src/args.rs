@@ -33,13 +33,13 @@ pub enum Commands {
     /// Fetch the puzzle input for a given day and write to a file.
     /// Also creates a base solution file for the given day.
     Init(InitArgs),
+    /// List all solutions for a given year
+    List(ListArgs),
 }
 /// Run a solution to a problem
 // Run(RunArgs),
 /// Run all solutions in a given year
 // RunAll(RunAllArgs),
-/// List all solutions for a given year
-// List(ListArgs),
 
 #[derive(Parser, Debug)]
 pub struct TimerArgs {

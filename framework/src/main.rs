@@ -24,7 +24,7 @@ fn main() -> Result<()> {
         Commands::Init(e) => commands::init::init(&session?, e, &args)?,
         // Commands::Run(cmd) => commands::run::run(cmd)?,
         // Commands::RunAll(cmd) => commands::run_all::run(cmd)?,
-        // Commands::List(cmd) => commands::list::list(cmd)?,
+        Commands::List(cmd) => commands::list::list(cmd)?,
         _ => todo!(),
     }
 
