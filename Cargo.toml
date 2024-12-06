@@ -11,6 +11,7 @@ default-members = ["framework"]
 [workspace.dependencies]
 framework = { path = "./framework" }
 common = { path = "./common" }
+aoc_lib = { path = "./aoc_lib" }
 aoc_2024 = { path = "./aoc_2024" }
 
 ahash = "0.8"

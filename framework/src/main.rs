@@ -22,9 +22,10 @@ fn main() -> Result<()> {
         Commands::Verify => commands::verify::verify(&session?, &args.address)?,
         Commands::Timer(e) => commands::timer::timer(e)?,
         Commands::Init(e) => commands::init::init(&session?, e, &args)?,
-        // Commands::Run(cmd) => commands::run::run(cmd)?,
+        Commands::Run(cmd) => commands::run::run(cmd)?,
         // Commands::RunAll(cmd) => commands::run_all::run(cmd)?,
         Commands::List(cmd) => commands::list::list(cmd)?,
+        Commands::Submit(e) => commands::submit::submit(&session?, e, &args)?,
         _ => todo!(),
     }
 

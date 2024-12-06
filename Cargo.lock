@@ -187,9 +187,16 @@ dependencies = [
 name = "aoc_2024"
 version = "1.0.0"
 dependencies = [
+ "aoc_lib",
  "common",
  "indoc",
+ "itertools",
+ "nom",
 ]
+
+[[package]]
+name = "aoc_lib"
+version = "1.0.0"
 
 [[package]]
 name = "arrayvec"

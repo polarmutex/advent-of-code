@@ -3,6 +3,7 @@ use std::{borrow::Cow, path::PathBuf, str::FromStr};
 use chrono::{Datelike, Utc};
 use clap::{Parser, Subcommand};
 use common::Part;
+use regex::Regex;
 use url::Url;
 
 #[derive(Parser)]
@@ -35,9 +36,11 @@ pub enum Commands {
     Init(InitArgs),
     /// List all solutions for a given year
     List(ListArgs),
+    /// Run a solution to a problem
+    Run(RunArgs),
+    /// Submit a solution to the Advent of Code server.
+    Submit(SubmitArgs),
 }
-/// Run a solution to a problem
-// Run(RunArgs),
 /// Run all solutions in a given year
 // RunAll(RunAllArgs),
 
@@ -130,6 +133,35 @@ pub struct RunAllArgs {
 #[derive(Parser)]
 pub struct ListArgs {
     /// The year to list solutions for
+    #[arg(default_value_t = current_year())]
+    pub year: u16,
+}
+
+#[derive(Parser, Debug)]
+pub struct SubmitArgs {
+    /// Command to run to get the solution for the given day.
+    #[arg(
+        short,
+        long,
+        default_value = "cargo r -r -- run {{day}} {{part}} {{year}}"
+    )]
+    pub command: String,
+    /// A regex that will be used to extract the solution from the output of the command.
+    #[arg(long, default_value = r"OUT: (.*) \(")]
+    pub extraction_regex: Regex,
+    /// The group of the regex that contains the solution.
+    #[arg(long, default_value = "1")]
+    pub extraction_group: usize,
+    /// Don't actually submit the solution.
+    /// Useful for testing that the command and extraction regex are correct.
+    #[arg(short, long)]
+    pub dry_run: bool,
+
+    /// The day to submit the solution for.
+    pub day: u8,
+    /// The part to submit the solution for.
+    pub part: Part,
+    /// The year to submit the solution for.
     #[arg(default_value_t = current_year())]
     pub year: u16,
 }
