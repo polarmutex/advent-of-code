@@ -4,5 +4,8 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
+aoc_lib = { workspace = true }
 common = { workspace = true }
 indoc = { workspace = true }
+itertools = { workspace = true }
+nom = { workspace = true }

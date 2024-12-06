@@ -1,7 +1,9 @@
 use common::Solution;
 
+mod day_01;
 // [import_marker]
 
 pub const SOLUTIONS: &[Solution] = &[
-     // [list_marker]
+     day_01::SOLUTION,
+    // [list_marker]
 ];
