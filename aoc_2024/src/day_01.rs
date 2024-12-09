@@ -1,7 +1,6 @@
 use aoc_lib::hash::*;
-use aoc_lib::iter::ChunkOps;
 use common::{solution, Answer};
-use itertools::Itertools;
+use miette::miette;
 
 solution!("Historian Hysteria", 1);
 
@@ -18,30 +17,32 @@ fn parse(input: &str) -> Input {
     (left, right)
 }
 
-fn part_1(input: &str) -> Answer {
+fn part_1(input: &str) -> miette::Result<Answer> {
     let (mut left, mut right) = parse(input);
 
     left.sort();
     right.sort();
 
     println!("finished 1 1");
-    left.into_iter()
+    Ok(left
+        .into_iter()
         .zip(right)
         .map(|(left, right)| left.abs_diff(right))
         .sum::<u32>()
-        .into()
+        .into())
 }
 
-fn part_2(input: &str) -> Answer {
+fn part_2(input: &str) -> miette::Result<Answer> {
     let (left, mut right) = parse(input);
 
     let mut map = FastMap::with_capacity(1_000);
     right.iter().for_each(|v| *map.entry(v).or_insert(0) += 1);
 
-    left.iter()
+    Ok(left
+        .iter()
         .map(|left| map.get(left).unwrap_or(&0) * left)
         .sum::<u32>()
-        .into()
+        .into())
 }
 
 #[cfg(test)]
@@ -58,12 +59,14 @@ mod test {
     "};
 
     #[test]
-    fn part_1() {
-        assert_eq!(super::part_1(CASE), 11.into());
+    fn part_1() -> miette::Result<()> {
+        assert_eq!(super::part_1(CASE)?, 11.into());
+        Ok(())
     }
 
     #[test]
-    fn part_2() {
-        assert_eq!(super::part_2(CASE), 31.into());
+    fn part_2() -> miette::Result<()> {
+        assert_eq!(super::part_2(CASE)?, 31.into());
+        Ok(())
     }
 }

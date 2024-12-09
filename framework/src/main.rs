@@ -1,8 +1,8 @@
 use crate::session::Session;
-use anyhow::Result;
 use args::{Args, Commands};
 use clap::Parser;
 use common::Solution;
+use miette::Result;
 mod args;
 #[macro_use]
 mod misc;
@@ -26,7 +26,6 @@ fn main() -> Result<()> {
         // Commands::RunAll(cmd) => commands::run_all::run(cmd)?,
         Commands::List(cmd) => commands::list::list(cmd)?,
         Commands::Submit(e) => commands::submit::submit(&session?, e, &args)?,
-        _ => todo!(),
     }
 
     Ok(())

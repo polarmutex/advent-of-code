@@ -1,6 +1,6 @@
 use std::{borrow::Cow, fmt::Display};
 
-use anyhow::{bail, Context, Result};
+use miette::{bail, Context, IntoDiagnostic, Result};
 
 use self::tokenize::Tokenizer;
 
@@ -64,6 +64,7 @@ impl Processor {
             "pad" => {
                 let width = args
                     .parse()
+                    .into_diagnostic()
                     .with_context(|| format!("Invalid width of `{args}`"))?;
                 Self::Pad { width }
             }
@@ -95,7 +96,7 @@ impl<T: Display> Arguments for &[(&str, T)] {
 }
 
 mod tokenize {
-    use anyhow::{Context, Result};
+    use miette::{Context, Result};
 
     use super::{Component, Processor};
 

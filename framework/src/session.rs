@@ -1,6 +1,6 @@
-use std::{env, fs::read_to_string};
+use std::fs::read_to_string;
 
-use anyhow::{Context, Result};
+use miette::{Context, IntoDiagnostic, Result};
 use scraper::Html;
 use ureq::Request;
 use url::Url;
@@ -19,7 +19,8 @@ impl Session {
     pub fn from_file() -> Result<Self> {
         println!("IN FROM FILE");
         let token =
-            read_to_string(shellexpand::tilde("~/.config/adventofcode.session").into_owned())?;
+            read_to_string(shellexpand::tilde("~/.config/adventofcode.session").into_owned())
+                .into_diagnostic()?;
         println!("{token}");
         Ok(Self { token })
     }
@@ -27,8 +28,10 @@ impl Session {
     pub fn verify(&self, address: &Url) -> Result<Option<SessionVerification>> {
         let body = ureq::get(address.as_str())
             .set("Cookie", &format!("session={}", self.token))
-            .call()?
-            .into_string()?;
+            .call()
+            .into_diagnostic()?
+            .into_string()
+            .into_diagnostic()?;
 
         let document = Html::parse_document(&body);
         let user = match document.select(selector!(".user")).next() {

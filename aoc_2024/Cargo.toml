@@ -8,4 +8,5 @@ aoc_lib = { workspace = true }
 common = { workspace = true }
 indoc = { workspace = true }
 itertools = { workspace = true }
+miette = { workspace = true }
 nom = { workspace = true }

@@ -1,11 +1,12 @@
 use crate::Answer;
+use miette::miette;
 
 pub struct Solution {
     pub name: &'static str,
     pub day: u8,
 
-    pub part_1: fn(&str) -> Answer,
-    pub part_2: fn(&str) -> Answer,
+    pub part_1: fn(&str) -> miette::Result<Answer>,
+    pub part_2: fn(&str) -> miette::Result<Answer>,
 }
 
 #[macro_export]

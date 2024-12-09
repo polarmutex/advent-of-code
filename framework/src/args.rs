@@ -1,6 +1,6 @@
 use std::{borrow::Cow, path::PathBuf, str::FromStr};
 
-use chrono::{Datelike, Utc};
+use crate::misc::current_year;
 use clap::{Parser, Subcommand};
 use common::Part;
 use regex::Regex;
@@ -164,10 +164,6 @@ pub struct SubmitArgs {
     /// The year to submit the solution for.
     #[arg(default_value_t = current_year())]
     pub year: u16,
-}
-
-pub fn current_year() -> u16 {
-    Utc::now().year() as u16
 }
 
 #[derive(Debug, Clone)]

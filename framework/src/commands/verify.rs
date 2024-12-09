@@ -1,5 +1,5 @@
-use anyhow::{bail, Result};
 use colored::Colorize;
+use miette::{bail, Result};
 use url::Url;
 
 use crate::session::{Session, SessionVerification};

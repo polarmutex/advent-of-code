@@ -4,7 +4,6 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
-anyhow = { workspace = true }
 bitvec = "1.0.1"
 clap = { workspace = true }
 framework = { workspace = true }

@@ -3,8 +3,8 @@ use std::{
     time::Instant,
 };
 
-use anyhow::{Context, Result};
 use common::human_time;
+use miette::{Context, IntoDiagnostic, Result};
 use scraper::Html;
 
 use crate::{
@@ -32,8 +32,8 @@ fn get_answer(cmd: &SubmitArgs) -> Result<String> {
         ("part", cmd.part.to_string()),
     ];
     let command = Formatter::new(&cmd.command)?.format(formats)?;
-    let args = shell_words::split(&command)?;
-    let executable = which::which(&args[0])?;
+    let args = shell_words::split(&command).into_diagnostic()?;
+    let executable = which::which(&args[0]).into_diagnostic()?;
 
     if cmd.dry_run {
         println!("[*] Running command: {}", command);
@@ -43,14 +43,15 @@ fn get_answer(cmd: &SubmitArgs) -> Result<String> {
         .args(&args[1..])
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
-        .spawn()?;
+        .spawn()
+        .into_diagnostic()?;
 
     let start = Instant::now();
-    let output = executable.wait_with_output()?;
+    let output = executable.wait_with_output().into_diagnostic()?;
     let time = start.elapsed().as_nanos();
 
     if output.status.code() != Some(0) {
-        anyhow::bail!(
+        miette::bail!(
             "Command failed with status code {}\n{}",
             output.status,
             String::from_utf8_lossy(&output.stderr)
@@ -76,7 +77,8 @@ fn get_answer(cmd: &SubmitArgs) -> Result<String> {
 fn submit_answer(session: &Session, cmd: &SubmitArgs, args: &Args, answer: &str) -> Result<()> {
     let url = args
         .address
-        .join(&format!("{}/day/{}/answer", cmd.year, cmd.day))?;
+        .join(&format!("{}/day/{}/answer", cmd.year, cmd.day))
+        .into_diagnostic()?;
 
     // POST https://adventofcode.com/{{year}}/day/{{day}}/answer
     // level={{part:int}}&answer={{answer}}
@@ -85,9 +87,10 @@ fn submit_answer(session: &Session, cmd: &SubmitArgs, args: &Args, answer: &str)
         .send_form(&[
             ("level", &(cmd.part as u8 + 1).to_string()),
             ("answer", answer),
-        ])?;
+        ])
+        .into_diagnostic()?;
 
-    let document = Html::parse_document(&result.into_string()?);
+    let document = Html::parse_document(&result.into_string().into_diagnostic()?);
     let result = document
         .select(selector!("article p"))
         .next()

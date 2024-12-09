@@ -4,8 +4,9 @@ use std::{
     time::Duration,
 };
 
-use anyhow::{Context, Result};
 use chrono::{DateTime, Datelike, Utc};
+use miette::IntoDiagnostic;
+use miette::{Context, Result};
 
 use crate::args::TimerArgs;
 
@@ -42,10 +43,10 @@ pub fn timer(cmd: &TimerArgs) -> Result<()> {
         }
 
         if !cmd.quiet {
-            let time_left = (stop_time - now).to_std()?;
+            let time_left = (stop_time - now).to_std().into_diagnostic()?;
             let time_left = Duration::new(time_left.as_secs(), 0);
             print!("\r\x1b[0K[*]  {}", humantime::format_duration(time_left));
-            io::stdout().flush()?;
+            io::stdout().flush().into_diagnostic()?;
         }
 
         thread::sleep(Duration::from_secs_f32(cmd.frequency));

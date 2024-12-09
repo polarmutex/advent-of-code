@@ -1,7 +1,10 @@
 use std::{borrow::Cow, fs, path::PathBuf, time::Instant};
 
-use anyhow::{bail, Context, Result};
 use common::{human_time, Part};
+use miette::bail;
+use miette::Context;
+use miette::IntoDiagnostic;
+use miette::Result;
 
 use crate::{args::RunArgs, get_year};
 
@@ -29,12 +32,15 @@ pub fn run(cmd: &RunArgs) -> Result<()> {
         }
     };
 
-    let input = fs::read_to_string(&*path)?.trim().replace('\r', "");
+    let input = fs::read_to_string(&*path)
+        .into_diagnostic()?
+        .trim()
+        .replace('\r', "");
 
     let start = Instant::now();
     let out = match cmd.part {
-        Part::One => (solution.part_1)(&input),
-        Part::Two => (solution.part_2)(&input),
+        Part::One => (solution.part_1)(&input).context("running part 1")?,
+        Part::Two => (solution.part_2)(&input).context("running part 2")?,
     };
 
     if cmd.raw {

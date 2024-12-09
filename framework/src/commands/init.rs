@@ -5,7 +5,7 @@ use std::{
     process::Command,
 };
 
-use anyhow::{Context, Result};
+use miette::{Context, IntoDiagnostic, Result};
 use scraper::Html;
 use url::Url;
 
@@ -32,12 +32,13 @@ pub fn init(session: &Session, cmd: &InitArgs, args: &Args) -> Result<()> {
         if cmd.auto_open {
             let command =
                 Formatter::new(&cmd.editor)?.format::<&[_]>(&[("file", path.to_string_lossy())])?;
-            let args = shell_words::split(&command)?;
-            let executable = which::which(&args[0])?;
+            let args = shell_words::split(&command).into_diagnostic()?;
+            let executable = which::which(&args[0]).into_diagnostic()?;
             println!("[*] Opening solution file");
             Command::new(&executable)
                 .args(&args[1..])
                 .spawn()
+                .into_diagnostic()
                 .with_context(|| {
                     format!(
                         "Opening editor with `{}` [{:?}]",
@@ -58,12 +59,12 @@ fn write_scaffold(cmd: &InitArgs, formats: &[(&str, String)]) -> Result<PathBuf>
 
     println!("[*] Loading template");
     let template = match cmd.solution_template {
-        Some(ref path) => fs::read_to_string(path)?,
+        Some(ref path) => fs::read_to_string(path).into_diagnostic()?,
         None => include_str!("../../template.txt").to_owned(),
     };
     let template = Formatter::new(&template)?.format(formats)?;
 
-    file.write_all(template.as_bytes())?;
+    file.write_all(template.as_bytes()).into_diagnostic()?;
     println!("[*] Wrote scaffold to {location}");
     Ok(file_location.to_path_buf())
 }
@@ -73,6 +74,7 @@ fn run_inserters(cmd: &InitArgs, formats: &[(&str, String)]) -> Result<()> {
     for inserter in cmd.inserter.iter().chain(default.as_ref()) {
         let file_path = Formatter::new(&inserter.location)?.format(formats)?;
         let mut file = fs::read_to_string(&file_path)
+            .into_diagnostic()
             .with_context(|| format!("Failed to read {file_path}"))?;
 
         for (marker, template) in &inserter.parts {
@@ -85,7 +87,7 @@ fn run_inserters(cmd: &InitArgs, formats: &[(&str, String)]) -> Result<()> {
             file.insert_str(marker, &new_line);
         }
 
-        fs::write(&file_path, file)?;
+        fs::write(&file_path, file).into_diagnostic()?;
         println!("[*] Modified {}", file_path);
     }
 
@@ -95,7 +97,7 @@ fn run_inserters(cmd: &InitArgs, formats: &[(&str, String)]) -> Result<()> {
 fn write_input(cmd: &InitArgs, input: ProblemInput, formats: &[(&str, String)]) -> Result<()> {
     let file_location = Formatter::new(&cmd.input_location)?.format(formats)?;
     let mut file = create_file(Path::new(&file_location), true)?;
-    file.write_all(input.body.as_bytes())?;
+    file.write_all(input.body.as_bytes()).into_diagnostic()?;
     println!("[*] Wrote input to {file_location}");
     Ok(())
 }
@@ -103,14 +105,22 @@ fn write_input(cmd: &InitArgs, input: ProblemInput, formats: &[(&str, String)]) 
 fn fetch_input(session: &Session, base: &Url, day: u8, year: u16) -> Result<ProblemInput> {
     println!("[*] Fetching input for {day}/{year}");
 
-    let input_url = base.join(&format!("{year}/day/{day}/input"))?;
-    let problem_url = base.join(&format!("{year}/day/{day}"))?;
+    let input_url = base
+        .join(&format!("{year}/day/{day}/input"))
+        .into_diagnostic()?;
+    let problem_url = base.join(&format!("{year}/day/{day}")).into_diagnostic()?;
 
     let body = ureq::get(input_url.as_str())
         .authenticated(session)
-        .call()?
-        .into_string()?;
-    let problem = ureq::get(problem_url.as_str()).call()?.into_string()?;
+        .call()
+        .into_diagnostic()?
+        .into_string()
+        .into_diagnostic()?;
+    let problem = ureq::get(problem_url.as_str())
+        .call()
+        .into_diagnostic()?
+        .into_string()
+        .into_diagnostic()?;
 
     let problem = Html::parse_document(&problem);
     let title = problem
@@ -135,15 +145,15 @@ struct ProblemInput {
 fn create_file(path: &Path, allow_overwrite: bool) -> Result<File> {
     if let Some(parent) = path.parent() {
         if !parent.exists() {
-            fs::create_dir_all(parent)?;
+            fs::create_dir_all(parent).into_diagnostic()?;
         }
     }
 
     if !allow_overwrite && path.exists() {
-        return Err(anyhow::anyhow!("File already exists: {}", path.display()));
+        return Err(miette::miette!("File already exists: {}", path.display()));
     }
 
-    Ok(File::create(path)?)
+    Ok(File::create(path).into_diagnostic()?)
 }
 
 fn default_insertion() -> Insertion {
