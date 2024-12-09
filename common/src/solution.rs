@@ -1,5 +1,4 @@
 use crate::Answer;
-use miette::miette;
 
 pub struct Solution {
     pub name: &'static str,

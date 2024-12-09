@@ -1,6 +1,5 @@
 use aoc_lib::hash::*;
 use common::{solution, Answer};
-use miette::miette;
 
 solution!("Historian Hysteria", 1);
 
@@ -33,7 +32,7 @@ fn part_1(input: &str) -> miette::Result<Answer> {
 }
 
 fn part_2(input: &str) -> miette::Result<Answer> {
-    let (left, mut right) = parse(input);
+    let (left, right) = parse(input);
 
     let mut map = FastMap::with_capacity(1_000);
     right.iter().for_each(|v| *map.entry(v).or_insert(0) += 1);
@@ -57,16 +56,28 @@ mod test {
         3   9
         3   3
     "};
+    const INPUT: &'static str = include_str!("../../data/2024/01.txt");
 
     #[test]
-    fn part_1() -> miette::Result<()> {
+    fn part_1_case() -> miette::Result<()> {
         assert_eq!(super::part_1(CASE)?, 11.into());
+        Ok(())
+    }
+    #[test]
+    fn part_1() -> miette::Result<()> {
+        assert_eq!(super::part_1(INPUT)?, 1320851.into());
+        Ok(())
+    }
+
+    #[test]
+    fn part_2_case() -> miette::Result<()> {
+        assert_eq!(super::part_2(CASE)?, 31.into());
         Ok(())
     }
 
     #[test]
     fn part_2() -> miette::Result<()> {
-        assert_eq!(super::part_2(CASE)?, 31.into());
+        assert_eq!(super::part_2(INPUT)?, 26859182.into());
         Ok(())
     }
 }

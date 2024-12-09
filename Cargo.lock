@@ -192,6 +192,8 @@ dependencies = [
  "itertools",
  "miette",
  "nom",
+ "test-log",
+ "tracing",
 ]
 
 [[package]]
