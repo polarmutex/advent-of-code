@@ -2,14 +2,15 @@
 name = "framework"
 version = "1.0.0"
 edition = "2021"
+license = "MIT"
 
 [dependencies]
 aoc_2024 = { workspace = true }
+chrono = { workspace = true }
 clap = { workspace = true }
 colored = { workspace = true }
-common = {workspace = true }
-chrono = { workspace = true }
-humantime =  { workspace = true }
+common = { workspace = true }
+humantime = { workspace = true }
 itertools = { workspace = true }
 miette = { workspace = true }
 nom = { workspace = true }
@@ -17,8 +18,8 @@ nom-supreme = { workspace = true }
 once_cell = { workspace = true }
 regex = { workspace = true }
 scraper = { workspace = true }
-shellexpand = { workspace = true }
 shell-words = { workspace = true }
-which = { workspace = true }
+shellexpand = { workspace = true }
 ureq = { workspace = true }
 url = { workspace = true }
+which = { workspace = true }

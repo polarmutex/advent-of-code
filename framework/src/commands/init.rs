@@ -153,7 +153,7 @@ fn create_file(path: &Path, allow_overwrite: bool) -> Result<File> {
         return Err(miette::miette!("File already exists: {}", path.display()));
     }
 
-    Ok(File::create(path).into_diagnostic()?)
+    File::create(path).into_diagnostic()
 }
 
 fn default_insertion() -> Insertion {

@@ -17,6 +17,7 @@ mod test {
     const CASE: &str = indoc! {"
         ...
     "};
+    const INPUT: &'static str = include_str!("../../data/{{year}}/02.txt");
 
     #[test]
     fn part_1() {

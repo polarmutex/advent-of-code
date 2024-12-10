@@ -1,12 +1,14 @@
 [workspace]
 resolver = "2"
 
-members = [
-    "framework",
-    "common",
-    "aoc_*",
-]
+members = ["framework", "common", "aoc_*"]
 default-members = ["framework"]
+
+[workspace.package]
+version = "1.0.0"
+
+[workspace.metadata.crane]
+name = "advent-of-code"
 
 [workspace.dependencies]
 framework = { path = "./framework" }
@@ -17,7 +19,7 @@ aoc_2024 = { path = "./aoc_2024" }
 ahash = "0.8"
 bitvec = "1.0.1"
 chrono = "0.4"
-clap = { version = "4", features = ["color", "derive"]}
+clap = { version = "4", features = ["color", "derive"] }
 colored = "2.0.0"
 criterion = { version = "0.4", features = ["html_reports"] }
 divan = "0.1.4"
@@ -43,14 +45,14 @@ scraper = "0.18"
 shellexpand = "3.1"
 shell-words = "1.1"
 test-log = { version = "0.2.13", default-features = false, features = [
-    "trace",
+  "trace",
 ] }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["fmt", "env-filter"] }
 which = "7.0"
 ureq = "2.9"
 url = { version = "2.5", features = ["serde"] }
-z3 = {version="0.12", features = []}
+z3 = { version = "0.12", features = [] }
 
 [profile.release]
 debug = true
@@ -58,4 +60,4 @@ overflow-checks = true
 incremental = true
 
 [profile.dev]
-opt-level = 1               # Use slightly better optimizations.
+opt-level = 1 # Use slightly better optimizations.
