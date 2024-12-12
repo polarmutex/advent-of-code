@@ -1,13 +1,14 @@
 use common::{Answer, solution};
+use miette::Result;
 
 solution!("{{problem_name}}", {{day}});
 
-fn part_1(input: &str) -> Answer {
-    Answer::Unimplemented
+fn part_1(input: &str) -> Result<Answer> {
+    Ok(Answer::Unimplemented)
 }
 
-fn part_2(input: &str) -> Answer {
-    Answer::Unimplemented
+fn part_2(input: &str) -> Result<Answer> {
+    Ok(Answer::Unimplemented)
 }
 
 #[cfg(test)]
@@ -17,15 +18,34 @@ mod test {
     const CASE: &str = indoc! {"
         ...
     "};
-    const INPUT: &'static str = include_str!("../../data/{{year}}/02.txt");
 
     #[test]
-    fn part_1() {
+    // #[test_log::test]
+    fn part_1_case() {
         assert_eq!(super::part_1(CASE), ().into());
     }
 
     #[test]
-    fn part_2() {
+    // #[test_log::test]
+    fn part_2_case() {
         assert_eq!(super::part_2(CASE), ().into());
+    }
+
+    #[test]
+    // #[test_log::test]
+    #[ignore]
+    fn part_1() -> miette::Result<()> {
+        let input = load_raw({{year}}, {{day}})?;
+        assert_eq!(super::part_1(input.as_str())?, ().into());
+        Ok(())
+    }
+
+    #[test]
+    // #[test_log::test]
+    #[ignore]
+    fn part_2() -> miette::Result<()> {
+        let input = load_raw({{year}}, {{day}})?;
+        assert_eq!(super::part_2(input.as_str())?, ().into());
+        Ok(())
     }
 }
