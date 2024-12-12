@@ -112,6 +112,7 @@ fn check(report: &Report) -> Result<(), String> {
 
 #[cfg(test)]
 mod test {
+    use common::load_raw;
     use indoc::indoc;
 
     const CASE: &str = indoc! {"
@@ -122,19 +123,11 @@ mod test {
         8 6 4 4 1
         1 3 6 7 9
     "};
-    const INPUT: &'static str = include_str!("../../data/2024/02.txt");
 
     #[test]
     // #[test_log::test]
     fn part_1_case() -> miette::Result<()> {
         assert_eq!(super::part_1(CASE)?, 2.into());
-        Ok(())
-    }
-
-    #[test]
-    // #[test_log::test]
-    fn part_1() -> miette::Result<()> {
-        assert_eq!(super::part_1(INPUT)?, 321.into());
         Ok(())
     }
 
@@ -147,8 +140,19 @@ mod test {
 
     #[test]
     // #[test_log::test]
+    #[ignore]
+    fn part_1() -> miette::Result<()> {
+        let input = load_raw(2024, 2)?;
+        assert_eq!(super::part_1(input.as_str())?, 321.into());
+        Ok(())
+    }
+
+    #[test]
+    // #[test_log::test]
+    #[ignore]
     fn part_2() -> miette::Result<()> {
-        assert_eq!(super::part_2(INPUT)?, 386.into());
+        let input = load_raw(2024, 2)?;
+        assert_eq!(super::part_2(input.as_str())?, 386.into());
         Ok(())
     }
 }

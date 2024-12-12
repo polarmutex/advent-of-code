@@ -11,7 +11,6 @@
 
     crane = {
       url = "github:ipetkov/crane";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     flake-utils.url = "github:numtide/flake-utils";
@@ -20,7 +19,6 @@
       url = "github:oxalica/rust-overlay";
       inputs = {
         nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
       };
     };
   };
@@ -197,6 +195,13 @@
           my-workspace-llvm-coverage = craneLibLLvmTools.cargoLlvmCov (commonArgs
             // {
               inherit cargoArtifacts;
+            });
+          aoc-2024-test = craneLib.cargoTest (commonArgs
+            // {
+              inherit cargoArtifacts;
+              cargoExtraArgs = "-p aoc_2024";
+              # partitions = 1;
+              # partitionType = "count";
             });
         };
 

@@ -46,6 +46,7 @@ fn part_2(input: &str) -> miette::Result<Answer> {
 
 #[cfg(test)]
 mod test {
+    use common::load_raw;
     use indoc::indoc;
 
     const CASE: &str = indoc! {"
@@ -56,16 +57,10 @@ mod test {
         3   9
         3   3
     "};
-    const INPUT: &'static str = include_str!("../../data/2024/01.txt");
 
     #[test]
     fn part_1_case() -> miette::Result<()> {
         assert_eq!(super::part_1(CASE)?, 11.into());
-        Ok(())
-    }
-    #[test]
-    fn part_1() -> miette::Result<()> {
-        assert_eq!(super::part_1(INPUT)?, 1320851.into());
         Ok(())
     }
 
@@ -76,8 +71,18 @@ mod test {
     }
 
     #[test]
+    #[ignore]
+    fn part_1() -> miette::Result<()> {
+        let input = load_raw(2024, 1)?;
+        assert_eq!(super::part_1(input.as_str())?, 1320851.into());
+        Ok(())
+    }
+
+    #[test]
+    #[ignore]
     fn part_2() -> miette::Result<()> {
-        assert_eq!(super::part_2(INPUT)?, 26859182.into());
+        let input = load_raw(2024, 1)?;
+        assert_eq!(super::part_2(input.as_str())?, 26859182.into());
         Ok(())
     }
 }
