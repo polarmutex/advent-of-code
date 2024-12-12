@@ -13,9 +13,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: cachix/install-nix-action@v30
+      - uses: cachix/cachix-action@v15
+        with:
+          name: polarmutex
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: build/test
-        run: nix build .#aoc-2024-test -Lv
+        run: nix build .#aoc-2024-test -L
       - name: ls
         run: ls -la result/
