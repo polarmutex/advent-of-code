@@ -14,6 +14,7 @@ fn part_2(input: &str) -> Result<Answer> {
 #[cfg(test)]
 mod test {
     use indoc::indoc;
+    use common::load_raw;
 
     const CASE: &str = indoc! {"
         ...
@@ -21,14 +22,16 @@ mod test {
 
     #[test]
     // #[test_log::test]
-    fn part_1_case() {
-        assert_eq!(super::part_1(CASE), ().into());
+    fn part_1_case() -> miette::Result<()>{
+        assert_eq!(super::part_1(CASE)?, ().into());
+        Ok(())
     }
 
     #[test]
     // #[test_log::test]
-    fn part_2_case() {
-        assert_eq!(super::part_2(CASE), ().into());
+    fn part_2_case() -> miette::Result<()> {
+        assert_eq!(super::part_2(CASE)?, ().into());
+        Ok(())
     }
 
     #[test]

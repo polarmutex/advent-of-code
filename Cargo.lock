@@ -188,6 +188,7 @@ version = "1.0.0"
 dependencies = [
  "aoc_lib",
  "common",
+ "glam",
  "indoc",
  "itertools",
  "miette",
