@@ -1,0 +1,34 @@
+[package]
+name = "aoc-runner"
+edition = "2021"
+repository = ""
+homepage = ""
+documentation = ""
+description = "An Advent of Code runner aiming to streamline a variety of repository layouts and tasks."
+categories = ["command-line-utilities", "development-tools::cargo-plugins", ]
+keywords = ["advent-of-code", "aoc"]
+
+[lib]
+name = "aoc_runner"
+path = "src/lib.rs"
+
+
+[[bin]]
+name="aoc-runner"
+path="src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+cargo_metadata.workspace = true
+chrono.workspace = true
+chrono-tz.workspace = true
+clap.workspace = true
+directories.workspace = true
+liquid.workspace = true
+regex.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_derive.workspace = true
+thiserror.workspace = true
+toml_edit.workspace = true
+trycmd.workspace = true

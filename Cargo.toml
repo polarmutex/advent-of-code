@@ -1,8 +1,12 @@
 [workspace]
 resolver = "2"
 
-members = ["framework", "common", "aoc_*"]
-default-members = ["framework"]
+# members = ["framework", "common", "aoc_*"]
+members=[
+   "aoc-runner",
+    "aoc-runner-macros"
+]
+# default-members = ["framework"]
 
 [workspace.package]
 version = "1.0.0"
@@ -11,20 +15,24 @@ version = "1.0.0"
 name = "advent-of-code"
 
 [workspace.dependencies]
-framework = { path = "./framework" }
-common = { path = "./common" }
-aoc_lib = { path = "./aoc_lib" }
-aoc_2020 = { path = "./aoc_2020" }
-aoc_2023 = { path = "./aoc_2023" }
-aoc_2024 = { path = "./aoc_2024" }
+# framework = { path = "./framework" }
+# common = { path = "./common" }
+# aoc_lib = { path = "./aoc_lib" }
+# aoc_2020 = { path = "./aoc_2020" }
+# aoc_2023 = { path = "./aoc_2023" }
+# aoc_2024 = { path = "./aoc_2024" }
 
 ahash = "0.8"
+anyhow = { version = "1", features = ["backtrace"] }
 bitvec = "1.0.1"
+cargo_metadata = "0"
 chrono = "0.4"
-clap = { version = "4", features = ["color", "derive"] }
+chrono-tz = "0.10.0"
+criterion =  { version = "0", features = ["rayon", "cargo_bench_support", "html_reports"]}
+clap = { version = "4", features = ["derive", "cargo", "env", "unicode", "string"] }
 colored = "2.0.0"
 ctor = "0.2"
-criterion = { version = "0.4", features = ["html_reports"] }
+directories = "5"
 divan = "0.1.4"
 glam = "0.24.2"
 hex = "0.4.3"
@@ -32,26 +40,39 @@ humantime = "2.1"
 indoc = "2.0"
 itertools = "0.10"
 lending-iterator = "0.1.7"
+liquid = "0"
+microbench = "0"
 miette = { version = "7.1", features = ["fancy"] }
 ndarray = "0.15.6"
 nom = "7.1.3"
 nom-supreme = "0.8.0"
 nom_locate = "4.2.0"
+num-format = { version = "0", features = ["with-system-locale"] }
 once_cell = "1.18"
 pathfinding = "4.6.0"
 petgraph = "0.6.4"
+plotters = { version = "0", default-features = false, features = ["bitmap_backend", "svg_backend", "line_series"] }
+proc-macro2 = { version = "1", features = ["span-locations"] }
+quote = "1"
 regex = "1.10"
+reqwest = { version = "0", features = ["blocking", "cookies", "gzip", "brotli", "deflate"] }
 rstest = "0.18.2"
 rstest_reuse = "0.6.0"
 rustworkx-core = "0.13.2"
 scraper = "0.18"
+serde = { version = "1", features = ["derive", "serde_derive"] }
+serde_derive = "1"
 shellexpand = "3.1"
 shell-words = "1.1"
+syn = { version = "2.0.48", features = ["full", "extra-traits", "fold", "visit", "visit-mut", "parsing", "proc-macro"] }
 test-log = { version = "0.2.13", default-features = false, features = [
   "trace",
 ] }
+thiserror = "2"
+toml_edit = "0"
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["fmt", "env-filter"] }
+trycmd = { version = "0", features = [] }
 which = "7.0"
 ureq = "2.9"
 url = { version = "2.5", features = ["serde"] }

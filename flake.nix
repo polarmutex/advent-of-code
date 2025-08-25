@@ -102,15 +102,14 @@
           fileset = lib.fileset.unions [
             ./Cargo.toml
             ./Cargo.lock
-            (craneLib.fileset.commonCargoSources ./aoc_2024)
-            (craneLib.fileset.commonCargoSources ./framework)
-            (craneLib.fileset.commonCargoSources ./common)
-            (craneLib.fileset.commonCargoSources ./aoc_lib)
+            # (craneLib.fileset.commonCargoSources ./aoc_2024)
+            # (craneLib.fileset.commonCargoSources ./framework)
+            # (craneLib.fileset.commonCargoSources ./common)
+            # (craneLib.fileset.commonCargoSources ./aoc_lib)
             (craneLib.fileset.commonCargoSources crate)
-            ./framework/template.txt
+            # ./framework/template.txt
           ];
         };
-
       # Build the top-level crates of the workspace as individual derivations.
       # This allows consumers to only depend on (and build) only what they need.
       # Though it is possible to build the entire workspace as a single derivation,
@@ -119,17 +118,17 @@
       # Note that the cargo workspace must define `workspace.members` using wildcards,
       # otherwise, omitting a crate (like we do below) will result in errors since
       # cargo won't be able to find the sources for all members.
-      aoc_framework = craneLib.buildPackage (individualCrateArgs
-        // {
-          pname = "aoc-framework";
-          cargoExtraArgs = "-p framework";
-          src = fileSetForCrate ./framework;
-        });
+      # aoc_framework = craneLib.buildPackage (individualCrateArgs
+      #   // {
+      #     pname = "aoc-framework";
+      #     cargoExtraArgs = "-p framework";
+      #     src = fileSetForCrate ./framework;
+      #   });
     in {
       checks =
         {
           # Build the crate as part of `nix flake check` for convenience
-          inherit aoc_framework;
+          # inherit aoc_framework;
 
           # Run clippy (and deny all warnings) on the workspace source,
           # again, reusing the dependency artifacts from above.
@@ -189,7 +188,7 @@
 
       packages =
         {
-          default = aoc_framework;
+          # default = aoc_framework;
         }
         // lib.optionalAttrs (!pkgs.stdenv.isDarwin) {
           my-workspace-llvm-coverage = craneLibLLvmTools.cargoLlvmCov (commonArgs
@@ -207,7 +206,7 @@
 
       apps = {
         default = flake-utils.lib.mkApp {
-          drv = aoc_framework;
+          # drv = aoc_framework;
         };
       };
 

@@ -1,0 +1,24 @@
+[package]
+name = "aoc-runner-macros"
+edition = "2021"
+repository = ""
+homepage = ""
+documentation = ""
+description = "Macros for aoc-runner."
+categories = ["command-line-utilities", "development-tools::cargo-plugins", ]
+keywords = ["advent-of-code", "aoc"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+anyhow.workspace = true
+proc-macro2.workspace = true
+quote.workspace = true
+syn.workspace = true
+thiserror.workspace = true
+microbench.workspace = true
+num-format.workspace = true
+criterion.workspace = true
+plotters.workspace = true
+cargo_metadata.workspace = true

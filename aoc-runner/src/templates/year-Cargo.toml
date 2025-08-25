@@ -1,0 +1,15 @@
+[package]
+name = "advent-of-code-{{year}}"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[[bin]]
+name = "day1"
+path = "src/day1.rs"
+
+[dependencies]
+aoc-zen-runner-macros = "0.1.0"
+microbench = "0.5.0"
+criterion = "0.5.1"
+pprof = { version = "0.13.0", features = ["flamegraph", "protobuf", "criterion"] }
