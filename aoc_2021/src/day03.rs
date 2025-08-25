@@ -1,57 +1,36 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
 
-boilerplate!(
-    Day,
-    3,
-    "\
-00100
-11110
-10110
-10111
-10101
-01111
-00111
-11100
-10000
-11001
-00010
-01010
-",
-    "data/03.txt"
-);
+solution!("Binary Diagnostic", 3);
 
-type Diagnostics = Vec<u32>;
-type DiagnosticsRef = [u32];
+type Input = Vec<u32>;
 
-impl Solution for Day {
-    type Parsed = Diagnostics;
-    type Answer = u32;
-    const EXAMPLE_ANSWER_1: Self::Answer = 198;
-    const ANSWER_1: Self::Answer = 845186;
-    const EXAMPLE_ANSWER_2: Self::Answer = 230;
-    const ANSWER_2: Self::Answer = 4636702;
-
-    fn parse(input: &str) -> IResult<Self::Parsed> {
-        let lines: Vec<&str> = input.lines().collect();
-        let diags: Diagnostics = lines
-            .iter()
-            .map(|line| u32::from_str_radix(line, 2).expect(""))
-            .collect();
-        Ok(("", diags))
-    }
-
-    fn part1(input: Self::Parsed) -> Self::Answer {
-        solve_part1::<12>(&input)
-    }
-
-    fn part2(input: Self::Parsed) -> Self::Answer {
-        solve_part2::<12>(&input)
+fn parse(input: &str) -> nom::IResult<&str, Input> {
+    let diags: Result<Vec<u32>, _> = input
+        .lines()
+        .map(|line| u32::from_str_radix(line, 2))
+        .collect();
+    
+    match diags {
+        Ok(d) => Ok(("", d)),
+        Err(_) => Err(nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::MapRes))),
     }
 }
 
-fn solve_part1<const BITS: usize>(input: &DiagnosticsRef) -> u32 {
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    
+    let result = solve_part1::<12>(&data);
+    Ok(result.into())
+}
+
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    
+    let result = solve_part2::<12>(&data);
+    Ok(result.into())
+}
+
+fn solve_part1<const BITS: usize>(input: &[u32]) -> u32 {
     let mut bit_counts = [0; BITS];
 
     for &diag in input {
@@ -87,13 +66,13 @@ enum Rating {
     CO2Scrubber,
 }
 
-fn solve_part2<const BITS: usize>(input: &DiagnosticsRef) -> u32 {
+fn solve_part2<const BITS: usize>(input: &[u32]) -> u32 {
     let oxygen_generator_rating = part2_compute_rating::<BITS>(Rating::OxygenGenerator, input);
     let co2_scrubber_rating = part2_compute_rating::<BITS>(Rating::CO2Scrubber, input);
     oxygen_generator_rating * co2_scrubber_rating
 }
 
-fn part2_compute_rating<const BITS: usize>(rating: Rating, input: &DiagnosticsRef) -> u32 {
+fn part2_compute_rating<const BITS: usize>(rating: Rating, input: &[u32]) -> u32 {
     let mut temp = input.to_vec();
     // reverse because we code them into ints
     for bit in (0..BITS).rev() {
@@ -128,4 +107,53 @@ fn part2_compute_rating<const BITS: usize>(rating: Rating, input: &DiagnosticsRe
     }
     assert_eq!(1, temp.len());
     temp[0]
+}
+
+#[cfg(test)]
+mod test {
+    use common::load_raw;
+    use indoc::indoc;
+
+    const EXAMPLE: &str = indoc! {"
+        00100
+        11110
+        10110
+        10111
+        10101
+        01111
+        00111
+        11100
+        10000
+        11001
+        00010
+        01010
+    "};
+
+    #[test]
+    fn part_1_example() -> miette::Result<()> {
+        assert_eq!(super::part_1(EXAMPLE)?, 198.into());
+        Ok(())
+    }
+
+    #[test]
+    fn part_2_example() -> miette::Result<()> {
+        assert_eq!(super::part_2(EXAMPLE)?, 230.into());
+        Ok(())
+    }
+
+    #[test]
+    #[ignore]
+    fn part_1() -> miette::Result<()> {
+        let input = load_raw(2021, 3)?;
+        assert_eq!(super::part_1(input.as_str())?, 845186.into());
+        Ok(())
+    }
+
+    #[test]
+    #[ignore]
+    fn part_2() -> miette::Result<()> {
+        let input = load_raw(2021, 3)?;
+        assert_eq!(super::part_2(input.as_str())?, 4636702.into());
+        Ok(())
+    }
 }

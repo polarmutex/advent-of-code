@@ -1,104 +1,84 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
 use itertools::Itertools;
-use nom::character::complete;
-use nom::multi::separated_list1;
-use nom::IResult as IResultSpecial;
-use nom_supreme::final_parser::{Location, RecreateContext};
-use nom_supreme::{error::ErrorTree, final_parser::final_parser};
 
-boilerplate!(
-    Day,
-    1,
-    "\
-1721
-979
-366
-299
-675
-1456
-",
-    "data/01.txt"
-);
+solution!("Report Repair", 1);
 
-fn expense_report(input: &str) -> IResultSpecial<&str, Vec<u32>, ErrorTree<&str>> {
-    let (input, expense_report) = separated_list1(complete::newline, complete::u32)(input)?;
-    let (input, _) = complete::newline(input)?;
-    Ok((input, expense_report))
+type Input = Vec<u32>;
+
+fn parse(data: &str) -> nom::IResult<&str, Input> {
+    let numbers: Vec<u32> = data
+        .trim()
+        .lines()
+        .map(|line| line.parse::<u32>().unwrap())
+        .collect();
+    Ok(("", numbers))
 }
 
-fn expense_report_final(input: &str) -> Result<Vec<u32>, ErrorTree<&str>> {
-    final_parser(expense_report)(input)
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    
+    let result = data
+        .iter()
+        .combinations(2)
+        .find(|pair| pair[0] + pair[1] == 2020)
+        .map(|pair| pair[0] * pair[1])
+        .unwrap_or(0);
+        
+    Ok(result.into())
 }
 
-impl Solution for Day {
-    type Parsed = Vec<u32>;
-    type Answer = u32;
-    const EXAMPLE_ANSWER_1: Self::Answer = 514579;
-    const ANSWER_1: Self::Answer = 55776;
-    const EXAMPLE_ANSWER_2: Self::Answer = 241861950;
-    const ANSWER_2: Self::Answer = 223162626;
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    
+    let result = data
+        .iter()
+        .combinations(3)
+        .find(|triple| triple[0] + triple[1] + triple[2] == 2020)
+        .map(|triple| triple[0] * triple[1] * triple[2])
+        .unwrap_or(0);
+        
+    Ok(result.into())
+}
 
-    fn parse(input: &str) -> IResult<Self::Parsed> {
-        dbg!(Day::EXAMPLE_DATA);
-        dbg!(input);
-        let result = expense_report_final(input);
-        if let Err(nom_supreme::error::GenericErrorTree::Stack {
-            ref base,
-            ref contexts,
-        }) = result
-        {
-            println!("omg here heeh");
-            dbg!(&base);
-            for context in contexts {
-                dbg!(Location::recreate_context("#5", context.0));
-            }
-        }
-        Ok(("", result.unwrap()))
+#[cfg(test)]
+mod test {
+    use common::load_raw;
+    use indoc::indoc;
+
+    const EXAMPLE: &str = indoc! {"
+        1721
+        979
+        366
+        299
+        675
+        1456
+    "};
+
+    #[test]
+    fn part_1_example() -> miette::Result<()> {
+        assert_eq!(super::part_1(EXAMPLE)?, 514579.into());
+        Ok(())
     }
 
-    fn part1(input: Self::Parsed) -> Self::Answer {
-        let result = input
-            .iter()
-            .permutations(2)
-            .map(|v| (v[0], v[1]))
-            .find(|perm| match *perm {
-                (left, right) => {
-                    if left + right == 2020 {
-                        true
-                    } else {
-                        false
-                    }
-                }
-            });
-        dbg!(&result);
-        if let Some((left, right)) = result {
-            left * right
-        } else {
-            0
-        }
+    #[test]
+    fn part_2_example() -> miette::Result<()> {
+        assert_eq!(super::part_2(EXAMPLE)?, 241861950.into());
+        Ok(())
     }
 
-    fn part2(input: Self::Parsed) -> Self::Answer {
-        let result = input
-            .iter()
-            .permutations(3)
-            .map(|v| (v[0], v[1], v[2]))
-            .find(|perm| match *perm {
-                (left, middle, right) => {
-                    if left + middle + right == 2020 {
-                        true
-                    } else {
-                        false
-                    }
-                }
-            });
-        dbg!(&result);
-        if let Some((left, middle, right)) = result {
-            left * middle * right
-        } else {
-            0
-        }
+    #[test]
+    #[ignore]
+    fn part_1() -> miette::Result<()> {
+        let input = load_raw(2020, 1)?;
+        assert_eq!(super::part_1(input.as_str())?, 55776.into());
+        Ok(())
+    }
+
+    #[test]
+    #[ignore]
+    fn part_2() -> miette::Result<()> {
+        let input = load_raw(2020, 1)?;
+        assert_eq!(super::part_2(input.as_str())?, 223162626.into());
+        Ok(())
     }
 }

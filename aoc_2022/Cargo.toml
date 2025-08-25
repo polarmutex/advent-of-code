@@ -1,15 +1,21 @@
 [package]
-name = "aoc2022"
+name = "aoc_2022"
 version = "1.0.0"
 edition = "2021"
 license = "MIT"
 
 [dependencies]
-ahash = { workspace = true }
-clap = { workspace = true }
-colored = { workspace = true }
-framework = { workspace = true }
-itertools = { workspace = true }
-ndarray = { workspace = true }
-nom = { workspace = true }
-nom-supreme = { workspace = true }
+aoc_lib.workspace = true
+common.workspace = true
+ctor.workspace = true
+glam.workspace = true
+indoc.workspace = true
+itertools.workspace = true
+miette.workspace = true
+nom.workspace = true
+test-log.workspace = true
+tracing.workspace = true
+ahash.workspace = true
+pathfinding.workspace = true
+ndarray.workspace = true
+colored.workspace = true

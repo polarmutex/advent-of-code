@@ -1,6 +1,5 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
+use nom::IResult;
 use nom::{
     branch::alt,
     bytes::complete::tag,
@@ -9,13 +8,7 @@ use nom::{
     sequence::separated_pair,
 };
 
-boilerplate!(
-    Day,
-    22,
-    "\
-",
-    "data/22.txt"
-);
+solution!("Reactor Reboot", 22);
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 struct Point {
@@ -25,11 +18,12 @@ struct Point {
 }
 
 #[derive(Clone, Debug)]
+#[allow(dead_code)]
 enum Command {
     On((Point, Point)),
     Off((Point, Point)),
 }
-fn command(input: &str) -> IResult<Command> {
+fn command(input: &str) -> IResult<&str, Command> {
     let (input, action) = alt((tag("on"), tag("off")))(input)?;
     let (input, _) = tag(" x=")(input)?;
     let (input, (low_x, high_x)) = separated_pair(complete::i32, tag(".."), complete::i32)(input)?;
@@ -71,24 +65,38 @@ fn command(input: &str) -> IResult<Command> {
     Ok((input, cmd))
 }
 
-impl Solution for Day {
-    type Parsed = Vec<Command>;
-    type Answer = u64;
-    const EXAMPLE_ANSWER_1: Self::Answer = 590784;
-    const ANSWER_1: Self::Answer = 615869;
-    const EXAMPLE_ANSWER_2: Self::Answer = 2758514936282235;
-    const ANSWER_2: Self::Answer = 1323862415207825;
+fn parse(input: &str) -> IResult<&str, Vec<Command>> {
+    let (input, commands) = separated_list1(newline, command)(input)?;
+    Ok((input, commands))
+}
 
-    fn parse(input: &str) -> IResult<Self::Parsed> {
-        let (input, commands) = separated_list1(newline, command)(input)?;
-        Ok((input, commands))
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, _input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    todo!()
+}
+
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, _input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    todo!()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "";
+
+    #[test]
+    #[ignore]
+    fn test_part_1() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(590784));
     }
 
-    fn part1(_input: Self::Parsed) -> Self::Answer {
-        todo!()
-    }
-
-    fn part2(_input: Self::Parsed) -> Self::Answer {
-        todo!()
+    #[test]
+    #[ignore]
+    fn test_part_2() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(2758514936282235));
     }
 }

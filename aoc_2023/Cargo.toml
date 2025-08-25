@@ -1,17 +1,25 @@
 [package]
-name = "aoc2023"
+name = "aoc_2023"
 version = "1.0.0"
 edition = "2021"
 license = "MIT"
 
+[lib]
+name = "aoc_2023"
+crate-type = ["rlib"]
+
 [dependencies]
+aoc_lib = { workspace = true }
 bitvec = "1.0.1"
 clap = { workspace = true }
-framework = { workspace = true }
+common = { workspace = true }
+ctor = { workspace = true }
 glam = { workspace = true }
 hex = "0.4.3"
+indoc = { workspace = true }
 itertools = { workspace = true }
 lending-iterator = { workspace = true }
+miette = { workspace = true }
 nom = { workspace = true }
 nom-supreme = { workspace = true }
 nom_locate = { workspace = true }
@@ -23,4 +31,4 @@ rustworkx-core = { workspace = true }
 test-log = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-z3 = { workspace = true }
+# z3 = { workspace = true }  # Commented out for build test

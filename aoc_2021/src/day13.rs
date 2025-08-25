@@ -1,6 +1,5 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
+use nom::IResult;
 
 use ndarray::{s, Array2, Axis, Zip};
 use nom::{
@@ -10,34 +9,7 @@ use nom::{
     sequence::separated_pair,
 };
 
-boilerplate!(
-    Day,
-    13,
-    "\
-6,10
-0,14
-9,10
-0,3
-10,4
-4,11
-6,0
-6,12
-4,1
-0,13
-10,12
-3,4
-3,0
-8,4
-1,10
-2,14
-8,10
-9,0
-
-fold along y=7
-fold along x=5
-",
-    "data/13.txt"
-);
+solution!("Transparent Origami", 13);
 
 #[derive(Debug, Clone)]
 enum Mark {
@@ -89,7 +61,7 @@ impl Fold {
     }
 }
 
-fn dots(input: &str) -> IResult<Array2<Mark>> {
+fn dots(input: &str) -> IResult<&str, Array2<Mark>> {
     let (input, outputs) = separated_list1(newline, separated_pair(u32, tag(","), u32))(input)?;
 
     let max_x = outputs.iter().max_by(|a, b| a.0.cmp(&b.0)).unwrap().0;
@@ -111,7 +83,7 @@ fn dots(input: &str) -> IResult<Array2<Mark>> {
     Ok((input, dots))
 }
 
-fn fold(input: &str) -> IResult<Fold> {
+fn fold(input: &str) -> IResult<&str, Fold> {
     let (input, _) = tag("fold along ")(input)?;
     let (input, (axis, num)) = separated_pair(anychar, tag("="), u32)(input)?;
     Ok((
@@ -124,15 +96,7 @@ fn fold(input: &str) -> IResult<Fold> {
     ))
 }
 
-impl Solution for Day {
-    type Parsed = (Array2<Mark>, Vec<Fold>);
-    type Answer = u32;
-    const EXAMPLE_ANSWER_1: Self::Answer = 17;
-    const ANSWER_1: Self::Answer = 814;
-    const EXAMPLE_ANSWER_2: Self::Answer = 0;
-    const ANSWER_2: Self::Answer = 0; // PZEHRAER
-
-    fn parse(input: &str) -> IResult<Self::Parsed> {
+fn parse(input: &str) -> IResult<&str, (Array2<Mark>, Vec<Fold>)> {
         let (input, parsed_dots) = dots(input)?;
         let (input, _) = newline(input)?;
         let (input, _) = newline(input)?;
@@ -141,26 +105,29 @@ impl Solution for Day {
         Ok((input, (parsed_dots, parsed_folds)))
     }
 
-    fn part1(input: Self::Parsed) -> Self::Answer {
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
         let mut it = input.1.iter();
         let operation = it.next().unwrap();
         let smol_matrix = operation.apply_to(&input.0);
-        smol_matrix
+        let count: u32 = smol_matrix
             .iter()
             .map(|point| match point {
                 Mark::Marked => 1,
                 Mark::UnMarked => 0,
             })
-            .sum()
+            .sum();
+        Ok((count as u64).into())
     }
 
-    fn part2(input: Self::Parsed) -> Self::Answer {
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
         let smol_matrix =
             input
                 .1
                 .iter()
                 .enumerate()
-                .fold(input.0.clone(), |dots, (i, operation)| {
+                .fold(input.0.clone(), |dots, (_i, operation)| {
                     let smol = operation.apply_to(&dots);
                     smol
                 });
@@ -177,6 +144,46 @@ impl Solution for Day {
                     .collect::<String>()
             );
         }
-        0
+        Ok(0.into()) // PZEHRAER
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+6,10
+0,14
+9,10
+0,3
+10,4
+4,11
+6,0
+6,12
+4,1
+0,13
+10,12
+3,4
+3,0
+8,4
+1,10
+2,14
+8,10
+9,0
+
+fold along y=7
+fold along x=5
+";
+
+    #[test]
+    fn test_part_1() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(17));
+    }
+
+    #[test]
+    fn test_part_2() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(0));
     }
 }

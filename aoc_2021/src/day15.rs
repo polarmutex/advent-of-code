@@ -1,6 +1,5 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
+use nom::IResult;
 use ndarray::{concatenate, Array2, Axis};
 use nom::{
     character::complete::{newline, one_of},
@@ -8,25 +7,9 @@ use nom::{
 };
 use petgraph::{algo::dijkstra, graphmap::GraphMap, Undirected};
 
-boilerplate!(
-    Day,
-    15,
-    "\
-1163751742
-1381373672
-2136511328
-3694931569
-7463417111
-1319128137
-1359912421
-3125421639
-1293138521
-2311944581
-",
-    "data/15.txt"
-);
+solution!("Chiton", 15);
 
-fn row(input: &str) -> IResult<Vec<u8>> {
+fn row(input: &str) -> IResult<&str, Vec<u8>> {
     let (input, chars) = many1(one_of("0123456789"))(input)?;
     let nums = chars
         .iter()
@@ -89,15 +72,7 @@ fn algo(array: Array2<u8>) -> u32 {
     *result.get(&end).unwrap()
 }
 
-impl Solution for Day {
-    type Parsed = Array2<u8>;
-    type Answer = u32;
-    const EXAMPLE_ANSWER_1: Self::Answer = 40;
-    const ANSWER_1: Self::Answer = 609;
-    const EXAMPLE_ANSWER_2: Self::Answer = 315;
-    const ANSWER_2: Self::Answer = 2925;
-
-    fn parse(input: &str) -> IResult<Self::Parsed> {
+fn parse(input: &str) -> IResult<&str, Array2<u8>> {
         let (input, outputs) = separated_list1(newline, row)(input)?;
         let nrows = outputs.len();
         let ncols = outputs[0].len();
@@ -108,11 +83,13 @@ impl Solution for Day {
         Ok((input, arr))
     }
 
-    fn part1(input: Self::Parsed) -> Self::Answer {
-        algo(input)
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+        Ok((algo(input) as u64).into())
     }
 
-    fn part2(input: Self::Parsed) -> Self::Answer {
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
         let row_1_arrs = (0..5_u8)
             .map(|i| {
                 input.mapv(|weight| {
@@ -153,6 +130,35 @@ impl Solution for Day {
         let col_views: Vec<_> = col_arrs.iter().map(|v| v.view()).collect();
         let full_grid = concatenate(Axis(0), &col_views[..]);
 
-        algo(full_grid.unwrap())
+        Ok((algo(full_grid.unwrap()) as u64).into())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+1163751742
+1381373672
+2136511328
+3694931569
+7463417111
+1319128137
+1359912421
+3125421639
+1293138521
+2311944581
+";
+
+    #[test]
+    fn test_part_1() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(40));
+    }
+
+    #[test]
+    fn test_part_2() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(315));
     }
 }

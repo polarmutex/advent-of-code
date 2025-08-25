@@ -1,6 +1,5 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
+use nom::IResult;
 use ndarray::Array2;
 use nom::{
     character::complete::{newline, one_of},
@@ -9,18 +8,7 @@ use nom::{
 use petgraph::algo::condensation;
 use petgraph::{graphmap::GraphMap, Undirected};
 
-boilerplate!(
-    Day,
-    9,
-    "\
-2199943210
-3987894921
-9856789892
-8767896789
-9899965678
-",
-    "data/10.txt"
-);
+solution!("Smoke Basin", 9);
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq)]
 struct Grid {
@@ -29,7 +17,7 @@ struct Grid {
     cols: usize,
 }
 
-fn row(input: &str) -> IResult<Vec<Option<u8>>> {
+fn row(input: &str) -> IResult<&str, Vec<Option<u8>>> {
     let (input, chars) = many1(one_of("0123456789"))(input)?;
     let nums = [None]
         .into_iter()
@@ -67,15 +55,7 @@ fn insert(
     };
 }
 
-impl Solution for Day {
-    type Parsed = Grid;
-    type Answer = usize;
-    const EXAMPLE_ANSWER_1: Self::Answer = 15;
-    const ANSWER_1: Self::Answer = 524;
-    const EXAMPLE_ANSWER_2: Self::Answer = 1134;
-    const ANSWER_2: Self::Answer = 1235430;
-
-    fn parse(input: &str) -> IResult<Self::Parsed> {
+fn parse(input: &str) -> IResult<&str, Grid> {
         let (input, outputs) = separated_list1(newline, row)(input)?;
         // dbg!(&outputs);
         let rows = outputs.len();
@@ -92,7 +72,8 @@ impl Solution for Day {
         Ok((input, Grid { data, rows, cols }))
     }
 
-    fn part1(input: Self::Parsed) -> Self::Answer {
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
         let arr = Array2::from_shape_vec((input.rows + 2, input.cols), input.data).unwrap();
         let results: u32 = arr
             .windows((3, 3))
@@ -116,10 +97,11 @@ impl Solution for Day {
                 }
             })
             .sum();
-        results as usize
+        Ok((results as u64).into())
     }
 
-    fn part2(input: Self::Parsed) -> Self::Answer {
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
         let data: Vec<Option<u8>> = input
             .data
             .iter()
@@ -154,6 +136,28 @@ impl Solution for Day {
         sums.sort();
         sums.reverse();
         let mut finals = sums.iter();
-        finals.next().unwrap() * finals.next().unwrap() * finals.next().unwrap()
+        Ok(((finals.next().unwrap() * finals.next().unwrap() * finals.next().unwrap()) as u64).into())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+2199943210
+3987894921
+9856789892
+8767896789
+9899965678
+";
+
+    #[test]
+    fn test_part_1() {
+        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(15));
+    }
+
+    #[test]
+    fn test_part_2() {
+        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(1134));
     }
 }

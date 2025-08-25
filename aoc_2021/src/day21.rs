@@ -1,23 +1,15 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
+use nom::IResult;
 use nom::{
     bytes::complete::tag,
     character::complete::{self, newline},
     multi::separated_list1,
 };
 
-boilerplate!(
-    Day,
-    21,
-    "\
-Player 2 starting position: 8
-Player 1 starting position: 4
-",
-    "data/21.txt"
-);
+solution!("Dirac Dice", 21);
 
 #[derive(Clone, Debug)]
+#[allow(dead_code)]
 struct Player {
     id: u64,
     start_position: u64,
@@ -25,7 +17,7 @@ struct Player {
     score: u64,
 }
 
-fn player(input: &str) -> IResult<Player> {
+fn player(input: &str) -> IResult<&str, Player> {
     let (input, _) = tag("Player ")(input)?;
     let (input, id) = complete::u64(input)?;
     let (input, _) = tag(" starting position: ")(input)?;
@@ -42,24 +34,41 @@ fn player(input: &str) -> IResult<Player> {
     ))
 }
 
-impl Solution for Day {
-    type Parsed = Vec<Player>;
-    type Answer = u64;
-    const EXAMPLE_ANSWER_1: Self::Answer = 739785;
-    const ANSWER_1: Self::Answer = 506466;
-    const EXAMPLE_ANSWER_2: Self::Answer = 444356092776315;
-    const ANSWER_2: Self::Answer = 632979211251440;
+fn parse(input: &str) -> IResult<&str, Vec<Player>> {
+    let (input, players) = separated_list1(newline, player)(input)?;
+    Ok((input, players))
+}
 
-    fn parse(input: &str) -> IResult<Self::Parsed> {
-        let (input, players) = separated_list1(newline, player)(input)?;
-        Ok((input, players))
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, _input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    todo!()
+}
+
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, _input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    todo!()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+Player 2 starting position: 8
+Player 1 starting position: 4
+";
+
+    #[test]
+    #[ignore]
+    fn test_part_1() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(739785));
     }
 
-    fn part1(_input: Self::Parsed) -> Self::Answer {
-        todo!()
-    }
-
-    fn part2(_input: Self::Parsed) -> Self::Answer {
-        todo!()
+    #[test]
+    #[ignore]
+    fn test_part_2() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(444356092776315));
     }
 }

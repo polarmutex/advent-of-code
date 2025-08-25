@@ -1,6 +1,5 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
+use nom::IResult;
 use itertools::Itertools;
 use std::{collections::HashMap, fmt};
 
@@ -16,28 +15,13 @@ use nom_supreme::error::ErrorTree;
 use nom_supreme::error::StackContext::Context;
 use nom_supreme::tag::streaming::tag;
 
-boilerplate!(
-    Day,
-    10,
-    "\
-[({(<(())[]>[[{[]{<()<>>
-[(()[<>])]({[<{<<[]>>(
-{([(<{}[<>[]}>{[]{[(<()>
-(((({<>}<{<{<>}{[]{[]{}
-[[<[([]))<([[{}[[()]]]
-[{[{({}]{}}([{[{{{}}([]
-{<[[]]>}<{[{[{[]{()[[[]
-[<(<(<(<{}))><([]([]()
-<{([([[(<>()){}]>(<<{{
-<{([{{}}[<[[[<>{}]]]>[]]",
-    "data/10.txt"
-);
+solution!("Syntax Scoring", 10);
 
 pub type IResultSpecial<'a, T> = nom::IResult<&'a str, T, ErrorTree<&'a str>>;
 
 fn chunk(original_input: &str) -> IResultSpecial<()> {
     let (input, open_char) = one_of("({<[")(original_input)?;
-    let c_res: IResult<&str> = tag(match open_char {
+    let c_res: IResult<&str, &str> = tag(match open_char {
         '{' => "}",
         '(' => ")",
         '[' => "]",
@@ -110,9 +94,9 @@ impl fmt::Display for Ast {
     }
 }
 
-fn chunk_2(original_input: &str) -> IResult<Ast> {
+fn chunk_2(original_input: &str) -> IResult<&str, Ast> {
     let (input, open_char) = complete::one_of("({<[")(original_input)?;
-    let c_res: IResult<char> = complete::char(match open_char {
+    let c_res: IResult<&str, char> = complete::char(match open_char {
         '{' => '}',
         '(' => ')',
         '[' => ']',
@@ -140,7 +124,7 @@ fn chunk_2(original_input: &str) -> IResult<Ast> {
                 ))
             } else {
                 let (input, output) = many1(chunk_2)(input)?;
-                let c_res: IResult<char> = char(match open_char {
+                let c_res: IResult<&str, char> = char(match open_char {
                     '{' => '}',
                     '(' => ')',
                     '[' => ']',
@@ -171,19 +155,12 @@ fn chunk_2(original_input: &str) -> IResult<Ast> {
     }
 }
 
-impl Solution for Day {
-    type Parsed = Vec<String>;
-    type Answer = u64;
-    const EXAMPLE_ANSWER_1: Self::Answer = 26397;
-    const ANSWER_1: Self::Answer = 411471;
-    const EXAMPLE_ANSWER_2: Self::Answer = 288957;
-    const ANSWER_2: Self::Answer = 3122628974;
+fn parse(input: &str) -> IResult<&str, Vec<String>> {
+    Ok(("", input.lines().map(|l| l.to_string()).collect_vec()))
+}
 
-    fn parse(input: &str) -> IResult<Self::Parsed> {
-        Ok(("", input.lines().map(|l| l.to_string()).collect_vec()))
-    }
-
-    fn part1(input: Self::Parsed) -> Self::Answer {
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
         let scoring: HashMap<char, u32> =
             HashMap::from([(')', 3), (']', 57), ('}', 1197), ('>', 25137)]);
         let results: u32 = input
@@ -203,10 +180,11 @@ impl Solution for Day {
                 _ => panic!("uh oh"),
             })
             .sum();
-        results as u64
-    }
+    Ok((results as u64).into())
+}
 
-    fn part2(input: Self::Parsed) -> Self::Answer {
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
         let mut results: Vec<u64> = input
             .iter()
             .map(|line| {
@@ -248,6 +226,34 @@ impl Solution for Day {
             })
             .collect();
         results.sort();
-        results[results.len() / 2]
+    Ok((results[results.len() / 2]).into())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+[({(<(())[]>[[{[]{<()<>>
+[(()[<>])]({[<{<<[]>>(
+{([(<{}[<>[]}>{[]{[(<()>
+(((({<>}<{<{<>}{[]{[]{}
+[[<[([]))<([[{}[[()]]]
+[{[{({}]{}}([{[{{{}}([]
+{<[[]]>}<{[{[{[]{()[[[]
+[<(<(<(<{}))><([]([]()
+<{([([[(<>()){}]>(<<{{
+<{([{{}}[<[[[<>{}]]]>[]]";
+
+    #[test]
+    fn test_part_1() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(26397));
+    }
+
+    #[test]
+    fn test_part_2() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(288957));
     }
 }

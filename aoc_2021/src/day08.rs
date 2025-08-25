@@ -1,25 +1,9 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
 use itertools::Itertools;
 
-boilerplate!(
-    Day,
-    8,
-    "\
-be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe
-edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc
-fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg
-fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb
-aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea
-fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb
-dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe
-bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef
-egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb
-gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
-",
-    "data/08.txt"
-);
+solution!("Seven Segment Search", 8);
+
+type Input = Vec<Record>;
 
 type Segments = u8;
 
@@ -99,69 +83,112 @@ impl Record {
                 _ => continue,
             }
         }
-        for (i, f) in found.iter().enumerate() {
-            println!("{} - {}", i, f);
-        }
+        // Debug output removed for production
         found
     }
 }
 
-impl Solution for Day {
-    type Parsed = Vec<Record>;
-    type Answer = usize;
-    const EXAMPLE_ANSWER_1: Self::Answer = 26;
-    const ANSWER_1: Self::Answer = 294;
-    const EXAMPLE_ANSWER_2: Self::Answer = 61229;
-    const ANSWER_2: Self::Answer = 973292;
-
-    fn parse(input: &str) -> IResult<Self::Parsed> {
-        let records: Vec<Record> = input
-            .lines()
-            .map(|line| {
-                let (measurements, digits) = line.split_once(" | ").unwrap();
-                let signal_patterns = measurements
-                    .split_whitespace()
-                    .map(convert_to_signals)
-                    .collect_vec();
-                let output = digits
-                    .split_whitespace()
-                    .map(convert_to_signals)
-                    .collect_vec();
-                Record {
-                    signal_patterns,
-                    output,
-                }
+fn parse(input: &str) -> nom::IResult<&str, Input> {
+    let records: Result<Vec<Record>, miette::Error> = input
+        .lines()
+        .map(|line| {
+            let (measurements, digits) = line.split_once(" | ")
+                .ok_or_else(|| miette::miette!("Invalid line format: {}", line))?;
+            let signal_patterns = measurements
+                .split_whitespace()
+                .map(convert_to_signals)
+                .collect_vec();
+            let output = digits
+                .split_whitespace()
+                .map(convert_to_signals)
+                .collect_vec();
+            Ok(Record {
+                signal_patterns,
+                output,
             })
-            .collect_vec();
-        Ok(("", records))
+        })
+        .collect();
+    
+    match records {
+        Ok(r) => Ok(("", r)),
+        Err(_) => Err(nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::MapRes))),
+    }
+}
+
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, records) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    
+    let count = records
+        .iter()
+        .flat_map(|record| &record.output)
+        .filter(|digit| matches!(digit.count_ones(), 2 | 3 | 4 | 7))
+        .count();
+    
+    Ok(count.into())
+}
+
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, records) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    
+    let result = records
+        .iter()
+        .map(|record| {
+            let found = record.match_signals();
+            let nums = record
+                .output
+                .iter()
+                .map(|digit| found.iter().position(|y| digit == y).unwrap())
+                .collect_vec();
+            nums.iter().fold(0, |res, nr| res * 10 + nr)
+        })
+        .sum::<usize>();
+    
+    Ok(result.into())
+}
+
+#[cfg(test)]
+mod test {
+    use common::load_raw;
+    use indoc::indoc;
+
+    const EXAMPLE: &str = indoc! {"
+        be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe
+        edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc
+        fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg
+        fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb
+        aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea
+        fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb
+        dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe
+        bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef
+        egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb
+        gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
+    "};
+
+    #[test]
+    fn part_1_example() -> miette::Result<()> {
+        assert_eq!(super::part_1(EXAMPLE)?, 26.into());
+        Ok(())
     }
 
-    fn part1(input: Self::Parsed) -> Self::Answer {
-        input
-            .iter()
-            .flat_map(|record| &record.output)
-            .filter(|digit| matches!(digit.count_ones(), 2 | 3 | 4 | 7))
-            .count()
+    #[test]
+    fn part_2_example() -> miette::Result<()> {
+        assert_eq!(super::part_2(EXAMPLE)?, 61229.into());
+        Ok(())
     }
 
-    fn part2(input: Self::Parsed) -> Self::Answer {
-        input
-            .iter()
-            .map(|record| {
-                let found = record.match_signals();
-                let nums = record
-                    .output
-                    .iter()
-                    .map(|digit| found.iter().position(|y| digit == y).unwrap())
-                    .collect_vec();
-                for n in &nums {
-                    print!("{}", n);
-                }
-                println!();
-                let ans = nums.iter().fold(0, |res, nr| res * 10 + nr);
-                println!("ans: {}", ans);
-                ans
-            })
-            .sum()
+    #[test]
+    #[ignore]
+    fn part_1() -> miette::Result<()> {
+        let input = load_raw(2021, 8)?;
+        assert_eq!(super::part_1(input.as_str())?, 294.into());
+        Ok(())
+    }
+
+    #[test]
+    #[ignore]
+    fn part_2() -> miette::Result<()> {
+        let input = load_raw(2021, 8)?;
+        assert_eq!(super::part_2(input.as_str())?, 973292.into());
+        Ok(())
     }
 }

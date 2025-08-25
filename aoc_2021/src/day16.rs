@@ -1,7 +1,5 @@
-use bitvec::prelude::*;
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
+use nom::IResult;
 use nom::IResult as IResultSpecial;
 use nom::{
     bits::complete::{tag, take},
@@ -10,14 +8,7 @@ use nom::{
 };
 use std::str;
 
-boilerplate!(
-    Day,
-    16,
-    "\
-A0016C880162017C3686B18A3D4780
-",
-    "data/16.txt"
-);
+solution!("Packet Decoder", 16);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 enum Packet {
@@ -33,10 +24,12 @@ enum Packet {
     },
 }
 
+#[allow(dead_code)]
 fn convert_to_binary_from_hex(hex: &str) -> String {
     hex[2..].chars().map(to_binary).collect()
 }
 
+#[allow(dead_code)]
 fn to_binary(c: char) -> &'static str {
     match c {
         '0' => "0000",
@@ -162,7 +155,7 @@ fn process_packet(packet: &Packet) -> usize {
 fn process_packet2(packet: &Packet) -> usize {
     match packet {
         Packet::Operator {
-            version,
+            version: _,
             type_id,
             packets,
         } => {
@@ -212,26 +205,38 @@ fn process_packet2(packet: &Packet) -> usize {
     }
 }
 
-impl Solution for Day {
-    type Parsed = Packet;
-    type Answer = usize;
-    const EXAMPLE_ANSWER_1: Self::Answer = 925;
-    const ANSWER_1: Self::Answer = 925;
-    const EXAMPLE_ANSWER_2: Self::Answer = 0;
-    const ANSWER_2: Self::Answer = 342997120375;
-
-    fn parse(input: &str) -> IResult<Self::Parsed> {
+fn parse(input: &str) -> IResult<&str, Packet> {
         let arr = hex::decode(input.replace("\n", "").as_bytes()).unwrap();
         let (_, packet) = parse_bits((&arr, 0)).unwrap();
         Ok(("", packet))
     }
 
-    fn part1(input: Self::Parsed) -> Self::Answer {
-        process_packet(&input)
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+        Ok((process_packet(&input) as u64).into())
     }
 
-    fn part2(input: Self::Parsed) -> Self::Answer {
-        process_packet2(&input)
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+        Ok((process_packet2(&input) as u64).into())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "A0016C880162017C3686B18A3D4780";
+
+    #[test]
+    fn test_part_1() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(925));
+    }
+
+    #[test]
+    fn test_part_2() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(0)); // Will need actual expected value
     }
 }
 

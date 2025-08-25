@@ -1,18 +1,22 @@
 [package]
-name = "aoc2021"
+name = "aoc_2021"
 version = "1.0.0"
 edition = "2021"
 license = "MIT"
 
 [dependencies]
-ahash = { workspace = true }
-bitvec = { workspace = true }
-clap = { workspace = true }
-colored = { workspace = true }
-framework = { workspace = true }
-hex = { workspace = true }
-itertools = { workspace = true }
-ndarray = { workspace = true }
-nom = { workspace = true }
-nom-supreme = { workspace = true }
-petgraph = { workspace = true }
+aoc_lib.workspace = true
+bitvec.workspace = true
+common.workspace = true
+ctor.workspace = true
+glam.workspace = true
+hex.workspace = true
+indoc.workspace = true
+itertools.workspace = true
+miette.workspace = true
+ndarray.workspace = true
+nom.workspace = true
+nom-supreme.workspace = true
+petgraph.workspace = true
+test-log.workspace = true
+tracing.workspace = true

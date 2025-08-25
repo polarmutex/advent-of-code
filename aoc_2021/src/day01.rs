@@ -1,60 +1,87 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
 use itertools::Itertools;
 
-boilerplate!(
-    Day,
-    1,
-    "\
-199
-200
-208
-210
-200
-207
-240
-269
-260
-263",
-    "data/01.txt"
-);
+solution!("Sonar Sweep", 1);
 
-impl Solution for Day {
-    type Parsed = Vec<u32>;
-    type Answer = u32;
-    const EXAMPLE_ANSWER_1: Self::Answer = 7;
-    const ANSWER_1: Self::Answer = 1448;
-    const EXAMPLE_ANSWER_2: Self::Answer = 5;
-    const ANSWER_2: Self::Answer = 1471;
+type Input = Vec<u32>;
 
-    fn parse(input: &str) -> IResult<Self::Parsed> {
-        let nums: Vec<u32> = input
-            .lines()
-            .map(|line| line.parse::<u32>().unwrap())
-            .collect();
-        Ok(("", nums))
+fn parse(input: &str) -> nom::IResult<&str, Input> {
+    let nums: Vec<u32> = input
+        .lines()
+        .map(|line| line.parse::<u32>().unwrap())
+        .collect();
+    Ok(("", nums))
+}
+
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    
+    let result = data
+        .iter()
+        .tuple_windows()
+        .filter(|&(&a, &b)| b > a)
+        .count() as u32;
+    
+    Ok(result.into())
+}
+
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    
+    let result = data
+        .iter()
+        .tuple_windows()
+        .map(|(&a, &b, &c)| a + b + c)
+        .tuple_windows()
+        .filter(|&(a, b)| b > a)
+        .count() as u32;
+    
+    Ok(result.into())
+}
+
+#[cfg(test)]
+mod test {
+    use common::load_raw;
+    use indoc::indoc;
+
+    const EXAMPLE: &str = indoc! {"
+        199
+        200
+        208
+        210
+        200
+        207
+        240
+        269
+        260
+        263
+    "};
+
+    #[test]
+    fn part_1_example() -> miette::Result<()> {
+        assert_eq!(super::part_1(EXAMPLE)?, 7.into());
+        Ok(())
     }
 
-    fn part1(input: Self::Parsed) -> Self::Answer {
-        input
-            .iter()
-            .tuple_windows()
-            //Return an iterator over all contiguous windows producing tuples of a
-            // specific size (up to 12). tuple_windows clones the iterator elements
-            // so that they can be part of successive windows, this makes it most
-            // suited for iterators of references and other values that are cheap to copy.
-            .filter(|&(&a, &b)| b > a)
-            .count() as u32
+    #[test]
+    fn part_2_example() -> miette::Result<()> {
+        assert_eq!(super::part_2(EXAMPLE)?, 5.into());
+        Ok(())
     }
 
-    fn part2(input: Self::Parsed) -> Self::Answer {
-        input
-            .iter()
-            .tuple_windows()
-            .map(|(&a, &b, &c)| a + b + c)
-            .tuple_windows()
-            .filter(|&(a, b)| b > a)
-            .count() as u32
+    #[test]
+    #[ignore]
+    fn part_1() -> miette::Result<()> {
+        let input = load_raw(2021, 1)?;
+        assert_eq!(super::part_1(input.as_str())?, 1448.into());
+        Ok(())
+    }
+
+    #[test]
+    #[ignore]
+    fn part_2() -> miette::Result<()> {
+        let input = load_raw(2021, 1)?;
+        assert_eq!(super::part_2(input.as_str())?, 1471.into());
+        Ok(())
     }
 }

@@ -1,6 +1,4 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
 use nom::{
     bytes::complete::tag,
     character::complete::{alpha1, newline},
@@ -9,30 +7,9 @@ use nom::{
 };
 use std::collections::BTreeMap;
 
-boilerplate!(
-    Day,
-    12,
-    "\
-fs-end
-he-DX
-fs-he
-start-DX
-pj-DX
-end-zg
-zg-sl
-zg-pj
-pj-he
-RW-he
-fs-DX
-pj-RW
-zg-RW
-start-pj
-he-WI
-zg-he
-pj-fs
-start-RW",
-    "data/12.txt"
-);
+solution!("Passage Pathing", 12);
+
+type Input = BTreeMap<String, Vec<String>>;
 
 fn step(node_id: String, path: Vec<String>, allowed_ways: &BTreeMap<String, Vec<String>>) -> usize {
     if node_id == "end" {
@@ -90,80 +67,99 @@ fn step_2(
     }
 }
 
-impl Solution for Day {
-    type Parsed = BTreeMap<String, Vec<String>>;
-    type Answer = usize;
-    const EXAMPLE_ANSWER_1: Self::Answer = 10;
-    const ANSWER_1: Self::Answer = 3369;
-    const EXAMPLE_ANSWER_2: Self::Answer = 3509;
-    const ANSWER_2: Self::Answer = 85883;
-
-    fn parse(input: &str) -> IResult<Self::Parsed> {
-        let (input, nodes) =
-            separated_list1(newline, separated_pair(alpha1, tag("-"), alpha1))(input)?;
-        let mut map: BTreeMap<String, Vec<String>> = BTreeMap::new();
-        for (a, b) in nodes {
-            if a == "end" {
-                map.entry(a.into()).or_insert(vec![]);
-            } else if b == "start" {
-            } else {
-                map.entry(a.into())
-                    .and_modify(|v| {
-                        v.push(b.into());
-                    })
-                    .or_insert(vec![b.into()]);
-            }
-            if b == "end" {
-                map.entry(b.into()).or_insert(vec![]);
-            } else if a == "start" {
-            } else {
-                map.entry(b.into())
-                    .and_modify(|v| {
-                        v.push(a.into());
-                    })
-                    .or_insert(vec![a.into()]);
-            }
+fn parse(input: &str) -> nom::IResult<&str, Input> {
+    let (input, nodes) =
+        separated_list1(newline, separated_pair(alpha1, tag("-"), alpha1))(input)?;
+    let mut map: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for (a, b) in nodes {
+        if a == "end" {
+            map.entry(a.into()).or_insert(vec![]);
+        } else if b == "start" {
+        } else {
+            map.entry(a.into())
+                .and_modify(|v| {
+                    v.push(b.into());
+                })
+                .or_insert(vec![b.into()]);
         }
-
-        Ok((input, map))
+        if b == "end" {
+            map.entry(b.into()).or_insert(vec![]);
+        } else if a == "start" {
+        } else {
+            map.entry(b.into())
+                .and_modify(|v| {
+                    v.push(a.into());
+                })
+                .or_insert(vec![a.into()]);
+        }
     }
 
-    fn part1(input: Self::Parsed) -> Self::Answer {
-        step("start".into(), vec!["start".into()], &input)
-    }
-
-    fn part2(input: Self::Parsed) -> Self::Answer {
-        step_2("start".into(), vec!["start".into()], &input)
-    }
+    Ok((input, map))
 }
 
-const EXAMPLE_SM: &str = "\
-start-A
-start-b
-A-c
-A-b
-b-d
-A-end
-b-end
-";
-const EXAMPLE_MD: &str = "\
-dc-end
-HN-start
-start-kj
-dc-start
-dc-HN
-LN-dc
-HN-end
-kj-sa
-kj-HN
-kj-dc
-";
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, cave_map) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    let result = step("start".into(), vec!["start".into()], &cave_map);
+    Ok(result.into())
+}
 
-// add_test!(part1, part1_examplesm_test, EXAMPLE_SM => 10);
-// add_test!(part1, part1_examplemd_test, EXAMPLE_MD => 19);
-// add_test!(part1, part1_examplelg_test, EXAMPLE_LG => 226);
-// add_test!(part1, part1_input_test, INPUT => 3369);
-// add_test!(part2, part2_examplesm_test, EXAMPLE_SM => 36);
-// add_test!(part2, part2_examplemd_test, EXAMPLE_MD => 103);
-// add_test!(part2, part2_examplelg_test, EXAMPLE_LG => 3509);
-// add_test!(part2, part2_input_test, INPUT => 85883);
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, cave_map) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    let result = step_2("start".into(), vec!["start".into()], &cave_map);
+    Ok(result.into())
+}
+
+#[cfg(test)]
+mod test {
+    use common::load_raw;
+    use indoc::indoc;
+
+    const EXAMPLE: &str = indoc! {"
+        fs-end
+        he-DX
+        fs-he
+        start-DX
+        pj-DX
+        end-zg
+        zg-sl
+        zg-pj
+        pj-he
+        RW-he
+        fs-DX
+        pj-RW
+        zg-RW
+        start-pj
+        he-WI
+        zg-he
+        pj-fs
+        start-RW
+    "};
+
+    #[test]
+    fn part_1_example() -> miette::Result<()> {
+        assert_eq!(super::part_1(EXAMPLE)?, 10.into());
+        Ok(())
+    }
+
+    #[test]
+    fn part_2_example() -> miette::Result<()> {
+        assert_eq!(super::part_2(EXAMPLE)?, 36.into());
+        Ok(())
+    }
+
+    #[test]
+    #[ignore]
+    fn part_1() -> miette::Result<()> {
+        let input = load_raw(2021, 12)?;
+        assert_eq!(super::part_1(input.as_str())?, 3369.into());
+        Ok(())
+    }
+
+    #[test]
+    #[ignore]
+    fn part_2() -> miette::Result<()> {
+        let input = load_raw(2021, 12)?;
+        assert_eq!(super::part_2(input.as_str())?, 85883.into());
+        Ok(())
+    }
+}

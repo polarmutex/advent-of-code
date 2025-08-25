@@ -40,3 +40,53 @@ pub fn human_time(time: u128) -> String {
 
     format!("{}{}", time, TIME_UNITS.last().unwrap())
 }
+
+/// Simple OCR for Advent of Code ASCII art
+pub fn pixel_vector_to_char_strings(pixels: &[char], char_width: usize) -> Vec<String> {
+    let mut result = Vec::new();
+    let rows = pixels.len() / 40; // Assuming 40 pixels per row
+    
+    for char_idx in 0..(40 / char_width) {
+        let mut char_pattern = Vec::new();
+        for row in 0..rows {
+            let start_pixel = row * 40 + char_idx * char_width;
+            let end_pixel = start_pixel + char_width;
+            if end_pixel <= pixels.len() {
+                let row_slice: String = pixels[start_pixel..end_pixel].iter().collect();
+                char_pattern.push(row_slice);
+            }
+        }
+        result.push(char_pattern.join("\n"));
+    }
+    result
+}
+
+/// OCR mapping for common Advent of Code letter patterns
+pub fn ocr(pattern: &str) -> char {
+    match pattern {
+        // 8x6 patterns
+        "####\n#  #\n#  #\n#  #\n#  #\n####" => 'O',
+        "###.\n#  #\n###.\n#  #\n#  #\n###." => 'P',
+        "###.\n#  #\n###.\n# ..\n# ..\n# .." => 'F',
+        ".##.\n#  #\n#...\n# ##\n#  #\n.###" => 'G',
+        "#...\n#...\n#...\n#...\n#...\n####" => 'L',
+        "###.\n#  #\n#  #\n###.\n#.#.\n#..#" => 'R',
+        ".###\n#...\n#...\n.##.\n...#\n###." => 'S',
+        "####\n...#\n...#\n...#\n...#\n...#" => '7',
+        "###.\n..#.\n..#.\n..#.\n..#.\n..#." => 'T',
+        "#  #\n#  #\n#  #\n#  #\n#  #\n.##." => 'U',
+        "#  #\n#  #\n#  #\n# ##\n##.#\n#..#" => 'K',
+        "#  #\n##.#\n#.##\n#..#\n#..#\n#..#" => 'N',
+        ".##.\n#  #\n#  #\n#  #\n#  #\n.##." => 'O',
+        "#..#\n#..#\n####\n#..#\n#..#\n#..#" => 'A',
+        "###.\n#  #\n###.\n###.\n#  #\n###." => 'B',
+        ".###\n#...\n#...\n#...\n#...\n.###" => 'C',
+        "###.\n#  #\n#  #\n#  #\n#  #\n###." => 'D',
+        "####\n#...\n###.\n#...\n#...\n####" => 'E',
+        "#  #\n#  #\n#  #\n#  #\n#  #\n####" => 'U',
+        "#  #\n#  #\n.##.\n.##.\n#  #\n#  #" => 'X',
+        "#  #\n#  #\n#  #\n.##.\n..#.\n..#." => 'Y',
+        "####\n...#\n..#.\n.#..\n#...\n####" => 'Z',
+        _ => '?',
+    }
+}

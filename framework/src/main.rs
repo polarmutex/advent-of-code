@@ -1,7 +1,7 @@
 use crate::session::Session;
 use args::{Args, Commands};
 use clap::Parser;
-use common::Solution;
+use common::{get_year_solutions, Solution};
 use miette::Result;
 mod args;
 #[macro_use]
@@ -9,9 +9,13 @@ mod misc;
 mod commands;
 mod formatter;
 mod session;
+mod years;
 
 fn main() -> Result<()> {
     let args = Args::parse();
+    
+    // Initialize year registrations
+    years::init_years();
 
     let session = match &args.token {
         Some(token) => Ok(Session::new(token)),
@@ -32,12 +36,5 @@ fn main() -> Result<()> {
 }
 
 fn get_year(year: u16) -> &'static [Solution] {
-    match year {
-        // 2020 => aoc_2020::SOLUTIONS,
-        // 2021 => aoc_2021::SOLUTIONS,
-        // 2022 => aoc_2022::SOLUTIONS,
-        // 2023 => aoc_2023::SOLUTIONS,
-        2024 => aoc_2024::SOLUTIONS,
-        _ => &[],
-    }
+    get_year_solutions(year)
 }

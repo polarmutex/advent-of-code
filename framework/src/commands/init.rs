@@ -164,10 +164,7 @@ fn default_insertion() -> Insertion {
                 "// [import_marker]".into(),
                 "mod day_{{day:pad(2)}};\\n".into(),
             ),
-            (
-                "// [list_marker]".into(),
-                "day_{{day:pad(2)}}::SOLUTION,\\n    ".into(),
-            ),
+            // No longer need to insert into SOLUTIONS array - automatic discovery handles this
         ],
     }
 }

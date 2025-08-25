@@ -1,38 +1,29 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
 
-boilerplate!(
-    Day,
-    6,
-    "\
-3,4,3,1,2",
-    "data/06.txt"
-);
+solution!("Lanternfish", 6);
 
-impl Solution for Day {
-    type Parsed = Vec<u64>;
-    type Answer = u64;
-    const EXAMPLE_ANSWER_1: Self::Answer = 5934;
-    const ANSWER_1: Self::Answer = 388739;
-    const EXAMPLE_ANSWER_2: Self::Answer = 26984457539;
-    const ANSWER_2: Self::Answer = 1741362314973;
+type Input = Vec<u64>;
 
-    fn parse(input: &str) -> IResult<Self::Parsed> {
-        let i = input
-            .split(',')
-            .map(|num| num.parse::<u64>().expect("u8 digit"))
-            .collect();
-        Ok(("", i))
+fn parse(input: &str) -> nom::IResult<&str, Input> {
+    let fish: Result<Vec<u64>, _> = input
+        .split(',')
+        .map(|num| num.parse::<u64>())
+        .collect();
+    
+    match fish {
+        Ok(f) => Ok(("", f)),
+        Err(_) => Err(nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::MapRes))),
     }
+}
 
-    fn part1(input: Self::Parsed) -> Self::Answer {
-        sim_fish(80, &input)
-    }
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, fish) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    Ok(sim_fish(80, &fish).into())
+}
 
-    fn part2(input: Self::Parsed) -> Self::Answer {
-        sim_fish(256, &input)
-    }
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, fish) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    Ok(sim_fish(256, &fish).into())
 }
 
 fn sim_fish(days: u32, input: &[u64]) -> u64 {
@@ -55,4 +46,40 @@ fn sim_fish(days: u32, input: &[u64]) -> u64 {
         laternfish_timer_state[8] = new_fish;
     }
     laternfish_timer_state.iter().sum()
+}
+
+#[cfg(test)]
+mod test {
+    use common::load_raw;
+    use indoc::indoc;
+
+    const EXAMPLE: &str = "3,4,3,1,2";
+
+    #[test]
+    fn part_1_example() -> miette::Result<()> {
+        assert_eq!(super::part_1(EXAMPLE)?, 5934.into());
+        Ok(())
+    }
+
+    #[test]
+    fn part_2_example() -> miette::Result<()> {
+        assert_eq!(super::part_2(EXAMPLE)?, 26984457539u64.into());
+        Ok(())
+    }
+
+    #[test]
+    #[ignore]
+    fn part_1() -> miette::Result<()> {
+        let input = load_raw(2021, 6)?;
+        assert_eq!(super::part_1(input.as_str())?, 388739.into());
+        Ok(())
+    }
+
+    #[test]
+    #[ignore]
+    fn part_2() -> miette::Result<()> {
+        let input = load_raw(2021, 6)?;
+        assert_eq!(super::part_2(input.as_str())?, 1741362314973u64.into());
+        Ok(())
+    }
 }

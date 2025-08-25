@@ -1,6 +1,5 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
+use nom::IResult;
 use std::iter::{self};
 
 use ndarray::{concatenate, Array2, Axis};
@@ -10,23 +9,14 @@ use nom::{
     sequence::separated_pair,
 };
 
-boilerplate!(Day,20, "\
-..#.#..#####.#.#.#.###.##.....###.##.#..###.####..#####..#....#..#..##..###..######.###...####..#..#####..##..#.#####...##.#.#..#.##..#.#......#.###.######.###.####...#.##.##..#..#..#####.....#.#....###..#.##......#.....#..#..#..##..#...##.######.####.####.#.#...#.......#..#.#.#...####.##.#......#..#...##.#.##..#...##.#.##..###.#......#.#.......#.#.#.####.###.##...#.....####.#..#..#.##.#....##..#.####....##...##..#...#......#.#.......#.......##..####..#...#.#.#...##..#.#..###..#####........#..####......#..#
+solution!("Trench Map", 20);
 
-#..#.
-#....
-##..#
-..#..
-..###
-", "data/20.txt"
-);
-
-fn newlines(input: &str) -> IResult<()> {
+fn newlines(input: &str) -> IResult<&str, ()> {
     let (input, _) = newline(input)?;
     let (input, _) = newline(input)?;
     Ok((input, ()))
 }
-fn image(input: &str) -> IResult<Array2<char>> {
+fn image(input: &str) -> IResult<&str, Array2<char>> {
     let (input, raw_input) = separated_list1(newline, many1(one_of("#.")))(input)?;
 
     let nrows = raw_input.len();
@@ -163,33 +153,28 @@ fn big_process(image: &Array2<char>, algo: &Vec<char>) -> Array2<char> {
     .unwrap()
 }
 
-impl Solution for Day {
-    type Parsed = (Vec<char>, Array2<char>);
-    type Answer = usize;
-    const EXAMPLE_ANSWER_1: Self::Answer = 35;
-    const ANSWER_1: Self::Answer = 5489;
-    const EXAMPLE_ANSWER_2: Self::Answer = 3351;
-    const ANSWER_2: Self::Answer = 19066;
-
-    fn parse(input: &str) -> IResult<Self::Parsed> {
+fn parse(input: &str) -> IResult<&str, (Vec<char>, Array2<char>)> {
         let (input, (algo, image)) = separated_pair(many1(one_of(".#")), newlines, image)(input)?;
-        Ok((input, (algo, image)))
-    }
+    Ok((input, (algo, image)))
+}
 
-    fn part1((algo, image): Self::Parsed) -> Self::Answer {
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, (algo, image)) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
         let new_image = process(&image, &algo, '.');
         let pad_char = new_pad_char(&algo, '.');
         let new_image = process(&new_image, &algo, pad_char);
-        new_image
+        let count = new_image
             .iter()
             .filter(|v| match v {
                 '#' => true,
                 _ => false,
             })
-            .count()
-    }
+            .count();
+        Ok((count as u64).into())
+}
 
-    fn part2((algo, image): Self::Parsed) -> Self::Answer {
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, (algo, image)) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
         let grid = big_pad_array(&image, 50);
 
         let mut new_image = grid.clone();
@@ -199,12 +184,37 @@ impl Solution for Day {
             new_image = big_pad_array(&new_image, 0);
         }
 
-        new_image
+        let count = new_image
             .iter()
             .filter(|v| match v {
                 '#' => true,
                 _ => false,
             })
-            .count()
+            .count();
+        Ok((count as u64).into())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+..#.#..#####.#.#.#.###.##.....###.##.#..###.####..#####..#....#..#..##..###..######.###...####..#..#####..##..#.#####...##.#.#..#.##..#.#......#.###.######.###.####...#.##.##..#..#..#####.....#.#....###..#.##......#.....#..#..#..##..#...##.######.####.####.#.#...#.......#..#.#.#...####.##.#......#..#...##.#.##..#...##.#.##..###.#......#.#.......#.#.#.####.###.##...#.....####.#..#..#.##.#....##..#.####....##...##..#...#......#.#.......#.......##..####..#...#.#.#...##..#.#..###..#####........#..####......#..#
+
+#..#.
+#....
+##..#
+..#..
+..###
+";
+
+    #[test]
+    fn test_part_1() {
+        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(35));
+    }
+
+    #[test]
+    fn test_part_2() {
+        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(3351));
     }
 }

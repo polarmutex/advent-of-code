@@ -1,29 +1,12 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
+use nom::IResult;
 use ndarray::{s, Array2};
 use nom::{
     character::complete::{newline, one_of},
     multi::{many1, separated_list1},
 };
 
-boilerplate!(
-    Day,
-    11,
-    "\
-5483143223
-2745854711
-5264556173
-6141336146
-6357385478
-4167524645
-2176841721
-6882881134
-4846848554
-5283751526
-",
-    "data/11.txt"
-);
+solution!("Dumbo Octopus", 11);
 
 #[derive(Debug, Clone)]
 enum Squid {
@@ -63,7 +46,7 @@ impl Squid {
     }
 }
 
-fn row(input: &str) -> IResult<Vec<Squid>> {
+fn row(input: &str) -> IResult<&str, Vec<Squid>> {
     let (input, chars) = many1(one_of("0123456789"))(input)?;
     let nums = [Squid::NoSquid]
         .into_iter()
@@ -78,15 +61,7 @@ fn row(input: &str) -> IResult<Vec<Squid>> {
     Ok((input, nums))
 }
 
-impl Solution for Day {
-    type Parsed = Array2<Squid>;
-    type Answer = u64;
-    const EXAMPLE_ANSWER_1: Self::Answer = 1656;
-    const ANSWER_1: Self::Answer = 1755;
-    const EXAMPLE_ANSWER_2: Self::Answer = 195;
-    const ANSWER_2: Self::Answer = 212;
-
-    fn parse(input: &str) -> IResult<Self::Parsed> {
+fn parse(input: &str) -> IResult<&str, Array2<Squid>> {
         let (input, outputs) = separated_list1(newline, row)(input)?;
         let nrows = outputs.len();
         let ncols = outputs[0].len();
@@ -103,7 +78,8 @@ impl Solution for Day {
         Ok((input, arr))
     }
 
-    fn part1(mut input: Self::Parsed) -> Self::Answer {
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, mut input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
         let mut flashes: u64 = 0;
         for _ in 0..100 {
             // Part A: Increment all squids
@@ -147,10 +123,11 @@ impl Solution for Day {
             }
         }
 
-        flashes
-    }
+        Ok(flashes.into())
+}
 
-    fn part2(mut input: Self::Parsed) -> Self::Answer {
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, mut input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
         let mut step: u64 = 0;
         // problem counts from "step 1", not "step 0"
         for i in 1.. {
@@ -204,6 +181,35 @@ impl Solution for Day {
             }
         }
 
-        step
+        Ok(step.into())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+5483143223
+2745854711
+5264556173
+6141336146
+6357385478
+4167524645
+2176841721
+6882881134
+4846848554
+5283751526
+";
+
+    #[test]
+    fn test_part_1() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(1656));
+    }
+
+    #[test]
+    fn test_part_2() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(195));
     }
 }

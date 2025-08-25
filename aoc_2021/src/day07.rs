@@ -1,71 +1,103 @@
-use framework::boilerplate;
-use framework::IResult;
-use framework::SolutionData;
-use itertools::Itertools;
+use common::{solution, Answer};
 
-boilerplate!(
-    Day,
-    7,
-    "\
-16,1,2,0,4,2,7,1,2,14",
-    "data/07.txt"
-);
+solution!("The Treachery of Whales", 7);
 
-impl Solution for Day {
-    type Parsed = Vec<u32>;
-    type Answer = u32;
-    const EXAMPLE_ANSWER_1: Self::Answer = 37;
-    const ANSWER_1: Self::Answer = 335330;
-    const EXAMPLE_ANSWER_2: Self::Answer = 168;
-    const ANSWER_2: Self::Answer = 92439766;
+type Input = Vec<u32>;
 
-    fn parse(input: &str) -> IResult<Self::Parsed> {
-        let crabs = input
-            .split(',')
-            .map(|val| val.parse::<u32>().unwrap())
-            .collect_vec();
-        Ok(("", crabs))
+fn parse(input: &str) -> nom::IResult<&str, Input> {
+    let crabs: Result<Vec<u32>, _> = input
+        .split(',')
+        .map(|val| val.parse::<u32>())
+        .collect();
+    
+    match crabs {
+        Ok(c) => Ok(("", c)),
+        Err(_) => Err(nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::MapRes))),
+    }
+}
+
+fn part_1(input: &str) -> miette::Result<Answer> {
+    let (_, crabs) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    
+    let (low, high) = crabs.iter().fold((1_000, 0), |mut bounds, crab| {
+        if bounds.0 > *crab {
+            bounds.0 = *crab
+        }
+        if bounds.1 < *crab {
+            bounds.1 = *crab
+        }
+        bounds
+    });
+
+    let result = (low..high)
+        .map(|pos| crabs.iter().map(|crab| crab.abs_diff(pos)).sum::<u32>())
+        .min()
+        .unwrap();
+    
+    Ok(result.into())
+}
+
+fn part_2(input: &str) -> miette::Result<Answer> {
+    let (_, crabs) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    
+    let (low, high) = crabs.iter().fold((1_000, 0), |mut bounds, crab| {
+        if bounds.0 > *crab {
+            bounds.0 = *crab
+        }
+        if bounds.1 < *crab {
+            bounds.1 = *crab
+        }
+        bounds
+    });
+
+    let result = (low..high)
+        .map(|pos| {
+            crabs
+                .iter()
+                .map(|crab| {
+                    let d = crab.abs_diff(pos);
+                    d * (d + 1) / 2
+                })
+                .sum::<u32>()
+        })
+        .min()
+        .unwrap();
+    
+    Ok(result.into())
+}
+
+#[cfg(test)]
+mod test {
+    use common::load_raw;
+    use indoc::indoc;
+
+    const EXAMPLE: &str = "16,1,2,0,4,2,7,1,2,14";
+
+    #[test]
+    fn part_1_example() -> miette::Result<()> {
+        assert_eq!(super::part_1(EXAMPLE)?, 37.into());
+        Ok(())
     }
 
-    fn part1(input: Self::Parsed) -> Self::Answer {
-        let (low, high) = input.iter().fold((1_000, 0), |mut bounds, crab| {
-            if bounds.0 > *crab {
-                bounds.0 = *crab
-            }
-            if bounds.1 < *crab {
-                bounds.1 = *crab
-            }
-            bounds
-        });
-
-        (low..high)
-            .map(|pos| input.iter().map(|crab| crab.abs_diff(pos)).sum::<u32>())
-            .min()
-            .unwrap()
+    #[test]
+    fn part_2_example() -> miette::Result<()> {
+        assert_eq!(super::part_2(EXAMPLE)?, 168.into());
+        Ok(())
     }
 
-    fn part2(input: Self::Parsed) -> Self::Answer {
-        let (low, high) = input.iter().fold((1_000, 0), |mut bounds, crab| {
-            if bounds.0 > *crab {
-                bounds.0 = *crab
-            }
-            if bounds.1 < *crab {
-                bounds.1 = *crab
-            }
-            bounds
-        });
+    #[test]
+    #[ignore]
+    fn part_1() -> miette::Result<()> {
+        let input = load_raw(2021, 7)?;
+        assert_eq!(super::part_1(input.as_str())?, 335330.into());
+        Ok(())
+    }
 
-        (low..high)
-            .map(|pos| {
-                input
-                    .iter()
-                    .map(|crab| {
-                        let d = crab.abs_diff(pos);
-                        d * (d + 1) / 2
-                    })
-                    .sum::<u32>()
-            })
-            .min()
-            .unwrap()
+    #[test]
+    #[ignore]
+    fn part_2() -> miette::Result<()> {
+        let input = load_raw(2021, 7)?;
+        assert_eq!(super::part_2(input.as_str())?, 92439766.into());
+        Ok(())
     }
 }

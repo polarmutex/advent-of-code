@@ -1,8 +1,6 @@
 use core::fmt;
-use framework::boilerplate;
-use framework::tests;
-use framework::IResult;
-use framework::SolutionData;
+use common::{solution, Answer};
+use nom::IResult;
 use itertools::Itertools;
 use nom::{
     bytes::complete::tag,
@@ -11,23 +9,7 @@ use nom::{
 };
 use std::{iter::Sum, ops::Add};
 
-boilerplate!(
-    Day,
-    18,
-    "\
-[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
-[[[5,[2,8]],4],[5,[[9,9],0]]]
-[6,[[[6,2],[5,6]],[[7,6],[4,7]]]]
-[[[6,[0,7]],[0,9]],[4,[9,[9,0]]]]
-[[[7,[6,4]],[3,[1,3]]],[[[5,5],1],9]]
-[[6,[[7,3],[3,2]]],[[[3,8],[5,7]],4]]
-[[[[5,4],[7,7]],8],[[8,3],8]]
-[[9,3],[[9,9],[6,[4,9]]]]
-[[2,[[7,7],7]],[[5,8],[[9,3],[0,2]]]]
-[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]
-",
-    "data/18.txt"
-);
+solution!("Snailfish", 18);
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 enum Snailfish {
@@ -41,7 +23,7 @@ impl fmt::Display for Snailfish {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Number(n) => write!(f, "{}", n),
-            Fish((box a, box b)) => {
+            Fish((ref a, ref b)) => {
                 write!(f, "[{},{}]", a, b)
             }
         }
@@ -418,8 +400,8 @@ fn munge_leftmost(fish: &Snailfish, value: u32) -> Snailfish {
     }
 }
 
-fn snailfish(input: &str) -> IResult<Snailfish> {
-    let has_snailfish: IResult<&str> = tag("[")(input);
+fn snailfish(input: &str) -> IResult<&str, Snailfish> {
+    let has_snailfish: IResult<&str, &str> = tag("[")(input);
 
     let (input, fish_number) = match has_snailfish {
         Ok((input, _)) => {
@@ -436,15 +418,7 @@ fn snailfish(input: &str) -> IResult<Snailfish> {
     Ok((input, fish_number))
 }
 
-impl Solution for Day {
-    type Parsed = Vec<Snailfish>;
-    type Answer = usize;
-    const EXAMPLE_ANSWER_1: Self::Answer = 4140;
-    const ANSWER_1: Self::Answer = 3359;
-    const EXAMPLE_ANSWER_2: Self::Answer = 3993;
-    const ANSWER_2: Self::Answer = 4616;
-
-    fn parse(input: &str) -> IResult<Self::Parsed> {
+fn parse(input: &str) -> IResult<&str, Vec<Snailfish>> {
         let snailfishes = input
             .lines()
             .map(|line| snailfish(line).unwrap().1)
@@ -452,17 +426,46 @@ impl Solution for Day {
         Ok(("", snailfishes))
     }
 
-    fn part1(input: Self::Parsed) -> Self::Answer {
+fn part_1(input: Vec<Snailfish>) -> Answer {
         let fish: Snailfish = input.iter().map(|sf| sf.clone()).sum();
-        fish.magnitude()
+        Answer::Number(fish.magnitude() as u64)
     }
 
-    fn part2(input: Self::Parsed) -> Self::Answer {
+fn part_2(input: Vec<Snailfish>) -> Answer {
         let max = input
             .iter()
             .cartesian_product(input.clone())
             .map(|(a, b)| (a.clone() + b.clone()).reduce_all_the_way().magnitude())
             .max();
-        max.unwrap()
+        Answer::Number(max.unwrap() as u64)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
+[[[5,[2,8]],4],[5,[[9,9],0]]]
+[6,[[[6,2],[5,6]],[[7,6],[4,7]]]]
+[[[6,[0,7]],[0,9]],[4,[9,[9,0]]]]
+[[[7,[6,4]],[3,[1,3]]],[[[5,5],1],9]]
+[[6,[[7,3],[3,2]]],[[[3,8],[5,7]],4]]
+[[[[5,4],[7,7]],8],[[8,3],8]]
+[[9,3],[[9,9],[6,[4,9]]]]
+[[2,[[7,7],7]],[[5,8],[[9,3],[0,2]]]]
+[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]
+";
+
+    #[test]
+    fn test_part_1() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_1(input), Answer::Number(4140));
+    }
+
+    #[test]
+    fn test_part_2() {
+        let input = parse(EXAMPLE).unwrap().1;
+        assert_eq!(part_2(input), Answer::Number(3993));
     }
 }

@@ -14,6 +14,8 @@ name = "advent-of-code"
 framework = { path = "./framework" }
 common = { path = "./common" }
 aoc_lib = { path = "./aoc_lib" }
+aoc_2020 = { path = "./aoc_2020" }
+aoc_2023 = { path = "./aoc_2023" }
 aoc_2024 = { path = "./aoc_2024" }
 
 ahash = "0.8"
@@ -21,6 +23,7 @@ bitvec = "1.0.1"
 chrono = "0.4"
 clap = { version = "4", features = ["color", "derive"] }
 colored = "2.0.0"
+ctor = "0.2"
 criterion = { version = "0.4", features = ["html_reports"] }
 divan = "0.1.4"
 glam = "0.24.2"
