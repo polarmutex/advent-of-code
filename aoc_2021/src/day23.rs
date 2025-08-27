@@ -1,20 +1,43 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use nom::IResult;
 
-solution!("Amphipod", 23);
+type Input = Vec<u32>;
 
-fn parse(input: &str) -> IResult<&str, Vec<u32>> {
-    Ok((input, vec![]))
-}
+#[aoc(2021, day23)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, _input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    todo!()
-}
+    fn parse(input: &str) -> nom::IResult<&str, Input> {
+        Ok((input, vec![]))
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, _input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    todo!()
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(_input: &Input) -> u64 {
+        todo!()
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(_input: &Input) -> u64 {
+        todo!()
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
@@ -32,14 +55,12 @@ mod tests {
     #[test]
     #[ignore]
     fn test_part_1() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(12521));
+        assert_eq!(solutions::part_1(EXAMPLE), 12521);
     }
 
     #[test]
     #[ignore]
     fn test_part_2() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(44169));
+        assert_eq!(solutions::part_2(EXAMPLE), 44169);
     }
 }

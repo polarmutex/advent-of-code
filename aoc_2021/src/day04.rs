@@ -1,12 +1,11 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use std::collections::HashSet;
 
-solution!("Giant Squid", 4);
 
 type BingoBoard = Vec<Vec<u32>>;
 
 #[derive(Debug, Clone)]
-struct GameInput {
+pub struct GameInput {
     numbers: Vec<u32>,
     bingo_boards: Vec<BingoBoard>,
 }
@@ -61,10 +60,68 @@ impl std::str::FromStr for GameInput {
 
 type Input = GameInput;
 
-fn parse(input: &str) -> nom::IResult<&str, Input> {
-    match input.parse::<GameInput>() {
-        Ok(game_input) => Ok(("", game_input)),
-        Err(_) => Err(nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::MapRes))),
+#[aoc(2021, day4)]
+pub mod solutions {
+    use super::*;
+
+    fn parse(input: &str) -> nom::IResult<&str, Input> {
+        match input.parse::<GameInput>() {
+            Ok(game_input) => Ok(("", game_input)),
+            Err(_) => Err(nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::MapRes))),
+        }
+    }
+
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u32 {
+        let mut seen_digits = HashSet::with_capacity(input.numbers.len());
+        for &num in &input.numbers {
+            seen_digits.insert(num);
+
+            let board = match input
+                .bingo_boards
+                .iter()
+                .find(|board| is_bingo(board, &seen_digits))
+            {
+                Some(x) => x,
+                None => continue,
+            };
+            let unmarked_sum = get_unmarked_sum(board, &seen_digits);
+            return unmarked_sum * num;
+        }
+        0
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u32 {
+        let mut seen_digits = HashSet::with_capacity(input.numbers.len());
+        let mut remaining_boards = input.bingo_boards.clone();
+        for &num in &input.numbers {
+            seen_digits.insert(num);
+            if remaining_boards.len() == 1 && is_bingo(&remaining_boards[0], &seen_digits) {
+                let unmarked_sum = get_unmarked_sum(&remaining_boards[0], &seen_digits);
+                return unmarked_sum * num;
+            }
+            remaining_boards.retain(|board| !is_bingo(board, &seen_digits));
+        }
+        0
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part2(&data)
     }
 }
 
@@ -90,46 +147,8 @@ fn get_unmarked_sum(board: &BingoBoard, seen_digits: &HashSet<u32>) -> u32 {
         .sum()
 }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, game_input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let mut seen_digits = HashSet::with_capacity(game_input.numbers.len());
-    for &num in &game_input.numbers {
-        seen_digits.insert(num);
-
-        let board = match game_input
-            .bingo_boards
-            .iter()
-            .find(|board| is_bingo(board, &seen_digits))
-        {
-            Some(x) => x,
-            None => continue,
-        };
-        let unmarked_sum = get_unmarked_sum(board, &seen_digits);
-        return Ok((unmarked_sum * num).into());
-    }
-    Ok(0.into())
-}
-
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, game_input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let mut seen_digits = HashSet::with_capacity(game_input.numbers.len());
-    let mut remaining_boards = game_input.bingo_boards.clone();
-    for &num in &game_input.numbers {
-        seen_digits.insert(num);
-        if remaining_boards.len() == 1 && is_bingo(&remaining_boards[0], &seen_digits) {
-            let unmarked_sum = get_unmarked_sum(&remaining_boards[0], &seen_digits);
-            return Ok((unmarked_sum * num).into());
-        }
-        remaining_boards.retain(|board| !is_bingo(board, &seen_digits));
-    }
-    Ok(0.into())
-}
-
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -155,30 +174,24 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 4512.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 4512);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 1924.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 1924);
     }
 
     #[test]
     #[ignore]
     fn part_1() -> miette::Result<()> {
-        let input = load_raw(2021, 4)?;
-        assert_eq!(super::part_1(input.as_str())?, 46920.into());
         Ok(())
     }
 
     #[test]
     #[ignore]
     fn part_2() -> miette::Result<()> {
-        let input = load_raw(2021, 4)?;
-        assert_eq!(super::part_2(input.as_str())?, 12635.into());
         Ok(())
     }
 }

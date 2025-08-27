@@ -1,12 +1,10 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use nom::bytes::complete::tag;
 use nom::character::complete::newline;
 use nom::character::complete::u32;
 use nom::multi::separated_list1;
 use nom::sequence::separated_pair;
 use std::ops::RangeInclusive;
-
-solution!("Camp Cleanup", 4);
 
 type Input = Vec<[RangeInclusive<u32>; 2]>;
 
@@ -20,41 +18,57 @@ fn line(input: &str) -> nom::IResult<&str, [RangeInclusive<u32>; 2]> {
     Ok((input, [start, end]))
 }
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    separated_list1(newline, line)(data)
-}
+#[aoc(2022, day4)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = data.iter()
-        .filter(|[range_a, range_b]| {
-            let a_contains_b = range_a.clone().all(|num| range_b.contains(&num));
-            let b_contains_a = range_b.clone().all(|num| range_a.contains(&num));
-            a_contains_b || b_contains_a
-        })
-        .count();
-    
-    Ok(result.into())
-}
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        separated_list1(newline, line)(data)
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = data.iter()
-        .filter(|[range_a, range_b]| {
-            let a_contains_b = range_a.clone().any(|num| range_b.contains(&num));
-            let b_contains_a = range_b.clone().any(|num| range_a.contains(&num));
-            a_contains_b || b_contains_a
-        })
-        .count();
-    
-    Ok(result.into())
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> usize {
+        input.iter()
+            .filter(|[range_a, range_b]| {
+                let a_contains_b = range_a.clone().all(|num| range_b.contains(&num));
+                let b_contains_a = range_b.clone().all(|num| range_a.contains(&num));
+                a_contains_b || b_contains_a
+            })
+            .count()
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> usize {
+        input.iter()
+            .filter(|[range_a, range_b]| {
+                let a_contains_b = range_a.clone().any(|num| range_b.contains(&num));
+                let b_contains_a = range_b.clone().any(|num| range_a.contains(&num));
+                a_contains_b || b_contains_a
+            })
+            .count()
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -67,30 +81,13 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 2.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 2);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 4.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 4);
     }
 
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2022, 4)?;
-        assert_eq!(super::part_1(input.as_str())?, 573.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2022, 4)?;
-        assert_eq!(super::part_2(input.as_str())?, 867.into());
-        Ok(())
-    }
 }

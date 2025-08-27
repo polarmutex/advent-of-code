@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use nom::bytes::complete::tag;
 use nom::character::complete;
 use nom::character::complete::alpha1;
@@ -11,12 +11,10 @@ use std::collections::BTreeMap;
 use std::ops::Not;
 use std::str::FromStr;
 
-solution!("Cube Conundrum", 2);
-
 type Input = Vec<Game>;
 
 #[derive(Clone, Debug)]
-struct Game {
+pub struct Game {
     id: u32,
     rounds: Vec<Vec<Cube>>,
 }
@@ -86,73 +84,61 @@ fn game_parser(input: &str) -> nom::IResult<&str, Game> {
     Ok((input, Game { id, rounds }))
 }
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    separated_list1(line_ending, game_parser)(data)
-}
+#[aoc(2023, day2)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let colorset = BTreeMap::from([
-        (CubeColor::Red, 12),
-        (CubeColor::Green, 13),
-        (CubeColor::Blue, 14),
-    ]);
-    let result = data.iter()
-        .filter_map(|game| game.valid_game(&colorset))
-        .sum::<u32>();
-        
-    Ok(result.into())
-}
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        separated_list1(line_ending, game_parser)(data)
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = data.iter()
-        .map(|game| game.minimum_cubeset().values().product::<u32>())
-        .sum::<u32>();
-        
-    Ok(result.into())
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u32 {
+        let colorset = BTreeMap::from([
+            (CubeColor::Red, 12),
+            (CubeColor::Green, 13),
+            (CubeColor::Blue, 14),
+        ]);
+        data.iter()
+            .filter_map(|game| game.valid_game(&colorset))
+            .sum::<u32>()
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u32 {
+        data.iter()
+            .map(|game| game.minimum_cubeset().values().product::<u32>())
+            .sum::<u32>()
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    
 
-    const EXAMPLE: &str = indoc! {"
-        Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-        Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
-        Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
-        Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
-        Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
-    "};
-
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 8.into());
-        Ok(())
-    }
-
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 2286.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 2)?;
-        assert_eq!(super::part_1(input.as_str())?, 2416.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 2)?;
-        assert_eq!(super::part_2(input.as_str())?, 63307.into());
-        Ok(())
-    }
+    #[aoc_case(8, 2286)]
+    const EXAMPLE: &str = "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
 }

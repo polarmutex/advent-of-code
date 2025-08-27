@@ -1,21 +1,44 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use nom::IResult;
 
-solution!("Beacon Scanner", 19);
+type Input = Vec<u32>;
 
-fn parse(_input: &str) -> IResult<&str, Vec<u32>> {
-    let i = vec![];
-    Ok(("", i))
-}
+#[aoc(2021, day19)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, _input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    todo!()
-}
+    fn parse(_input: &str) -> nom::IResult<&str, Input> {
+        let i = vec![];
+        Ok(("", i))
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, _input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    todo!()
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(_input: &Input) -> u64 {
+        todo!()
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(_input: &Input) -> u64 {
+        todo!()
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
@@ -27,14 +50,12 @@ mod tests {
     #[test]
     #[ignore]
     fn test_part_1() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(79));
+        assert_eq!(solutions::part_1(EXAMPLE), 79);
     }
 
     #[test]
     #[ignore]
     fn test_part_2() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(3621));
+        assert_eq!(solutions::part_2(EXAMPLE), 3621);
     }
 }

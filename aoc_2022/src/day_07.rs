@@ -1,7 +1,5 @@
 use ahash::AHashMap;
-use common::{solution, Answer};
-
-solution!("No Space Left On Device", 7);
+use aoc_runner_macros::{aoc, generator, solver, solution};
 
 #[derive(Debug, Clone)]
 pub enum Command {
@@ -65,7 +63,7 @@ impl std::fmt::Display for FileType {
 }
 
 #[derive(Debug, Clone)]
-struct TerminalOutput {
+pub struct TerminalOutput {
     command: Command,
     output: Vec<FileType>,
 }
@@ -149,36 +147,52 @@ fn parse(input: &str) -> nom::IResult<&str, Input> {
     Ok(("", term_outputs))
 }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let size_map = calculate_dir_sizes(&data);
-    let answer = size_map.values().filter(|v| **v <= 100_000).sum::<u64>();
-    
-    Ok(answer.into())
-}
+#[aoc(2022, day7)]
+pub mod solutions {
+    use super::*;
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let size_map = calculate_dir_sizes(&data);
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
 
-    let current_size = size_map.get("/").expect("root to be map");
-    let current_freespace = 70_000_000 - current_size;
-    let space_needed = 30_000_000 - current_freespace;
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u64 {
+        let size_map = calculate_dir_sizes(input);
+        size_map.values().filter(|v| **v <= 100_000).sum::<u64>()
+    }
 
-    let answer = size_map
-        .values()
-        .filter(|v| **v > space_needed)
-        .min()
-        .unwrap();
-    
-    Ok((*answer).into())
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u64 {
+        let size_map = calculate_dir_sizes(input);
+
+        let current_size = size_map.get("/").expect("root to be map");
+        let current_freespace = 70_000_000 - current_size;
+        let space_needed = 30_000_000 - current_freespace;
+
+        *size_map
+            .values()
+            .filter(|v| **v > space_needed)
+            .min()
+            .unwrap()
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -208,30 +222,12 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 95437.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 95437);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 24933642.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2022, 7)?;
-        assert_eq!(super::part_1(input.as_str())?, 1886043.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2022, 7)?;
-        assert_eq!(super::part_2(input.as_str())?, 3842121.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 24933642);
     }
 }

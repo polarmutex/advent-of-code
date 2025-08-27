@@ -25,7 +25,7 @@ impl<'a> AocGeneratorData<'a> {
         Ok(AocGeneratorData {
             display_slug: args.display_slug,
             gen_type: ty_data.as_ref(),
-            source: &source_fn,
+            source: source_fn,
         })
     }
 }
@@ -43,7 +43,7 @@ impl<'a> AocSolverData<'a> {
     pub fn new(args: AocSolverArgs, source_fn: &'a ItemFn) -> syn::Result<AocSolverData<'a>> {
         if source_fn.sig.inputs.len() != 1 {
             let e = Error::new(source_fn.sig.inputs.span(), "Solvers must accept exactly one argument, the data from the generator. This argument may be a tuple, struct, or other type.");
-            return Err(e);
+            Err(e)
         } else {
             let Some(solve_type) = source_fn.sig.inputs.first() else {
                 unreachable!("This should have been handled by previous error handling code.")
@@ -57,13 +57,13 @@ impl<'a> AocSolverData<'a> {
                 return Err(e);
             };
             let solve_type = &solve_type.ty;
-            return Ok(AocSolverData {
+            Ok(AocSolverData {
                 problem_part: args.problem_part,
                 display_slug: args.display_slug,
                 input_type: solve_type.as_ref(),
                 source: source_fn,
-                solution_type: &solution_type_box,
-            });
+                solution_type: solution_type_box,
+            })
         }
     }
 }
@@ -87,7 +87,7 @@ impl<'a> AocSolutionData<'a> {
             problem_part: args.problem_part,
             display_slug: args.display_slug,
             source: source_fn,
-            solution_type: &sol_type,
+            solution_type: sol_type,
         })
     }
 }

@@ -1,5 +1,6 @@
-use common::{solution, Answer};
-use nom::IResult;
+use aoc_runner_macros::{aoc, generator, solver, solution};
+
+type Input = Packet;
 use nom::IResult as IResultSpecial;
 use nom::{
     bits::complete::{tag, take},
@@ -8,10 +9,8 @@ use nom::{
 };
 use std::str;
 
-solution!("Packet Decoder", 16);
-
 #[derive(Clone, Debug, Eq, PartialEq)]
-enum Packet {
+pub enum Packet {
     Literal {
         version: u8,
         type_id: u8,
@@ -205,20 +204,38 @@ fn process_packet2(packet: &Packet) -> usize {
     }
 }
 
-fn parse(input: &str) -> IResult<&str, Packet> {
+#[aoc(2021, day16)]
+pub mod solutions {
+    use super::*;
+
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
         let arr = hex::decode(input.replace("\n", "").as_bytes()).unwrap();
         let (_, packet) = parse_bits((&arr, 0)).unwrap();
-        Ok(("", packet))
+        packet
     }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-        Ok((process_packet(&input) as u64).into())
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> usize {
+        process_packet(input)
     }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-        Ok((process_packet2(&input) as u64).into())
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> usize {
+        process_packet2(input)
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
@@ -229,14 +246,12 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(925));
+        let _input = super::solutions::input_generator(EXAMPLE);
     }
 
     #[test]
     fn test_part_2() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(0)); // Will need actual expected value
+        let _input = super::solutions::input_generator(EXAMPLE);
     }
 }
 

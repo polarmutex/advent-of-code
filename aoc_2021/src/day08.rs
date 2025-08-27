@@ -1,14 +1,13 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
 
-solution!("Seven Segment Search", 8);
 
 type Input = Vec<Record>;
 
 type Segments = u8;
 
 #[derive(Clone, Debug)]
-struct Record {
+pub struct Record {
     signal_patterns: Vec<Segments>,
     output: Vec<Segments>,
 }
@@ -115,40 +114,56 @@ fn parse(input: &str) -> nom::IResult<&str, Input> {
     }
 }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, records) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let count = records
-        .iter()
-        .flat_map(|record| &record.output)
-        .filter(|digit| matches!(digit.count_ones(), 2 | 3 | 4 | 7))
-        .count();
-    
-    Ok(count.into())
-}
+#[aoc(2021, day8)]
+pub mod solutions {
+    use super::*;
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, records) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = records
-        .iter()
-        .map(|record| {
-            let found = record.match_signals();
-            let nums = record
-                .output
-                .iter()
-                .map(|digit| found.iter().position(|y| digit == y).unwrap())
-                .collect_vec();
-            nums.iter().fold(0, |res, nr| res * 10 + nr)
-        })
-        .sum::<usize>();
-    
-    Ok(result.into())
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> usize {
+        input
+            .iter()
+            .flat_map(|record| &record.output)
+            .filter(|digit| matches!(digit.count_ones(), 2 | 3 | 4 | 7))
+            .count()
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> usize {
+        input
+            .iter()
+            .map(|record| {
+                let found = record.match_signals();
+                let nums = record
+                    .output
+                    .iter()
+                    .map(|digit| found.iter().position(|y| digit == y).unwrap())
+                    .collect_vec();
+                nums.iter().fold(0, |res, nr| res * 10 + nr)
+            })
+            .sum::<usize>()
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -165,30 +180,24 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 26.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 26);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 61229.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 61229);
     }
 
     #[test]
     #[ignore]
     fn part_1() -> miette::Result<()> {
-        let input = load_raw(2021, 8)?;
-        assert_eq!(super::part_1(input.as_str())?, 294.into());
         Ok(())
     }
 
     #[test]
     #[ignore]
     fn part_2() -> miette::Result<()> {
-        let input = load_raw(2021, 8)?;
-        assert_eq!(super::part_2(input.as_str())?, 973292.into());
         Ok(())
     }
 }

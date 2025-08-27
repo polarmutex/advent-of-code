@@ -30,7 +30,7 @@ pub fn add_package_to_workspace(workspace_toml: &Utf8Path, year_num: u32) -> Res
         .as_array_mut()
         .expect("Cargo doc format not recognized");
 
-    members.push(&year_num.to_string());
+    members.push(year_num.to_string());
 
     std::fs::write(workspace_toml, doc.to_string().as_bytes())?;
 
@@ -65,7 +65,7 @@ pub fn add_day_to_package(
         .expect("Per-year cargo doc should have already had a [[bin]] table in it.");
 
     let mut new_table = Table::new();
-    new_table["name"] = value(format!("{}-day{}", year_num, day_num));
+    new_table["name"] = value(format!("{year_num}-day{day_num}"));
 
     let partial_path = day_file.as_str().replace(year_path.as_str(), "");
     let partial_path = partial_path.trim_start_matches("/");

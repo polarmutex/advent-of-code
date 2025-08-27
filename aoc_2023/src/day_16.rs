@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use glam::IVec2;
 use nom::branch::alt;
 use nom::bytes::complete::is_a;
@@ -12,12 +12,6 @@ use nom_locate::LocatedSpan;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt::Display;
-// use itertools::Itertools;
-// use nom::character::complete;
-// use nom_supreme::ParserExt;
-// use tracing::info;
-
-solution!("The Floor Will Be Lava", 16);
 
 type Input = MirrorInput;
 
@@ -66,7 +60,7 @@ impl Display for MirrorType {
 type MirrorMap = HashMap<IVec2, MirrorType>;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-struct MirrorInput {
+pub struct MirrorInput {
     grid: MirrorMap,
     size: IVec2,
 }
@@ -117,39 +111,59 @@ fn parse_grid(input: Span) -> IBaseResult<Span, MirrorMap> {
     Ok((input, grid.iter().cloned().collect::<MirrorMap>()))
 }
 
-fn parse_input(data: &str) -> miette::Result<Input> {
-    let grid = parse_grid(Span::new(data)).map_err(|e| miette::miette!("Parse error: {}", e))?.1;
-    let size = IVec2::new(
-        grid.iter()
-            .fold(0, |acc, (pos, _)| if pos.x > acc { pos.x } else { acc })
-            .abs() as i32
-            + 1,
-        grid.iter()
-            .fold(0, |acc, (pos, _)| if pos.y > acc { pos.y } else { acc })
-            .abs() as i32
-            + 1,
-    );
-    Ok(MirrorInput { size, grid })
-}
+#[aoc(2023, day16)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let data = parse_input(input)?;
-    let start = (Direction::East, IVec2::new(-1, 0));
-    let result = num_energized(&data, start);
-    Ok(result.into())
-}
+    fn parse_input(data: &str) -> Input {
+        let grid = parse_grid(Span::new(data)).unwrap().1;
+        let size = IVec2::new(
+            grid.iter()
+                .fold(0, |acc, (pos, _)| if pos.x > acc { pos.x } else { acc })
+                .abs() as i32
+                + 1,
+            grid.iter()
+                .fold(0, |acc, (pos, _)| if pos.y > acc { pos.y } else { acc })
+                .abs() as i32
+                + 1,
+        );
+        MirrorInput { size, grid }
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let data = parse_input(input)?;
-    let result = (0..data.size.y)
-        .map(|y| (Direction::East, IVec2::new(-1, y)))
-        .chain((0..data.size.y).map(|y| (Direction::West, IVec2::new(data.size.x, y))))
-        .chain((0..data.size.x).map(|x| (Direction::South, IVec2::new(x, -1))))
-        .chain((0..data.size.x).map(|x| (Direction::North, IVec2::new(x, data.size.y))))
-        .map(|start| num_energized(&data, start))
-        .max()
-        .expect("to have a max");
-    Ok(result.into())
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        parse_input(input)
+    }
+
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u32 {
+        let start = (Direction::East, IVec2::new(-1, 0));
+        num_energized(&data, start)
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u32 {
+        (0..data.size.y)
+            .map(|y| (Direction::East, IVec2::new(-1, y)))
+            .chain((0..data.size.y).map(|y| (Direction::West, IVec2::new(data.size.x, y))))
+            .chain((0..data.size.x).map(|x| (Direction::South, IVec2::new(x, -1))))
+            .chain((0..data.size.x).map(|x| (Direction::North, IVec2::new(x, data.size.y))))
+            .map(|start| num_energized(&data, start))
+            .max()
+            .expect("to have a max")
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 fn num_energized(data: &MirrorInput, start: (Direction, IVec2)) -> u32 {
@@ -329,13 +343,12 @@ fn print(d: &MirrorMap, size: &IVec2, e: &HashSet<IVec2>) {
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use super::*;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    
 
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        let input = r#".|...\....
+    #[aoc_case(46, 51)]
+    const EXAMPLE: &str = r#".|...\....
 |.-.\.....
 .....|-...
 ........|.
@@ -345,39 +358,4 @@ mod test {
 .-.-/..|..
 .|....-|.\
 ..//.|...."#;
-        assert_eq!(super::part_1(input)?, 46.into());
-        Ok(())
-    }
-
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        let input = r#".|...\....
-|.-.\.....
-.....|-...
-........|.
-..........
-.........\
-..../.\\..
-.-.-/..|..
-.|....-|.\
-..//.|...."#;
-        assert_eq!(super::part_2(input)?, 51.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 16)?;
-        assert_eq!(super::part_1(input.as_str())?, 7074.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 16)?;
-        assert_eq!(super::part_2(input.as_str())?, 7530.into());
-        Ok(())
-    }
 }

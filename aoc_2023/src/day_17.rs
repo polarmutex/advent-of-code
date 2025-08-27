@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use glam::IVec2;
 use itertools::Itertools;
 use nom::character::complete::line_ending;
@@ -13,21 +13,20 @@ use pathfinding::prelude::dijkstra;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::VecDeque;
-// use nom::character::complete;
-// use nom_supreme::ParserExt;
-// use tracing::info;
-
-solution!("Clumsy Crucible", 17);
-
-type Input = Map;
 
 type HeatLossMap = HashMap<IVec2, u32>;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-struct Map {
-    grid: HeatLossMap,
-    size: IVec2,
+pub struct Map {
+    pub grid: HeatLossMap,
+    pub size: IVec2,
 }
+
+type Input = Map;
+
+#[aoc(2023, day17)]
+pub mod solutions {
+    use super::*;
 
 type Span<'a> = LocatedSpan<&'a str>;
 fn parse_num(input: Span) -> IBaseResult<Span, (IVec2, u32)> {
@@ -48,81 +47,86 @@ fn parse_grid(input: Span) -> IBaseResult<Span, HeatLossMap> {
     ))
 }
 
-fn parse_input(data: &str) -> miette::Result<Input> {
-    let grid = parse_grid(Span::new(data)).map_err(|e| miette::miette!("Parse error: {}", e))?.1;
-    let size = IVec2::new(
-        grid.iter()
-            .fold(0, |acc, (pos, _)| if pos.x > acc { pos.x } else { acc })
-            .abs() as i32
-            + 1,
-        grid.iter()
-            .fold(0, |acc, (pos, _)| if pos.y > acc { pos.y } else { acc })
-            .abs() as i32
-            + 1,
-    );
-    Ok(Map { size, grid })
-}
+    fn parse_input(data: &str) -> Input {
+        let grid = parse_grid(Span::new(data)).unwrap().1;
+        let size = IVec2::new(
+            grid.iter()
+                .fold(0, |acc, (pos, _)| if pos.x > acc { pos.x } else { acc })
+                .abs() as i32
+                + 1,
+            grid.iter()
+                .fold(0, |acc, (pos, _)| if pos.y > acc { pos.y } else { acc })
+                .abs() as i32
+                + 1,
+        );
+        Map { size, grid }
+    }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let data = parse_input(input)?;
-    let start = (IVec2::new(0, 0), VecDeque::from([IVec2::new(0, 0)]));
-    let end = IVec2::new(data.size.x - 1, data.size.y - 1);
-    let (_, ret) = dijkstra(
-        &start,
-        |(pos, deque)| {
-            [
-                IVec2::new(0, 1),
-                IVec2::new(0, -1),
-                IVec2::new(1, 0),
-                IVec2::new(-1, 0),
-            ]
-            .into_iter()
-            .filter_map(|next_pts| {
-                let next_pos = *pos + next_pts;
-                if (0..data.size.x).contains(&next_pos.x)
-                    && (0..data.size.y).contains(&next_pos.y)
-                {
-                    // Can Not go backwards
-                    if deque.len() > 2 && deque[1] == next_pos {
-                        return None;
-                    }
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        parse_input(input)
+    }
 
-                    let mut new_deque = deque.clone();
-                    new_deque.push_front(next_pos);
-                    if new_deque.len() == 5 {
-                        let dir = new_deque[1] - new_deque[0];
-                        let a = new_deque[2] - new_deque[1];
-                        let b = new_deque[3] - new_deque[2];
-                        let c = new_deque[4] - new_deque[3];
-                        // if we've moved in the same direction 4 times
-                        let three_forward_check = [a, b, c].iter().all(|a_dir| a_dir == &dir);
-                        if three_forward_check {
-                            None
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u32 {
+        let start = (IVec2::new(0, 0), VecDeque::from([IVec2::new(0, 0)]));
+        let end = IVec2::new(data.size.x - 1, data.size.y - 1);
+        let (_, ret) = dijkstra(
+            &start,
+            |(pos, deque)| {
+                [
+                    IVec2::new(0, 1),
+                    IVec2::new(0, -1),
+                    IVec2::new(1, 0),
+                    IVec2::new(-1, 0),
+                ]
+                .into_iter()
+                .filter_map(|next_pts| {
+                    let next_pos = *pos + next_pts;
+                    if (0..data.size.x).contains(&next_pos.x)
+                        && (0..data.size.y).contains(&next_pos.y)
+                    {
+                        // Can Not go backwards
+                        if deque.len() > 2 && deque[1] == next_pos {
+                            return None;
+                        }
+
+                        let mut new_deque = deque.clone();
+                        new_deque.push_front(next_pos);
+                        if new_deque.len() == 5 {
+                            let dir = new_deque[1] - new_deque[0];
+                            let a = new_deque[2] - new_deque[1];
+                            let b = new_deque[3] - new_deque[2];
+                            let c = new_deque[4] - new_deque[3];
+                            // if we've moved in the same direction 4 times
+                            let three_forward_check = [a, b, c].iter().all(|a_dir| a_dir == &dir);
+                            if three_forward_check {
+                                None
+                            } else {
+                                new_deque.pop_back();
+                                Some((next_pos, new_deque))
+                            }
                         } else {
-                            new_deque.pop_back();
                             Some((next_pos, new_deque))
                         }
                     } else {
-                        Some((next_pos, new_deque))
+                        None
                     }
-                } else {
-                    None
-                }
-            })
-            .map(|(pos, deque)| {
-                let next_cost = *data.grid.get(&pos).unwrap();
-                ((pos, deque), next_cost)
-            })
-            .collect::<Vec<((IVec2, VecDeque<IVec2>), u32)>>()
-        },
-        |(pos, _)| pos == &end,
-    )
-    .expect("to find path");
-    Ok(ret.into())
-}
+                })
+                .map(|(pos, deque)| {
+                    let next_cost = *data.grid.get(&pos).unwrap();
+                    ((pos, deque), next_cost)
+                })
+                .collect::<Vec<((IVec2, VecDeque<IVec2>), u32)>>()
+            },
+            |(pos, _)| pos == &end,
+        )
+        .expect("to find path");
+        ret
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let data = parse_input(input)?;
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u32 {
         let start = (IVec2::new(0, 0), VecDeque::from([IVec2::new(0, 0)]));
         let end = IVec2::new(data.size.x - 1, data.size.y - 1);
         let (_, ret) = dijkstra(
@@ -213,12 +217,20 @@ fn part_2(input: &str) -> miette::Result<Answer> {
             },
         )
         .expect("to find path");
-        // dbg!(&path);
-        // dbg!(print(
-        //     &path.iter().map(|v| v.0).collect::<HashSet<IVec2>>(),
-        //     &data.size
-        // ));
-        Ok(ret.into())
+        ret
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 #[allow(dead_code)]
@@ -238,79 +250,33 @@ fn print(d: &HashSet<IVec2>, size: &IVec2) {
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
-    use super::*;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    use super::solutions::*;
+    
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        let input = indoc! {"
-            2413432311323
-            3215453535623
-            3255245654254
-            3446585845452
-            4546657867536
-            1438598798454
-            4457876987766
-            3637877979653
-            4654967986887
-            4564679986453
-            1224686865563
-            2546548887735
-            4322674655533
-        "};
-        assert_eq!(super::part_1(input)?, 102.into());
-        Ok(())
+    fn part_2_example2() {
+        let input = "111111111111
+999999999991
+999999999991
+999999999991
+999999999991";
+        assert_eq!(part_2(input), 71);
     }
 
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        let input = indoc! {"
-            2413432311323
-            3215453535623
-            3255245654254
-            3446585845452
-            4546657867536
-            1438598798454
-            4457876987766
-            3637877979653
-            4654967986887
-            4564679986453
-            1224686865563
-            2546548887735
-            4322674655533
-        "};
-        assert_eq!(super::part_2(input)?, 94.into());
-        Ok(())
-    }
-
-    #[test]
-    fn part_2_example2() -> miette::Result<()> {
-        let input = indoc! {"
-            111111111111
-            999999999991
-            999999999991
-            999999999991
-            999999999991
-        "};
-        assert_eq!(super::part_2(input)?, 71.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 17)?;
-        assert_eq!(super::part_1(input.as_str())?, 1260.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 17)?;
-        assert_eq!(super::part_2(input.as_str())?, 1416.into());
-        Ok(())
-    }
+    #[aoc_case(102, 94)]
+    const EXAMPLE: &str = "2413432311323
+3215453535623
+3255245654254
+3446585845452
+4546657867536
+1438598798454
+4457876987766
+3637877979653
+4654967986887
+4564679986453
+1224686865563
+2546548887735
+4322674655533";
 }

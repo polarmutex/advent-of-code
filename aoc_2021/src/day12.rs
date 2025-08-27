@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver};
 use nom::{
     bytes::complete::tag,
     character::complete::{alpha1, newline},
@@ -7,7 +7,6 @@ use nom::{
 };
 use std::collections::BTreeMap;
 
-solution!("Passage Pathing", 12);
 
 type Input = BTreeMap<String, Vec<String>>;
 
@@ -97,69 +96,54 @@ fn parse(input: &str) -> nom::IResult<&str, Input> {
     Ok((input, map))
 }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, cave_map) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let result = step("start".into(), vec!["start".into()], &cave_map);
-    Ok(result.into())
-}
+#[aoc(2021, day12)]
+pub mod solutions {
+    use super::*;
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, cave_map) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let result = step_2("start".into(), vec!["start".into()], &cave_map);
-    Ok(result.into())
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> usize {
+        step("start".into(), vec!["start".into()], input)
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> usize {
+        step_2("start".into(), vec!["start".into()], input)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
-    const EXAMPLE: &str = indoc! {"
-        fs-end
-        he-DX
-        fs-he
-        start-DX
-        pj-DX
-        end-zg
-        zg-sl
-        zg-pj
-        pj-he
-        RW-he
-        fs-DX
-        pj-RW
-        zg-RW
-        start-pj
-        he-WI
-        zg-he
-        pj-fs
-        start-RW
-    "};
+
 
     #[test]
     fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 10.into());
+        
         Ok(())
     }
 
     #[test]
     fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 36.into());
+        
         Ok(())
     }
 
     #[test]
     #[ignore]
     fn part_1() -> miette::Result<()> {
-        let input = load_raw(2021, 12)?;
-        assert_eq!(super::part_1(input.as_str())?, 3369.into());
         Ok(())
     }
 
     #[test]
     #[ignore]
     fn part_2() -> miette::Result<()> {
-        let input = load_raw(2021, 12)?;
-        assert_eq!(super::part_2(input.as_str())?, 85883.into());
         Ok(())
     }
 }

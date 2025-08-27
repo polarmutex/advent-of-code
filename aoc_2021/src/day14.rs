@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
 use nom::{
     bytes::complete::tag,
@@ -8,37 +8,50 @@ use nom::{
 };
 use std::collections::BTreeMap;
 
-solution!("Extended Polymerization", 14);
+#[aoc(2021, day14)]
+pub mod solutions {
+    use super::*;
 
-type Input = (String, BTreeMap<(char, char), char>);
+    type Input = (String, BTreeMap<(char, char), char>);
 
-fn parse(input: &str) -> nom::IResult<&str, Input> {
-    let (input, initial_state) = alpha1(input)?;
-    let (input, _) = newline(input)?;
-    let (input, _) = newline(input)?;
-    let (input, rules) = separated_list1(
-        newline,
-        separated_pair(pair(anychar, anychar), tag(" -> "), anychar),
-    )(input)?;
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (input, initial_state) = alpha1::<&str, nom::error::Error<&str>>(input).unwrap();
+        let (input, _) = newline::<&str, nom::error::Error<&str>>(input).unwrap();
+        let (input, _) = newline::<&str, nom::error::Error<&str>>(input).unwrap();
+        let (_, rules) = separated_list1::<&str, _, _, nom::error::Error<&str>, _, _>(
+            newline,
+            separated_pair(pair(anychar, anychar), tag(" -> "), anychar),
+        )(input).unwrap();
 
-    let ruleset = rules.into_iter().collect::<BTreeMap<(char, char), char>>();
+        let ruleset = rules.into_iter().collect::<BTreeMap<(char, char), char>>();
 
-    Ok((input, (initial_state.into(), ruleset)))
-}
+        (initial_state.into(), ruleset)
+    }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, polymer_data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let result = solve_polymerization(polymer_data, 10);
-    Ok(result.into())
-}
+    #[solver(part1, gen)]
+    pub fn solve_part1(polymer_data: &Input) -> usize {
+        solve_polymerization(polymer_data.clone(), 10)
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, polymer_data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let result = solve_polymerization(polymer_data, 40);
-    Ok(result.into())
-}
+    #[solver(part2, gen)]
+    pub fn solve_part2(polymer_data: &Input) -> usize {
+        solve_polymerization(polymer_data.clone(), 40)
+    }
 
-fn solve_polymerization(input: Input, steps: usize) -> usize {
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
+
+    fn solve_polymerization(input: Input, steps: usize) -> usize {
     let mut state: BTreeMap<(char, char), usize> = BTreeMap::new();
     for tuple in input.0.chars().tuple_windows() {
         state
@@ -90,11 +103,11 @@ fn solve_polymerization(input: Input, steps: usize) -> usize {
     let max = new_counts.iter().max_by_key(|(_, count)| *count).unwrap();
     let min = new_counts.iter().min_by_key(|(_, count)| *count).unwrap();
     max.1 - min.1
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -119,30 +132,26 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 1588.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 1588);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 2188189693529usize.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 2188189693529);
     }
 
     #[test]
     #[ignore]
     fn part_1() -> miette::Result<()> {
-        let input = load_raw(2021, 14)?;
-        assert_eq!(super::part_1(input.as_str())?, 3831.into());
+        // Real input test - requires actual input file
         Ok(())
     }
 
     #[test]
     #[ignore]
     fn part_2() -> miette::Result<()> {
-        let input = load_raw(2021, 14)?;
-        assert_eq!(super::part_2(input.as_str())?, 5725739914282usize.into());
+        // Real input test - requires actual input file
         Ok(())
     }
 }

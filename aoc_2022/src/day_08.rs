@@ -1,11 +1,9 @@
 use ahash::AHashMap;
 use ahash::AHashSet;
-use common::{solution, Answer};
-
-solution!("Treetop Tree House", 8);
+use aoc_runner_macros::{aoc, generator, solver, solution};
 
 #[derive(Debug, Clone)]
-struct TreeInput {
+pub struct TreeInput {
     tree_grid: Vec<Vec<u8>>,
 }
 
@@ -23,82 +21,103 @@ fn parse(input: &str) -> nom::IResult<&str, Input> {
         Ok(("", TreeInput { tree_grid }))
     }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    fn part1_impl(input: TreeInput) -> usize {
-        let map = input.tree_grid.clone();
+fn part1_impl(input: TreeInput) -> usize {
+    let map = input.tree_grid.clone();
 
-        let x_len = map[0].len();
-        let x_max = x_len - 1;
-        let y_len = map.len();
-        let y_max = y_len - 1;
+    let x_len = map[0].len();
+    let x_max = x_len - 1;
+    let y_len = map.len();
+    let y_max = y_len - 1;
 
-        let mut vis = AHashSet::<(usize, usize)>::new();
+    let mut vis = AHashSet::<(usize, usize)>::new();
 
-        // range goes to last num - 1
-        for y in 0..y_len {
-            for x in 0..x_len {
-                if (x == 0) || (x == x_max) || (y == 0) || (y == y_max) {
-                    vis.insert((x, y));
-                } else {
-                    let top = map[0..y].iter().map(|val| val[x]).collect::<Vec<_>>();
-                    let bottom = map[y + 1..y_len]
-                        .iter()
-                        .map(|val| val[x])
-                        .collect::<Vec<_>>();
-                    let left = map[y][0..x].iter().collect::<Vec<_>>();
-                    let right = map[y][x + 1..x_len].iter().collect::<Vec<_>>();
-
-                    if top.iter().all(|val| *val < map[y][x])
-                        || bottom.iter().all(|val| *val < map[y][x])
-                        || right.iter().all(|val| **val < map[y][x])
-                        || left.iter().all(|val| **val < map[y][x])
-                    {
-                        vis.insert((x, y));
-                    }
-                }
-            }
-        }
-        vis.len()
-    }
-
-    Ok(part1_impl(data).into())
-}
-
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    fn part2_impl(input: TreeInput) -> usize {
-        let map = input.tree_grid.clone();
-
-        let x_len = map[0].len();
-        let y_len = map.len();
-
-        let mut vis = AHashMap::<(usize, usize), usize>::new();
-
-        // range goes to last num - 1
-        for y in 0..y_len {
-            for x in 0..x_len {
-                let top = map[0..y].iter().rev().map(|val| val[x]).collect::<Vec<_>>();
+    // range goes to last num - 1
+    for y in 0..y_len {
+        for x in 0..x_len {
+            if (x == 0) || (x == x_max) || (y == 0) || (y == y_max) {
+                vis.insert((x, y));
+            } else {
+                let top = map[0..y].iter().map(|val| val[x]).collect::<Vec<_>>();
                 let bottom = map[y + 1..y_len]
                     .iter()
                     .map(|val| val[x])
                     .collect::<Vec<_>>();
-                let left = map[y][0..x].iter().copied().rev().collect::<Vec<_>>();
-                let right = map[y][x + 1..x_len].to_vec();
+                let left = map[y][0..x].iter().collect::<Vec<_>>();
+                let right = map[y][x + 1..x_len].iter().collect::<Vec<_>>();
 
-                let score = viewing_distance(map[y][x], &top)
-                    * viewing_distance(map[y][x], &bottom)
-                    * viewing_distance(map[y][x], &left)
-                    * viewing_distance(map[y][x], &right);
-                vis.insert((x, y), score);
+                if top.iter().all(|val| *val < map[y][x])
+                    || bottom.iter().all(|val| *val < map[y][x])
+                    || right.iter().all(|val| **val < map[y][x])
+                    || left.iter().all(|val| **val < map[y][x])
+                {
+                    vis.insert((x, y));
+                }
             }
         }
-        *vis.values().max().unwrap()
     }
-    
-    Ok(part2_impl(data).into())
+    vis.len()
+}
+
+fn part2_impl(input: TreeInput) -> usize {
+    let map = input.tree_grid.clone();
+
+    let x_len = map[0].len();
+    let y_len = map.len();
+
+    let mut vis = AHashMap::<(usize, usize), usize>::new();
+
+    // range goes to last num - 1
+    for y in 0..y_len {
+        for x in 0..x_len {
+            let top = map[0..y].iter().rev().map(|val| val[x]).collect::<Vec<_>>();
+            let bottom = map[y + 1..y_len]
+                .iter()
+                .map(|val| val[x])
+                .collect::<Vec<_>>();
+            let left = map[y][0..x].iter().copied().rev().collect::<Vec<_>>();
+            let right = map[y][x + 1..x_len].to_vec();
+
+            let score = viewing_distance(map[y][x], &top)
+                * viewing_distance(map[y][x], &bottom)
+                * viewing_distance(map[y][x], &left)
+                * viewing_distance(map[y][x], &right);
+            vis.insert((x, y), score);
+        }
+    }
+    *vis.values().max().unwrap()
+}
+
+#[aoc(2022, day8)]
+pub mod solutions {
+    use super::*;
+
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> usize {
+        part1_impl(input.clone())
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> usize {
+        part2_impl(input.clone())
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 fn viewing_distance(height: u8, view: &[u8]) -> usize {
@@ -116,7 +135,6 @@ fn viewing_distance(height: u8, view: &[u8]) -> usize {
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -128,30 +146,12 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 21.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 21);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 8.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2022, 8)?;
-        assert_eq!(super::part_1(input.as_str())?, 1669.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2022, 8)?;
-        assert_eq!(super::part_2(input.as_str())?, 331344.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 8);
     }
 }

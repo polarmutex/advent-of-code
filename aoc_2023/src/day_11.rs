@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use glam::IVec2;
 use itertools::Itertools;
 use nom::branch::alt;
@@ -10,12 +10,14 @@ use nom_locate::LocatedSpan;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-solution!("Cosmic Expansion", 11);
+#[aoc(2023, day11)]
+pub mod solutions {
+    use super::*;
 
 type Input = HashMap<IVec2, SpaceType>;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-enum SpaceType {
+pub enum SpaceType {
     Galaxy,
     Space,
     NewLine,
@@ -136,68 +138,54 @@ fn solve<const EXPANSION: usize>(data: HashMap<IVec2, SpaceType>) -> u64 {
         .sum()
 }
 
-#[tracing::instrument(skip(input))]
-fn parse(input: &str) -> nom::IResult<&str, Input> {
-    let grid = parse_grid(Span::new(input)).unwrap().1;
-    Ok(("", grid))
-}
+    fn parse(input: &str) -> nom::IResult<&str, Input> {
+        let grid = parse_grid(Span::new(input)).unwrap().1;
+        Ok(("", grid))
+    }
 
-#[tracing::instrument(skip(input))]
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    dbg!(&data);
-    let result = solve::<2>(data);
-    
-    Ok(result.into())
-}
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
 
-#[tracing::instrument(skip(input))]
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = solve::<1_000_000>(data);
-    
-    Ok(result.into())
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u64 {
+        solve::<2>(data)
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u64 {
+        solve::<1_000_000>(data)
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    
 
-    const EXAMPLE: &str = indoc! {"
-        ...#......
-        .......#..
-        #.........
-        ..........
-        ......#...
-        .#........
-        .........#
-        ..........
-        .......#..
-        #...#.....
-    "};
-
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 374.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 11)?;
-        assert_eq!(super::part_1(input.as_str())?, 9556896.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 11)?;
-        assert_eq!(super::part_2(input.as_str())?, 685038186836u64.into());
-        Ok(())
-    }
+    #[aoc_case(374, 82000210)]
+    const EXAMPLE: &str = "...#......
+.......#..
+#.........
+..........
+......#...
+.#........
+.........#
+..........
+.......#..
+#...#.....";
 }

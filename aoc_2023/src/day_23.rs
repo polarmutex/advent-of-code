@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use glam::IVec2;
 use nom::branch::alt;
 use nom::bytes::complete::is_a;
@@ -15,19 +15,36 @@ use petgraph::{
 };
 use std::collections::HashMap;
 use std::fmt::Display;
-// use nom_supreme::ParserExt;
-// use itertools::Itertools;
-// use tracing::info;
-
-solution!("A Long Walk", 23);
 
 type Input = TrailInput;
 
 #[derive(Clone, Debug)]
-struct Trail {
+pub struct Trail {
     r#type: TrailType,
     pos: IVec2,
 }
+
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub enum TrailType {
+    Slope(Direction),
+    Flat,
+}
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+pub enum Direction {
+    North,
+    South,
+    East,
+    West,
+}
+
+#[derive(Clone, Debug)]
+#[allow(dead_code)]
+pub struct TrailInput {
+    map: HashMap<IVec2, Trail>,
+    size: IVec2,
+}
+
 impl Display for Trail {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let c = match self.r#type {
@@ -39,20 +56,6 @@ impl Display for Trail {
         };
         write!(f, "{c}")
     }
-}
-
-#[derive(Debug, Eq, PartialEq, Clone, Copy)]
-enum TrailType {
-    Slope(Direction),
-    Flat,
-}
-
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
-enum Direction {
-    North,
-    South,
-    East,
-    West,
 }
 
 impl Direction {
@@ -67,14 +70,9 @@ impl Direction {
     }
 }
 
-// type RockState = HashMap<IVec2, RockType>;
-
-#[derive(Clone, Debug)]
-#[allow(dead_code)]
-struct TrailInput {
-    map: HashMap<IVec2, Trail>,
-    size: IVec2,
-}
+#[aoc(2023, day23)]
+pub mod solutions {
+    use super::*;
 
 type Span<'a> = LocatedSpan<&'a str>;
 #[derive(Clone, Debug, PartialEq)]
@@ -135,29 +133,34 @@ fn parse_grid(input: Span) -> IBaseResult<Span, Vec<Trail>> {
     .parse(input)
 }
 
-fn parse_input(data: &str) -> miette::Result<Input> {
-    let map = parse_grid(Span::new(data)).map_err(|e| miette::miette!("Parse error: {}", e))?.1;
-    let size = IVec2::new(
-        map.iter()
-            .fold(0, |acc, v| if v.pos.x > acc { v.pos.x } else { acc })
-            .abs() as i32
-            + 1,
-        map.iter()
-            .fold(0, |acc, v| if v.pos.y > acc { v.pos.y } else { acc })
-            .abs() as i32
-            + 1,
-    );
-    Ok(TrailInput {
-        size,
-        map: map
-            .into_iter()
-            .map(|v| (v.pos, v))
-            .collect::<HashMap<IVec2, Trail>>(),
-    })
-}
+    fn parse_input(data: &str) -> Input {
+        let map = parse_grid(Span::new(data)).unwrap().1;
+        let size = IVec2::new(
+            map.iter()
+                .fold(0, |acc, v| if v.pos.x > acc { v.pos.x } else { acc })
+                .abs() as i32
+                + 1,
+            map.iter()
+                .fold(0, |acc, v| if v.pos.y > acc { v.pos.y } else { acc })
+                .abs() as i32
+                + 1,
+        );
+        TrailInput {
+            size,
+            map: map
+                .into_iter()
+                .map(|v| (v.pos, v))
+                .collect::<HashMap<IVec2, Trail>>(),
+        }
+    }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let data = parse_input(input)?;
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        parse_input(input)
+    }
+
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u32 {
         let start = *data.map.iter().min_by_key(|(_k, v)| v.pos.y).unwrap().0;
         let end = *data.map.iter().max_by_key(|(_k, v)| v.pos.y).unwrap().0;
         let mut graph = DiGraph::<&Trail, u32>::new();
@@ -194,14 +197,11 @@ fn part_1(input: &str) -> miette::Result<Answer> {
             algo::all_simple_paths::<Vec<_>, _>(&graph, node_map[&start], node_map[&end], 0, None)
                 .max_by(|a, b| a.len().cmp(&b.len()))
                 .unwrap();
-        Ok(((ways.len() - 1) as u32).into())
-}
+        (ways.len() - 1) as u32
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let data = parse_input(input)?;
-        /*timized with edge contraction. For nodes with only two neighbours you can remove it
-        (i.e a corridor in the graph) and connect those two nodes instead. This reduces my input
-        graph from 9412 nodes to only 36 for in part 2! Now it runs in about 550ms.*/
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u32 {
         let start = *data.map.iter().min_by_key(|(_k, v)| v.pos.y).unwrap().0;
         let end = *data.map.iter().max_by_key(|(_k, v)| v.pos.y).unwrap().0;
         let mut graph = DiGraph::<&Trail, u32>::new();
@@ -233,7 +233,20 @@ fn part_2(input: &str) -> miette::Result<Answer> {
             algo::all_simple_paths::<Vec<_>, _>(&graph, node_map[&start], node_map[&end], 0, None)
                 .max_by(|a, b| a.len().cmp(&b.len()))
                 .unwrap();
-        Ok(((ways.len() - 1) as u32).into())
+        (ways.len() - 1) as u32
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 #[allow(dead_code)]
@@ -252,12 +265,12 @@ fn print(d: &TrailInput, size: &IVec2) {
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use super::*;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    
 
-    const EXAMPLE: &str = "\
-#.#####################
+    #[aoc_case(94, 154)]
+    const EXAMPLE: &str = "#.#####################
 #.......#########...###
 #######.#########.#.###
 ###.....#.>.>.###.#.###
@@ -279,35 +292,5 @@ mod test {
 #...#...#.#.>.>.#.>.###
 #.###.###.#.###.#.#v###
 #.....###...###...#...#
-#####################.#
-";
-
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 94.into());
-        Ok(())
-    }
-
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 154.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 23)?;
-        assert_eq!(super::part_1(input.as_str())?, 2330.into());
-        Ok(())
-    }
-
-    // Part 2 is commented out due to long runtime
-    // #[test]
-    // #[ignore]
-    // fn part_2() -> miette::Result<()> {
-    //     let input = load_raw(2023, 23)?;
-    //     assert_eq!(super::part_2(input.as_str())?, 88371.into());
-    //     Ok(())
-    // }
+#####################.#";
 }

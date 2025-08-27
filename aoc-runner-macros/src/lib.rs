@@ -110,8 +110,9 @@ pub fn aoc(args: TokenStream, item: TokenStream) -> TokenStream {
     let mut item_ts = item.into_token_stream();
 
     item_ts.extend(mod_extension);
-    item_ts.extend(gen_quick_microbench());
-    item_ts.extend(gen_slow_microbench());
+    // Disabled benchmarking to avoid dependency conflicts
+    // item_ts.extend(gen_quick_microbench());
+    // item_ts.extend(gen_slow_microbench());
     item_ts.extend(gen_main(macro_args.year_num, macro_args.day_num));
 
     item_ts.into()
@@ -128,7 +129,7 @@ fn gen_idents_from_solns<'a>(
             let s_ident = &sol.source.sig.ident;
             let s_slug = &sol.display_slug;
             let f_ident = Ident::new(
-                format!("f_{}_{}_{}", part_indicator, g_slug, s_slug).as_str(),
+                format!("f_{part_indicator}_{g_slug}_{s_slug}").as_str(),
                 Span::call_site(),
             );
             (g_ident, s_ident, f_ident)
@@ -143,7 +144,7 @@ fn gen_composed_labels<'a>(
         .map(|(gen, sol)| {
             let g_slug = &gen.display_slug.to_string();
             let s_slug = &sol.display_slug.to_string();
-            let label = format!("{} / {}", g_slug, s_slug);
+            let label = format!("{g_slug} / {s_slug}");
             label
         })
         .collect()
@@ -212,7 +213,7 @@ fn gen_main(year_num: u32, day_num: u32) -> proc_macro2::TokenStream {
     let mut input_path = meta.workspace_root;
     input_path.push("input");
     input_path.push(year_num.to_string());
-    input_path.push(format!("{}.txt", day_num));
+    input_path.push(format!("{day_num}.txt"));
 
     let input_file = input_path.as_str();
 
@@ -269,12 +270,14 @@ fn gen_main(year_num: u32, day_num: u32) -> proc_macro2::TokenStream {
                 }
             }
 
-            println!(" ---- Quick Benches ----- ");
-            bench_quick::run_benches();
+            // Benchmarking disabled
+            // println!(" ---- Quick Benches ----- ");
+            // bench_quick::run_benches();
         }
     }
 }
 
+#[allow(dead_code)]
 fn gen_quick_microbench() -> proc_macro2::TokenStream {
     quote! {
         mod bench_quick {
@@ -297,6 +300,7 @@ fn gen_quick_microbench() -> proc_macro2::TokenStream {
     }
 }
 
+#[allow(dead_code)]
 fn gen_slow_microbench() -> proc_macro2::TokenStream {
     quote! {
         use pprof::criterion::{PProfProfiler, Output};

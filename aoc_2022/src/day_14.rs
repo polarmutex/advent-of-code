@@ -1,160 +1,176 @@
-use common::{solution, Answer};
-
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use glam::IVec2;
-
 use itertools::Itertools;
 use std::collections::HashSet;
-
-solution!("Regolith Reservoir", 14);
 
 type Blocked = HashSet<IVec2>;
 
 type Input = Blocked;
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    let rock_structures: Vec<Vec<IVec2>> = data
-        .lines()
-        .map(|line| {
-            line.split(" -> ")
-                .collect_vec()
-                .iter()
-                .map(|point| {
-                    let coord = point.split_once(',').unwrap();
-                    let coord = (
-                        coord.0.parse::<i32>().expect(""),
-                        coord.1.parse::<i32>().expect(""),
-                    );
-                    IVec2::new(coord.0, coord.1)
-                })
-                .collect_vec()
-        })
-        .collect();
-    let mut blocked = Blocked::new();
+#[aoc(2022, day14)]
+pub mod solutions {
+    use super::*;
 
-    for rock_structure in rock_structures {
-        for (pt1, pt2) in rock_structure.iter().tuple_windows() {
-            let mut cur_pt = *pt1;
-            blocked.insert(cur_pt);
-            while cur_pt != *pt2 {
-                let delta = *pt2 - cur_pt;
-                cur_pt = IVec2 {
-                    x: cur_pt.x + delta.x.signum(),
-                    y: cur_pt.y + delta.y.signum(),
-                };
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        let rock_structures: Vec<Vec<IVec2>> = data
+            .lines()
+            .map(|line| {
+                line.split(" -> ")
+                    .collect_vec()
+                    .iter()
+                    .map(|point| {
+                        let coord = point.split_once(',').unwrap();
+                        let coord = (
+                            coord.0.parse::<i32>().expect(""),
+                            coord.1.parse::<i32>().expect(""),
+                        );
+                        IVec2::new(coord.0, coord.1)
+                    })
+                    .collect_vec()
+            })
+            .collect();
+        let mut blocked = Blocked::new();
+
+        for rock_structure in rock_structures {
+            for (pt1, pt2) in rock_structure.iter().tuple_windows() {
+                let mut cur_pt = *pt1;
                 blocked.insert(cur_pt);
+                while cur_pt != *pt2 {
+                    let delta = *pt2 - cur_pt;
+                    cur_pt = IVec2 {
+                        x: cur_pt.x + delta.x.signum(),
+                        y: cur_pt.y + delta.y.signum(),
+                    };
+                    blocked.insert(cur_pt);
+                }
             }
         }
+
+        Ok(("", blocked))
     }
 
-    Ok(("", blocked))
-}
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, blocked) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let mut blocked = blocked.clone();
-    let mut sand_particle_idx = 0;
+    #[solver(part1, gen)]
+    pub fn solve_part1(blocked: &Input) -> u32 {
+        let mut blocked = blocked.clone();
+        let mut sand_particle_idx = 0;
 
-    let abyss = blocked.iter().map(|coord| coord.y).max().unwrap();
-    let mut sand = IVec2 { x: 500, y: 0 };
-    let mut sand_path: Vec<IVec2> = vec![];
+        let abyss = blocked.iter().map(|coord| coord.y).max().unwrap();
+        let mut sand = IVec2 { x: 500, y: 0 };
+        let mut sand_path: Vec<IVec2> = vec![];
 
-    while sand.y < abyss {
-        let drop_below = IVec2 {
-            x: sand.x,
-            y: sand.y + 1,
-        };
-        let drop_left = IVec2 {
-            x: sand.x - 1,
-            y: sand.y + 1,
-        };
-        let drop_right = IVec2 {
-            x: sand.x + 1,
-            y: sand.y + 1,
-        };
-        if !blocked.contains(&drop_below) {
-            sand_path.push(sand);
-            sand = drop_below;
-        } else if !blocked.contains(&drop_left) {
-            sand_path.push(sand);
-            sand = drop_left;
-        } else if !blocked.contains(&drop_right) {
-            sand_path.push(sand);
-            sand = drop_right;
-        } else {
-            blocked.insert(sand);
-            sand_particle_idx += 1;
-
-            sand = if let Some(pt) = sand_path.pop() {
-                pt
-            } else {
-                IVec2 { x: 500, y: 0 }
+        while sand.y < abyss {
+            let drop_below = IVec2 {
+                x: sand.x,
+                y: sand.y + 1,
             };
-        }
-    }
-
-    Ok(sand_particle_idx.into())
-}
-
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, blocked) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let mut blocked = blocked.clone();
-    let mut sand_particle_idx = 0;
-
-    let abyss = blocked.iter().map(|coord| coord.y).max().unwrap() + 2;
-    let mut sand = IVec2 { x: 500, y: 0 };
-    let mut sand_path: Vec<IVec2> = vec![];
-
-    loop {
-        let drop_below = IVec2 {
-            x: sand.x,
-            y: sand.y + 1,
-        };
-        let drop_left = IVec2 {
-            x: sand.x - 1,
-            y: sand.y + 1,
-        };
-        let drop_right = IVec2 {
-            x: sand.x + 1,
-            y: sand.y + 1,
-        };
-        if sand.y == abyss - 1 {
-            if let Some(pt) = sand_path.pop() {
+            let drop_left = IVec2 {
+                x: sand.x - 1,
+                y: sand.y + 1,
+            };
+            let drop_right = IVec2 {
+                x: sand.x + 1,
+                y: sand.y + 1,
+            };
+            if !blocked.contains(&drop_below) {
+                sand_path.push(sand);
+                sand = drop_below;
+            } else if !blocked.contains(&drop_left) {
+                sand_path.push(sand);
+                sand = drop_left;
+            } else if !blocked.contains(&drop_right) {
+                sand_path.push(sand);
+                sand = drop_right;
+            } else {
                 blocked.insert(sand);
                 sand_particle_idx += 1;
-                sand = pt;
-            } else {
-                break;
-            }
-            continue;
-        } else if !blocked.contains(&drop_below) {
-            sand_path.push(sand);
-            sand = drop_below;
-        } else if !blocked.contains(&drop_left) {
-            sand_path.push(sand);
-            sand = drop_left;
-        } else if !blocked.contains(&drop_right) {
-            sand_path.push(sand);
-            sand = drop_right;
-        } else {
-            blocked.insert(sand);
-            sand_particle_idx += 1;
 
-            sand = if let Some(pt) = sand_path.pop() {
-                pt
-            } else {
-                break;
-            };
+                sand = if let Some(pt) = sand_path.pop() {
+                    pt
+                } else {
+                    IVec2 { x: 500, y: 0 }
+                };
+            }
         }
+
+        sand_particle_idx
     }
 
-    Ok(sand_particle_idx.into())
+    #[solver(part2, gen)]
+    pub fn solve_part2(blocked: &Input) -> u32 {
+        let mut blocked = blocked.clone();
+        let mut sand_particle_idx = 0;
+
+        let abyss = blocked.iter().map(|coord| coord.y).max().unwrap() + 2;
+        let mut sand = IVec2 { x: 500, y: 0 };
+        let mut sand_path: Vec<IVec2> = vec![];
+
+        loop {
+            let drop_below = IVec2 {
+                x: sand.x,
+                y: sand.y + 1,
+            };
+            let drop_left = IVec2 {
+                x: sand.x - 1,
+                y: sand.y + 1,
+            };
+            let drop_right = IVec2 {
+                x: sand.x + 1,
+                y: sand.y + 1,
+            };
+            if sand.y == abyss - 1 {
+                if let Some(pt) = sand_path.pop() {
+                    blocked.insert(sand);
+                    sand_particle_idx += 1;
+                    sand = pt;
+                } else {
+                    break;
+                }
+                continue;
+            } else if !blocked.contains(&drop_below) {
+                sand_path.push(sand);
+                sand = drop_below;
+            } else if !blocked.contains(&drop_left) {
+                sand_path.push(sand);
+                sand = drop_left;
+            } else if !blocked.contains(&drop_right) {
+                sand_path.push(sand);
+                sand = drop_right;
+            } else {
+                blocked.insert(sand);
+                sand_particle_idx += 1;
+
+                sand = if let Some(pt) = sand_path.pop() {
+                    pt
+                } else {
+                    break;
+                };
+            }
+        }
+
+        sand_particle_idx
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -163,30 +179,12 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 24.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 24);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 93.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2022, 14)?;
-        assert_eq!(super::part_1(input.as_str())?, 793.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2022, 14)?;
-        assert_eq!(super::part_2(input.as_str())?, 24166.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 93);
     }
 }

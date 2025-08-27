@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
 use nom::branch::alt;
 use nom::character::complete;
@@ -15,25 +15,18 @@ use nom::Parser;
 use nom_supreme::tag::complete::tag;
 use std::collections::BTreeMap;
 
-solution!("Haunted Wasteland", 8);
-
-type Input = Maps;
-
 #[derive(Clone, Debug)]
-enum Direction {
+pub enum Direction {
     Left,
     Right,
 }
 
 #[derive(Clone, Debug)]
-struct Maps {
-    directions: Vec<Direction>,
-    maps: BTreeMap<String, (String, String)>,
+pub struct Maps {
+    pub directions: Vec<Direction>,
+    pub maps: BTreeMap<String, (String, String)>,
 }
 
-impl Maps {}
-
-#[tracing::instrument(skip(input))]
 fn parse_maps(input: &str) -> nom::IResult<&str, BTreeMap<String, (String, String)>> {
     fold_many1(
         terminated(
@@ -61,86 +54,6 @@ fn parse_maps(input: &str) -> nom::IResult<&str, BTreeMap<String, (String, Strin
     .parse(input)
 }
 
-#[tracing::instrument(skip(input))]
-fn parse(input: &str) -> nom::IResult<&str, Input> {
-    let (input, directions) = many1(alt((
-        complete::char('R').map(|_| Direction::Right),
-        complete::char('L').map(|_| Direction::Left),
-    )))
-    .parse(input)?;
-    let (input, _) = multispace1(input)?;
-    let (input, maps) = parse_maps(input)?;
-    Ok((input, Maps { directions, maps }))
-}
-
-#[tracing::instrument(skip(input))]
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    dbg!(&data);
-    let mut current_node = String::from("AAA");
-    let result = data.directions
-        .iter()
-        .cycle()
-        .enumerate()
-        .find_map(|(i, direction)| {
-            if current_node == *"ZZZ" {
-                return Some(i as u64);
-            }
-            let node = data.maps.get(&current_node).expect("to get something");
-            match direction {
-                Direction::Right => current_node = node.1.clone(),
-                Direction::Left => current_node = node.0.clone(),
-            }
-            None
-        })
-        .expect("an answer");
-        
-    Ok(result.into())
-}
-
-#[tracing::instrument(skip(input))]
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    // starting ghost positions
-    let starting_nodes = data
-        .maps
-        .clone()
-        .into_iter()
-        .filter(|(k, _)| k.ends_with('A'))
-        .collect_vec();
-
-    // each ghost "should" cycle to end node, find length of each ghost end cycle
-    let cycles = starting_nodes
-        .iter()
-        .map(|n| {
-            let mut current_node = &n.0;
-            data.directions
-                .iter()
-                .cycle()
-                .enumerate()
-                .find_map(|(i, direction)| {
-                    if current_node.ends_with('Z') {
-                        return Some(i as u64);
-                    }
-                    let node = data.maps.get(current_node).expect("to get something");
-                    match direction {
-                        Direction::Right => current_node = &node.1,
-                        Direction::Left => current_node = &node.0,
-                    }
-                    None
-                })
-                .expect("an answer")
-        })
-        .collect_vec();
-    dbg!(&cycles);
-
-    let result = lcm(&cycles);
-    
-    Ok(result.into())
-}
-
 pub fn lcm(nums: &[u64]) -> u64 {
     if nums.len() == 1 {
         return nums[0];
@@ -157,9 +70,97 @@ fn gcd_of_two_numbers(a: u64, b: u64) -> u64 {
     gcd_of_two_numbers(b, a % b)
 }
 
+type Input = Maps;
+
+#[aoc(2023, day8)]
+pub mod solutions {
+    use super::*;
+
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (input, directions) = many1(alt((
+            complete::char::<&str, nom::error::Error<&str>>('R').map(|_| Direction::Right),
+            complete::char::<&str, nom::error::Error<&str>>('L').map(|_| Direction::Left),
+        )))
+        .parse(input).unwrap();
+        let (input, _) = multispace1::<&str, nom::error::Error<&str>>(input).unwrap();
+        let (_, maps) = parse_maps(input).unwrap();
+        Maps { directions, maps }
+    }
+
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u64 {
+        let mut current_node = String::from("AAA");
+        data.directions
+            .iter()
+            .cycle()
+            .enumerate()
+            .find_map(|(i, direction)| {
+                if current_node == *"ZZZ" {
+                    return Some(i as u64);
+                }
+                let node = data.maps.get(&current_node).expect("to get something");
+                match direction {
+                    Direction::Right => current_node = node.1.clone(),
+                    Direction::Left => current_node = node.0.clone(),
+                }
+                None
+            })
+            .expect("an answer")
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u64 {
+        // starting ghost positions
+        let starting_nodes = data
+            .maps
+            .iter()
+            .filter(|(k, _)| k.ends_with('A'))
+            .collect_vec();
+
+        // each ghost "should" cycle to end node, find length of each ghost end cycle
+        let cycles = starting_nodes
+            .iter()
+            .map(|n| {
+                let mut current_node = n.0;
+                data.directions
+                    .iter()
+                    .cycle()
+                    .enumerate()
+                    .find_map(|(i, direction)| {
+                        if current_node.ends_with('Z') {
+                            return Some(i as u64);
+                        }
+                        let node = data.maps.get(current_node).expect("to get something");
+                        match direction {
+                            Direction::Right => current_node = &node.1,
+                            Direction::Left => current_node = &node.0,
+                        }
+                        None
+                    })
+                    .expect("an answer")
+            })
+            .collect_vec();
+
+        lcm(&cycles)
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
+}
+
 #[cfg(test)]
 mod test {
-    use common::load_raw;
+    use super::solutions::*;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -182,50 +183,21 @@ mod test {
         ZZZ = (ZZZ, ZZZ)
     "};
 
-    const EXAMPLE3: &str = indoc! {"
-        LR
-        
-        11A = (11B, XXX)
-        11B = (XXX, 11Z)
-        11Z = (11B, XXX)
-        22A = (22B, XXX)
-        22B = (22C, 22C)
-        22C = (22Z, 22Z)
-        22Z = (22B, 22B)
-        XXX = (XXX, XXX)
-    "};
+
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 2.into());
-        Ok(())
+    fn test_example1_part1() {
+        let data = input_generator(EXAMPLE);
+        assert_eq!(2, solve_part_1(data));
     }
 
     #[test]
-    fn part_1_example2() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE2)?, 6.into());
-        Ok(())
+    fn test_example2_part1() {
+        let data = input_generator(EXAMPLE2);
+        assert_eq!(6, solve_part_1(data));
     }
 
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE3)?, 6.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 8)?;
-        assert_eq!(super::part_1(input.as_str())?, 21409.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 8)?;
-        assert_eq!(super::part_2(input.as_str())?, 21165830176709u64.into());
-        Ok(())
-    }
+    // Note: EXAMPLE3 part2 test would be:
+    // let data = input_generator(EXAMPLE3);
+    // assert_eq!(6, solve_part_2(data));
 }

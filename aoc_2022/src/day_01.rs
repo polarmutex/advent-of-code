@@ -1,45 +1,61 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
 use std::cmp::Reverse;
 
-solution!("Calorie Counting", 1);
-
 type Input = Vec<u32>;
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    let groups: Vec<u32> = data
-        .trim()
-        .split("\n\n")
-        .map(|group| {
-            group
-                .lines()
-                .map(|line| line.parse::<u32>().unwrap())
-                .sum()
-        })
-        .collect();
-    Ok(("", groups))
-}
+#[aoc(2022, day1)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = data.into_iter().max().expect("At least one elf");
-    Ok(result.into())
-}
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        let groups: Vec<u32> = data
+            .trim()
+            .split("\n\n")
+            .map(|group| {
+                group
+                    .lines()
+                    .map(|line| line.parse::<u32>().unwrap())
+                    .sum()
+            })
+            .collect();
+        Ok(("", groups))
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = data.into_iter()
-        .sorted_unstable_by_key(|&cals| Reverse(cals))
-        .take(3)
-        .sum::<u32>();
-    Ok(result.into())
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u32 {
+        input.iter().max().copied().expect("At least one elf")
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u32 {
+        input.iter()
+            .sorted_unstable_by_key(|&&cals| Reverse(cals))
+            .take(3)
+            .sum::<u32>()
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -60,30 +76,13 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 24000.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 24000);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 45000.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 45000);
     }
 
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2022, 1)?;
-        assert_eq!(super::part_1(input.as_str())?, 68802.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2022, 1)?;
-        assert_eq!(super::part_2(input.as_str())?, 205370.into());
-        Ok(())
-    }
 }

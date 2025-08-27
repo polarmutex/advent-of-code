@@ -5,9 +5,10 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
+aoc-runner = { path = "../aoc-runner" }
+aoc-runner-macros = { path = "../aoc-runner-macros" }
 aoc_lib.workspace = true
 bitvec.workspace = true
-common.workspace = true
 ctor.workspace = true
 glam.workspace = true
 hex.workspace = true

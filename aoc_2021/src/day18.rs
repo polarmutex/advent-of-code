@@ -1,5 +1,5 @@
 use core::fmt;
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use nom::IResult;
 use itertools::Itertools;
 use nom::{
@@ -9,7 +9,7 @@ use nom::{
 };
 use std::{iter::Sum, ops::Add};
 
-solution!("Snailfish", 18);
+type Input = Vec<Snailfish>;
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 enum Snailfish {
@@ -418,7 +418,11 @@ fn snailfish(input: &str) -> IResult<&str, Snailfish> {
     Ok((input, fish_number))
 }
 
-fn parse(input: &str) -> IResult<&str, Vec<Snailfish>> {
+#[aoc(2021, day18)]
+pub mod solutions {
+    use super::*;
+
+    fn parse(input: &str) -> nom::IResult<&str, Input> {
         let snailfishes = input
             .lines()
             .map(|line| snailfish(line).unwrap().1)
@@ -426,18 +430,39 @@ fn parse(input: &str) -> IResult<&str, Vec<Snailfish>> {
         Ok(("", snailfishes))
     }
 
-fn part_1(input: Vec<Snailfish>) -> Answer {
-        let fish: Snailfish = input.iter().map(|sf| sf.clone()).sum();
-        Answer::Number(fish.magnitude() as u64)
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
     }
 
-fn part_2(input: Vec<Snailfish>) -> Answer {
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u64 {
+        let fish: Snailfish = input.iter().map(|sf| sf.clone()).sum();
+        fish.magnitude() as u64
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u64 {
         let max = input
             .iter()
             .cartesian_product(input.clone())
             .map(|(a, b)| (a.clone() + b.clone()).reduce_all_the_way().magnitude())
             .max();
-        Answer::Number(max.unwrap() as u64)
+        max.unwrap() as u64
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
@@ -459,13 +484,11 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_1(input), Answer::Number(4140));
+        assert_eq!(solutions::part_1(EXAMPLE), 4140);
     }
 
     #[test]
     fn test_part_2() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_2(input), Answer::Number(3993));
+        assert_eq!(solutions::part_2(EXAMPLE), 3993);
     }
 }

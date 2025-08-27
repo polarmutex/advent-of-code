@@ -141,7 +141,7 @@ impl WorkspaceMeta {
     pub fn get_input_file_for_day(&self, year: &u16, day: &u8) -> Utf8PathBuf {
         let mut input_loc = self.get_input_folder_location();
         input_loc.push(year.to_string());
-        input_loc.push(format!("{}.txt", day));
+        input_loc.push(format!("{day}.txt"));
 
         input_loc
     }

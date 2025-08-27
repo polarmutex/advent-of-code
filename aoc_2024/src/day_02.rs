@@ -1,53 +1,70 @@
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use core::panic;
-
-use common::{solution, Answer};
 use itertools::Itertools;
-use miette::miette;
 use nom::character::complete;
 use nom::character::complete::space1;
 use nom::multi::separated_list1;
 use nom::IResult;
 use tracing::instrument;
 
-solution!("Red-Nosed Reports", 2);
-
 type Report = Vec<u32>;
-fn parse(input: &str) -> IResult<&str, Vec<Report>> {
-    separated_list1(
-        complete::line_ending,
-        separated_list1(space1, complete::u32),
-    )(input)
-}
 
-#[tracing::instrument(skip(input))]
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, reports) = parse(input).map_err(|e| miette!("parse failed {}", e))?;
-    // dbg!(&reports);
-    Ok(reports.iter().filter(|r| check(r).is_ok()).count().into())
-}
+#[aoc(2024, day2)]
+pub mod solutions {
+    use super::*;
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, reports) = parse(input).map_err(|e| miette!("parse failed {}", e))?;
-    Ok(reports
-        .iter()
-        .filter(|r| {
-            if check(r).is_err() {
-                for i in 0..r.len() {
-                    let mut nr = (*r).clone();
-                    nr.remove(i);
-                    if check(&nr).is_ok() {
-                        return true;
-                    } else {
-                        continue;
+    fn parse(input: &str) -> IResult<&str, Vec<Report>> {
+        separated_list1(
+            complete::line_ending,
+            separated_list1(space1, complete::u32),
+        )(input)
+    }
+
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Vec<Report> {
+        let (_, reports) = parse(input).unwrap();
+        reports
+    }
+
+    #[solver(part1, main)]
+    pub fn solve_part_1(reports: Vec<Report>) -> usize {
+        reports.iter().filter(|r| check(r).is_ok()).count()
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(reports: Vec<Report>) -> usize {
+        reports
+            .iter()
+            .filter(|r| {
+                if check(r).is_err() {
+                    for i in 0..r.len() {
+                        let mut nr = (*r).clone();
+                        nr.remove(i);
+                        if check(&nr).is_ok() {
+                            return true;
+                        } else {
+                            continue;
+                        }
                     }
+                    false
+                } else {
+                    true
                 }
-                false
-            } else {
-                true
-            }
-        })
-        .count()
-        .into())
+            })
+            .count()
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> usize {
+        let reports = input_generator(input);
+        solve_part_1(reports)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> usize {
+        let reports = input_generator(input);
+        solve_part_2(reports)
+    }
 }
 
 enum Direction {
@@ -111,48 +128,14 @@ fn check(report: &Report) -> Result<(), String> {
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
+mod tests {
+    use aoc_runner_macros::aoc_case;
 
-    const CASE: &str = indoc! {"
-        7 6 4 2 1
-        1 2 7 8 9
-        9 7 6 2 1
-        1 3 2 4 5
-        8 6 4 4 1
-        1 3 6 7 9
-    "};
-
-    #[test]
-    // #[test_log::test]
-    fn part_1_case() -> miette::Result<()> {
-        assert_eq!(super::part_1(CASE)?, 2.into());
-        Ok(())
-    }
-
-    #[test]
-    // #[test_log::test]
-    fn part_2_case() -> miette::Result<()> {
-        assert_eq!(super::part_2(CASE)?, 4.into());
-        Ok(())
-    }
-
-    #[test]
-    // #[test_log::test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2024, 2)?;
-        assert_eq!(super::part_1(input.as_str())?, 321.into());
-        Ok(())
-    }
-
-    #[test]
-    // #[test_log::test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2024, 2)?;
-        assert_eq!(super::part_2(input.as_str())?, 386.into());
-        Ok(())
-    }
+    #[aoc_case(2, 4)]
+    const CASE: &str = "7 6 4 2 1
+1 2 7 8 9
+9 7 6 2 1
+1 3 2 4 5
+8 6 4 4 1
+1 3 6 7 9";
 }

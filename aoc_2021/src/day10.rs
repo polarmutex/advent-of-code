@@ -1,23 +1,17 @@
-use common::{solution, Answer};
-use nom::IResult;
-use itertools::Itertools;
+use aoc_runner_macros::{aoc, generator, solver, solution};
+use nom::{IResult, character::complete::{self, one_of, char}, error::context, multi::many1, bytes::complete::tag};
 use std::{collections::HashMap, fmt};
+use nom_supreme::error::{ErrorTree, StackContext::Context};
+use itertools::Itertools;
 
-use nom::{
-    character::{
-        complete::{self},
-        streaming::{char, one_of},
-    },
-    error::context,
-    multi::many1,
-};
-use nom_supreme::error::ErrorTree;
-use nom_supreme::error::StackContext::Context;
-use nom_supreme::tag::streaming::tag;
+type Input = Vec<String>;
 
-solution!("Syntax Scoring", 10);
 
 pub type IResultSpecial<'a, T> = nom::IResult<&'a str, T, ErrorTree<&'a str>>;
+
+#[aoc(2021, day10)]
+pub mod solutions {
+    use super::*;
 
 fn chunk(original_input: &str) -> IResultSpecial<()> {
     let (input, open_char) = one_of("({<[")(original_input)?;
@@ -155,12 +149,13 @@ fn chunk_2(original_input: &str) -> IResult<&str, Ast> {
     }
 }
 
-fn parse(input: &str) -> IResult<&str, Vec<String>> {
-    Ok(("", input.lines().map(|l| l.to_string()).collect_vec()))
-}
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        input.lines().map(|l| l.to_string()).collect_vec()
+    }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u32 {
         let scoring: HashMap<char, u32> =
             HashMap::from([(')', 3), (']', 57), ('}', 1197), ('>', 25137)]);
         let results: u32 = input
@@ -180,11 +175,11 @@ fn part_1(input: &str) -> miette::Result<Answer> {
                 _ => panic!("uh oh"),
             })
             .sum();
-    Ok((results as u64).into())
-}
+        results
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u64 {
         let mut results: Vec<u64> = input
             .iter()
             .map(|line| {
@@ -226,12 +221,25 @@ fn part_2(input: &str) -> miette::Result<Answer> {
             })
             .collect();
         results.sort();
-    Ok((results[results.len() / 2]).into())
+        results[results.len() / 2]
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+
 
     const EXAMPLE: &str = "\
 [({(<(())[]>[[{[]{<()<>>
@@ -247,13 +255,11 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(26397));
+        assert_eq!(super::solutions::part_1(EXAMPLE), 26397);
     }
 
     #[test]
     fn test_part_2() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(288957));
+        assert_eq!(super::solutions::part_2(EXAMPLE), 288957);
     }
 }

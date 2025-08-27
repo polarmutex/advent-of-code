@@ -28,7 +28,7 @@ pub fn login<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, _cli: 
     let (mut stdin, mut stdout) = (readfn(), writefn());
 
     let mut store = SessionFileCookieStore::new()?;
-    write!(&mut stdout, "{}", AUTH_MESSAGE)?;
+    write!(&mut stdout, "{AUTH_MESSAGE}")?;
     stdout.flush()?;
 
     let mut cookie: String = String::new();
@@ -44,7 +44,7 @@ pub fn input<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, cli: A
     println!("Attempting to download input file: {:?}", &cli);
     let store = SessionFileCookieStore::new()?;
     let stored_session = store.get_session_cookie()?;
-    if stored_session == "" {
+    if stored_session.is_empty() {
         println!("Could not find session, logging in.");
         login(readfn, writefn, cli.clone())?;
     } else {
@@ -57,7 +57,7 @@ pub fn input<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, cli: A
     //URL: https://adventofcode.com/2022/day/22/input
 
     let jar = Jar::default();
-    let cookie = format!("session={}", session);
+    let cookie = format!("session={session}");
     let url = "https://adventofcode.com".parse::<Url>().unwrap();
     jar.add_cookie_str(&cookie, &url);
     let store = Arc::new(jar);
@@ -92,13 +92,13 @@ pub fn input<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, cli: A
                 min(date_est.day() as u8, 25u8)
             } else {
                 // Current date is the 25th of the previous year.
-                year = year - 1;
+                year -= 1;
                 25u8
             }
         }
     };
 
-    let input_url = format!("https://adventofcode.com/{}/day/{}/input", year, day);
+    let input_url = format!("https://adventofcode.com/{year}/day/{day}/input");
     let response = client.get(input_url).send()?;
 
     if response.status().is_success() {
@@ -144,7 +144,7 @@ pub fn prepare<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, _cli
 
     let year = _cli
         .year
-        .and_then(|y| Some(y as u32))
+        .map(|y| y as u32)
         .or_else(|| match (stamp.month(), stamp.hour()) {
             (11, _) => Some(stamp.year() as u32),
             (12, _) => Some(stamp.year() as u32),
@@ -154,7 +154,7 @@ pub fn prepare<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, _cli
 
     let day = _cli
         .day
-        .and_then(|d| Some(d as u32))
+        .map(|d| d as u32)
         .or_else(|| match (stamp.month(), stamp.hour()) {
             (11, _) => Some(1u32),
             (12, 23) => Some((stamp.day() + 1).clamp(1, 25)),
@@ -169,7 +169,7 @@ pub fn prepare<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, _cli
     let year_root = workspace_root.join(year.to_string());
 
     if !year_root.exists() {
-        create_dir_all(&year_root.join("src"))?;
+        create_dir_all(year_root.join("src"))?;
         populate_year_package(&year_root, year)?;
     }
 
@@ -179,7 +179,7 @@ pub fn prepare<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, _cli
 
     // If the day doesn't exist yet, generate a binary for it (new file, edit package Cargo.toml)
     let meta = WorkspaceMeta::load()?;
-    let day_file = year_root.join("src").join(format!("day{}.rs", day));
+    let day_file = year_root.join("src").join(format!("day{day}.rs"));
 
     if !day_file.exists() {
         generate_day_file(&day_file, year, day)?;
@@ -208,7 +208,7 @@ pub fn prepare<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, _cli
             };
             let res = input(readfn, writefn, input_args);
             if let Err(e) = res {
-                println!("Error while downloading input: {}", e);
+                println!("Error while downloading input: {e}");
             }
         }
     }
@@ -254,13 +254,13 @@ pub fn run<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, cli: Aoc
     // Figure out which year we're in
     let pack = match cli.year {
         None => data.current_package().ok_or(RunError::NoYearsFound),
-        Some(y) => data.get_year_map().get(&y).map(|&p| p).ok_or(RunError::YearNotFound),
+        Some(y) => data.get_year_map().get(&y).copied().ok_or(RunError::YearNotFound),
     }?;
 
     // Figure out the selected day
-    let Some(&ref target) = (match cli.day {
+    let Some(target) = (match cli.day {
         None => data.get_target_for_latest_day(pack),
-        Some(d) => data.get_day_map(pack).get(&d).map(|&p| p),
+        Some(d) => data.get_day_map(pack).get(&d).copied(),
     }) else {
         return Err(RunError::NoTargetsFound.into());
     };

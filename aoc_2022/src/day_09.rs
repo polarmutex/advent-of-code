@@ -1,9 +1,7 @@
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use ahash::AHashSet;
-use common::{solution, Answer};
 use glam::IVec2;
 use std::str::FromStr;
-
-solution!("Rope Bridge", 9);
 
 #[derive(Clone, Debug)]
 enum Direction {
@@ -13,31 +11,31 @@ enum Direction {
     Down,
 }
 impl std::str::FromStr for Direction {
-    type Err = miette::Error;
+    type Err = String;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         match input {
             "R" => Ok(Direction::Right),
             "L" => Ok(Direction::Left),
             "U" => Ok(Direction::Up),
             "D" => Ok(Direction::Down),
-            _ => miette::bail!("Could not match direction"),
+            _ => Err("Could not match direction".to_string()),
         }
     }
 }
 
 #[derive(Clone, Debug)]
-struct Motion {
+pub struct Motion {
     direction: Direction,
     num: u32,
 }
 
 impl FromStr for Motion {
-    type Err = miette::Error;
+    type Err = String;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let (left, right) = input.split_once(' ').expect("invalid input for motion");
         let motion = Motion {
             direction: left.parse::<Direction>()?,
-            num: right.parse::<u32>().map_err(|e| miette::miette!("Parse error: {}", e))?,
+            num: right.parse::<u32>().unwrap(),
         };
         Ok(motion)
     }
@@ -82,55 +80,75 @@ fn move_knot(mut knot: IVec2, prev: IVec2) -> IVec2 {
 
 type Input = Vec<Motion>;
 
-fn parse(input: &str) -> nom::IResult<&str, Input> {
-    let motions = input
-        .lines()
-        .map(|line| line.parse::<Motion>().expect("valid motion line"))
-        .collect();
-    Ok(("", motions))
-}
+#[aoc(2022, day9)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let mut visited: AHashSet<IVec2> = AHashSet::new();
-    let mut head: IVec2 = IVec2 { x: 0, y: 0 };
-    let mut tail: IVec2 = IVec2 { x: 0, y: 0 };
-    for motion in data {
-        for _ in 0..motion.num {
-            // Move head
-            head = move_head(head, &motion.direction);
-            tail = move_knot(tail, head);
-            visited.insert(tail);
-        }
+    fn parse(input: &str) -> nom::IResult<&str, Input> {
+        let motions = input
+            .lines()
+            .map(|line| line.parse::<Motion>().expect("valid motion line"))
+            .collect();
+        Ok(("", motions))
     }
-    Ok((visited.iter().count() as u32).into())
-}
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let mut visited: AHashSet<IVec2> = AHashSet::new();
-    let mut head: IVec2 = IVec2 { x: 0, y: 0 };
-    let mut knots: Vec<IVec2> = vec![IVec2 { x: 0, y: 0 }; 9];
-    for motion in data {
-        for _ in 0..motion.num {
-            // Move head
-            head = move_head(head, &motion.direction);
-            let mut prev_knot = head;
-            for knot in knots.iter_mut() {
-                *knot = move_knot(*knot, prev_knot);
-                prev_knot = *knot
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u32 {
+        let mut visited: AHashSet<IVec2> = AHashSet::new();
+        let mut head: IVec2 = IVec2 { x: 0, y: 0 };
+        let mut tail: IVec2 = IVec2 { x: 0, y: 0 };
+        for motion in input {
+            for _ in 0..motion.num {
+                // Move head
+                head = move_head(head, &motion.direction);
+                tail = move_knot(tail, head);
+                visited.insert(tail);
             }
-            visited.insert(*knots.last().unwrap());
         }
+        visited.iter().count() as u32
     }
-    Ok((visited.iter().count() as u32).into())
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u32 {
+        let mut visited: AHashSet<IVec2> = AHashSet::new();
+        let mut head: IVec2 = IVec2 { x: 0, y: 0 };
+        let mut knots: Vec<IVec2> = vec![IVec2 { x: 0, y: 0 }; 9];
+        for motion in input {
+            for _ in 0..motion.num {
+                // Move head
+                head = move_head(head, &motion.direction);
+                let mut prev_knot = head;
+                for knot in knots.iter_mut() {
+                    *knot = move_knot(*knot, prev_knot);
+                    prev_knot = *knot
+                }
+                visited.insert(*knots.last().unwrap());
+            }
+        }
+        visited.iter().count() as u32
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -145,30 +163,12 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 13.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 88);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 1.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2022, 9)?;
-        assert_eq!(super::part_1(input.as_str())?, 6018.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2022, 9)?;
-        assert_eq!(super::part_2(input.as_str())?, 2619.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 36);
     }
 }

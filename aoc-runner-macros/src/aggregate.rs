@@ -44,7 +44,9 @@ impl<'a> AocSolutionsAggregation<'a> {
     pub fn p1_composed_solns(&self) -> impl Iterator<Item = (&AocGeneratorData<'a>, &AocSolverData<'a>)> {
         self.generators.iter().flat_map(|(ty, gens)| {
             if !self.solvers_p1.contains_key(*ty) {
-                println!("WARNING: Generator type has no corresponding solvers:\n{:#?}", &ty);
+                if cfg!(debug_assertions) && std::env::var("AOC_DEBUG_SOLVERS").is_ok() {
+                    println!("WARNING: Generator type has no corresponding part1 solvers:\n{:#?}", &ty);
+                }
                 vec![].into_iter()
             } else {
                 gens.iter()
@@ -58,7 +60,9 @@ impl<'a> AocSolutionsAggregation<'a> {
     pub fn p2_composed_solns(&self) -> impl Iterator<Item = (&AocGeneratorData<'a>, &AocSolverData<'a>)> {
         self.generators.iter().flat_map(|(ty, gens)| {
             if !self.solvers_p2.contains_key(*ty) {
-                println!("WARNING: Generator type has no corresponding solvers:\n{:#?}", &ty);
+                if cfg!(debug_assertions) && std::env::var("AOC_DEBUG_SOLVERS").is_ok() {
+                    println!("WARNING: Generator type has no corresponding part2 solvers:\n{:#?}", &ty);
+                }
                 vec![].into_iter()
             } else {
                 gens.iter()
@@ -155,11 +159,11 @@ pub fn discover_mod_contents(module: &ItemMod) -> syn::Result<AocSolutionsAggreg
     }
 
     Ok(AocSolutionsAggregation {
-        solutions_p1: solutions_p1,
-        solutions_p2: solutions_p2,
-        generators: generators,
-        solvers_p1: solvers_p1,
-        solvers_p2: solvers_p2,
+        solutions_p1,
+        solutions_p2,
+        generators,
+        solvers_p1,
+        solvers_p2,
         p1_result_type: p1_solution_type,
         p2_result_type: p2_solution_type,
     })

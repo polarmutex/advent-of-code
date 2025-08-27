@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use glam::IVec2;
 use itertools::Itertools;
 use nom::branch::alt;
@@ -12,22 +12,20 @@ use nom_locate::LocatedSpan;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-solution!("Gear Ratios", 3);
-
 type Input = Vec<Value>;
 
 type Span<'a> = LocatedSpan<&'a str>;
 // type SpanIVec2 = LocatedSpan<String, IVec2>;
 
 #[derive(Clone, Debug, PartialEq)]
-struct SpanWithLoc {
+pub struct SpanWithLoc {
     id: usize,
     fragment: String,
     pos: IVec2,
 }
 
 #[derive(Clone, Debug, PartialEq)]
-enum Value {
+pub enum Value {
     Empty,
     Symbol(SpanWithLoc),
     Number(SpanWithLoc),
@@ -65,142 +63,130 @@ fn parse_grid(input: Span) -> nom::IResult<Span, Vec<Value>> {
     res.map(|(input, _)| (input, parsed))
 }
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    let potential_parts = parse_grid(Span::new(data)).unwrap().1;
-    Ok(("", potential_parts))
-}
+#[aoc(2023, day3)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let symbols = data
-        .iter()
-        .filter_map(|v| match v {
-            Value::Empty => None,
-            Value::Number(_) => None,
-            Value::Symbol(sym) => Some(sym.pos),
-        })
-        .collect::<HashSet<IVec2>>();
-        
-    let result = data.iter()
-        .filter_map(|v| {
-            // return None if non Number
-            let Value::Number(num) = v else {
-                return None;
-            };
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        let potential_parts = parse_grid(Span::new(data)).unwrap().1;
+        Ok(("", potential_parts))
+    }
 
-            let surrounding = [IVec2::new(-1, 0), IVec2::new(num.fragment.len() as i32, 0)]
-                .into_iter()
-                .chain((-1..=num.fragment.len() as i32).map(|x| IVec2::new(x, 1)))
-                .chain((-1..=num.fragment.len() as i32).map(|x| IVec2::new(x, -1)))
-                .map(|pos| pos + num.pos)
-                .collect::<Vec<IVec2>>();
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
 
-            surrounding
-                .iter()
-                .any(|pos| symbols.contains(pos))
-                .then_some(num.fragment.parse::<u32>().expect("should be number"))
-        })
-        .sum::<u32>();
-        
-    Ok(result.into())
-}
-
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let numbers = data
-        .iter()
-        .filter_map(|v| match v {
-            Value::Empty => None,
-            Value::Number(v) => Some(v),
-            Value::Symbol(_) => None,
-        })
-        .flat_map(|v| {
-            (v.pos.x..(v.pos.x + v.fragment.len() as i32)).map(move |x| {
-                (
-                    IVec2::new(x, v.pos.y),
-                    (v.id, v.fragment.clone().parse::<u32>().expect("a number")),
-                )
-            })
-        })
-        .collect::<HashMap<IVec2, (usize, u32)>>();
-        
-    let result = data.iter()
-        .filter_map(|v| {
-            let Value::Symbol(sym) = v else {
-                return None;
-            };
-            if sym.fragment != "*" {
-                return None;
-            }
-
-            let matching = [
-                IVec2::new(1, 0),
-                IVec2::new(1, -1),
-                IVec2::new(0, -1),
-                IVec2::new(-1, -1),
-                IVec2::new(-1, 0),
-                IVec2::new(-1, 1),
-                IVec2::new(0, 1),
-                IVec2::new(1, 1),
-            ]
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u32 {
+        let symbols = data
             .iter()
-            .map(|p| sym.pos + *p)
-            .filter_map(|p| numbers.get(&p))
-            .unique()
-            .map(|(_, n)| *n)
-            .collect::<Vec<u32>>();
-            (matching.len() == 2).then_some(matching.iter().product::<u32>())
-        })
-        .sum::<u32>();
-        
-    Ok(result.into())
+            .filter_map(|v| match v {
+                Value::Empty => None,
+                Value::Number(_) => None,
+                Value::Symbol(sym) => Some(sym.pos),
+            })
+            .collect::<HashSet<IVec2>>();
+            
+        data.iter()
+            .filter_map(|v| {
+                // return None if non Number
+                let Value::Number(num) = v else {
+                    return None;
+                };
+
+                let surrounding = [IVec2::new(-1, 0), IVec2::new(num.fragment.len() as i32, 0)]
+                    .into_iter()
+                    .chain((-1..=num.fragment.len() as i32).map(|x| IVec2::new(x, 1)))
+                    .chain((-1..=num.fragment.len() as i32).map(|x| IVec2::new(x, -1)))
+                    .map(|pos| pos + num.pos)
+                    .collect::<Vec<IVec2>>();
+
+                surrounding
+                    .iter()
+                    .any(|pos| symbols.contains(pos))
+                    .then_some(num.fragment.parse::<u32>().expect("should be number"))
+            })
+            .sum::<u32>()
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u32 {
+        let numbers = data
+            .iter()
+            .filter_map(|v| match v {
+                Value::Empty => None,
+                Value::Number(v) => Some(v),
+                Value::Symbol(_) => None,
+            })
+            .flat_map(|v| {
+                (v.pos.x..(v.pos.x + v.fragment.len() as i32)).map(move |x| {
+                    (
+                        IVec2::new(x, v.pos.y),
+                        (v.id, v.fragment.clone().parse::<u32>().expect("a number")),
+                    )
+                })
+            })
+            .collect::<HashMap<IVec2, (usize, u32)>>();
+            
+        data.iter()
+            .filter_map(|v| {
+                let Value::Symbol(sym) = v else {
+                    return None;
+                };
+                if sym.fragment != "*" {
+                    return None;
+                }
+
+                let matching = [
+                    IVec2::new(1, 0),
+                    IVec2::new(1, -1),
+                    IVec2::new(0, -1),
+                    IVec2::new(-1, -1),
+                    IVec2::new(-1, 0),
+                    IVec2::new(-1, 1),
+                    IVec2::new(0, 1),
+                    IVec2::new(1, 1),
+                ]
+                .iter()
+                .map(|p| sym.pos + *p)
+                .filter_map(|p| numbers.get(&p))
+                .unique()
+                .map(|(_, n)| *n)
+                .collect::<Vec<u32>>();
+                (matching.len() == 2).then_some(matching.iter().product::<u32>())
+            })
+            .sum::<u32>()
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    
 
-    const EXAMPLE: &str = indoc! {"
-        467..114..
-        ...*......
-        ..35..633.
-        ......#...
-        617*......
-        .....+.58.
-        ..592.....
-        ......755.
-        ...$.*....
-        .664.598..
-    "};
-
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 4361.into());
-        Ok(())
-    }
-
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 467835.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 3)?;
-        assert_eq!(super::part_1(input.as_str())?, 527364.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 3)?;
-        assert_eq!(super::part_2(input.as_str())?, 79026871.into());
-        Ok(())
-    }
+    #[aoc_case(4361, 467835)]
+    const EXAMPLE: &str = "467..114..
+...*......
+..35..633.
+......#...
+617*......
+.....+.58.
+..592.....
+......755.
+...$.*....
+.664.598..";
 }

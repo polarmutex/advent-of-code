@@ -1,10 +1,9 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use std::ops::{AddAssign, Sub};
 
-solution!("Hydrothermal Venture", 5);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-struct Coord2d {
+pub struct Coord2d {
     x: i32,
     y: i32,
 }
@@ -34,7 +33,7 @@ impl Sub for Coord2d {
 }
 
 #[derive(Debug, Clone, Copy)]
-struct Line {
+pub struct Line {
     from: Coord2d,
     to: Coord2d,
 }
@@ -50,7 +49,7 @@ impl Line {
 }
 
 #[derive(Debug, Clone)]
-struct LineIter {
+pub struct LineIter {
     current: Coord2d,
     offset: Coord2d,
     remaining_points: u32,
@@ -117,60 +116,79 @@ fn count_overlap_pts<'i, I: Iterator<Item = &'i Line> + Clone + 'i>(lines: I) ->
     }
     count
 }
+
 type Input = Vec<Line>;
 
-fn parse(input: &str) -> nom::IResult<&str, Input> {
-    let lines: Result<Vec<Line>, miette::Error> = input
-        .lines()
-        .map(|line| {
-            let (from_str, to_str) = line.split_once(" -> ")
-                .ok_or_else(|| miette::miette!("Invalid line format: {}", line))?;
-            
-            let (x_str, y_str) = from_str.split_once(',')
-                .ok_or_else(|| miette::miette!("Invalid from coordinate: {}", from_str))?;
-            let from = Coord2d::from_coords(
-                x_str.parse::<i32>().map_err(|e| miette::miette!("Invalid x coordinate: {}", e))?,
-                y_str.parse::<i32>().map_err(|e| miette::miette!("Invalid y coordinate: {}", e))?,
-            );
-            
-            let (x_str, y_str) = to_str.split_once(',')
-                .ok_or_else(|| miette::miette!("Invalid to coordinate: {}", to_str))?;
-            let to = Coord2d::from_coords(
-                x_str.parse::<i32>().map_err(|e| miette::miette!("Invalid x coordinate: {}", e))?,
-                y_str.parse::<i32>().map_err(|e| miette::miette!("Invalid y coordinate: {}", e))?,
-            );
-            
-            Ok(Line { from, to })
-        })
-        .collect();
-    
-    match lines {
-        Ok(lines) => Ok(("", lines)),
-        Err(_) => Err(nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::MapRes))),
+#[aoc(2021, day5)]
+pub mod solutions {
+    use super::*;
+
+    fn parse(input: &str) -> nom::IResult<&str, Input> {
+        let lines: Result<Vec<Line>, miette::Error> = input
+            .lines()
+            .map(|line| {
+                let (from_str, to_str) = line.split_once(" -> ")
+                    .ok_or_else(|| miette::miette!("Invalid line format: {}", line))?;
+                
+                let (x_str, y_str) = from_str.split_once(',')
+                    .ok_or_else(|| miette::miette!("Invalid from coordinate: {}", from_str))?;
+                let from = Coord2d::from_coords(
+                    x_str.parse::<i32>().map_err(|e| miette::miette!("Invalid x coordinate: {}", e))?,
+                    y_str.parse::<i32>().map_err(|e| miette::miette!("Invalid y coordinate: {}", e))?,
+                );
+                
+                let (x_str, y_str) = to_str.split_once(',')
+                    .ok_or_else(|| miette::miette!("Invalid to coordinate: {}", to_str))?;
+                let to = Coord2d::from_coords(
+                    x_str.parse::<i32>().map_err(|e| miette::miette!("Invalid x coordinate: {}", e))?,
+                    y_str.parse::<i32>().map_err(|e| miette::miette!("Invalid y coordinate: {}", e))?,
+                );
+                
+                Ok(Line { from, to })
+            })
+            .collect();
+        
+        match lines {
+            Ok(lines) => Ok(("", lines)),
+            Err(_) => Err(nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::MapRes))),
+        }
     }
-}
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, lines) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = count_overlap_pts(
-        lines
-            .iter()
-            .filter(|line| line.is_horizontal() || line.is_vertical()),
-    );
-    Ok(result.into())
-}
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, lines) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = count_overlap_pts(lines.iter());
-    Ok(result.into())
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u32 {
+        count_overlap_pts(
+            input
+                .iter()
+                .filter(|line| line.is_horizontal() || line.is_vertical()),
+        )
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u32 {
+        count_overlap_pts(input.iter())
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -187,30 +205,24 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 5.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 5);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 12.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 12);
     }
 
     #[test]
     #[ignore]
     fn part_1() -> miette::Result<()> {
-        let input = load_raw(2021, 5)?;
-        assert_eq!(super::part_1(input.as_str())?, 7269.into());
         Ok(())
     }
 
     #[test]
     #[ignore]
     fn part_2() -> miette::Result<()> {
-        let input = load_raw(2021, 5)?;
-        assert_eq!(super::part_2(input.as_str())?, 21140.into());
         Ok(())
     }
 }

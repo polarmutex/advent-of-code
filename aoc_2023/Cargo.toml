@@ -4,31 +4,26 @@ version = "1.0.0"
 edition = "2021"
 license = "MIT"
 
-[lib]
+[features]
+real-input = []
+
+[[bin]]
 name = "aoc_2023"
-crate-type = ["rlib"]
+path = "src/main.rs"
 
 [dependencies]
-aoc_lib = { workspace = true }
+aoc-runner = { path = "../aoc-runner" }
+aoc-runner-macros = { path = "../aoc-runner-macros" }
 bitvec = "1.0.1"
-clap = { workspace = true }
-common = { workspace = true }
-ctor = { workspace = true }
 glam = { workspace = true }
 hex = "0.4.3"
-indoc = { workspace = true }
 itertools = { workspace = true }
-lending-iterator = { workspace = true }
-miette = { workspace = true }
 nom = { workspace = true }
 nom-supreme = { workspace = true }
 nom_locate = { workspace = true }
 pathfinding = { workspace = true }
 petgraph = { workspace = true }
-rstest = { workspace = true }
-rstest_reuse = { workspace = true }
 rustworkx-core = { workspace = true }
-test-log = { workspace = true }
 tracing = { workspace = true }
-tracing-subscriber = { workspace = true }
-# z3 = { workspace = true }  # Commented out for build test
+indoc = "2.0"
+rstest = "0.18"

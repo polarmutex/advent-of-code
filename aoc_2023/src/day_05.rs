@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
 use nom::bytes::complete::take_until;
 use nom::character::complete;
@@ -11,9 +11,6 @@ use nom::Parser;
 use nom_supreme::tag::complete::tag;
 use nom_supreme::ParserExt;
 use std::ops::Range;
-use tracing::info;
-
-solution!("If You Give A Seed A Fertilizer", 5);
 
 type Input = Almanac;
 
@@ -54,7 +51,7 @@ impl Map {
         overlaps.into_iter().chain(old).collect()
     }
     fn convert_range(&self, val: Range<u64>, mapping: &(Range<u64>, Range<u64>)) -> MappedRange {
-        dbg!(mapping);
+        // dbg!(mapping); // Commented out debug print
         let (src, dst) = mapping;
         let opt_range = |start, end| Some(start..end).filter(|r| !r.is_empty());
         let before = opt_range(val.start, src.start.min(val.end));
@@ -70,12 +67,11 @@ impl Map {
 }
 
 #[derive(Clone, Debug)]
-struct Almanac {
+pub struct Almanac {
     seeds: Vec<u64>,
     maps: Vec<Map>,
 }
 
-#[tracing::instrument(skip(input))]
 fn line(input: &str) -> nom::IResult<&str, (Range<u64>, Range<u64>)> {
     let (input, (destination, source, num)) = tuple((
         complete::u64,
@@ -96,120 +92,106 @@ fn parse_mappings(input: &str) -> nom::IResult<&str, Map> {
         .parse(input)
 }
 
-#[tracing::instrument(skip(data))]
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    let (input, seeds) = tag("seeds: ")
-        .precedes(separated_list1(space1, complete::u64))
-        .parse(data)?;
-    let (input, maps) = many1(parse_mappings)(input)?;
-    info!(?seeds);
-    Ok((input, Almanac { seeds, maps }))
-}
 
-#[tracing::instrument(skip(input))]
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let locations = data
-        .seeds
-        .iter()
-        .map(|seed| data.maps.iter().fold(*seed, |seed, map| map.convert(seed)))
-        .collect_vec();
-    let result = *locations.iter().min().expect("should have min");
-    
-    Ok(result.into())
-}
+#[aoc(2023, day5)]
+pub mod solutions {
+    use super::*;
 
-#[tracing::instrument(skip(input))]
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let seed_ranges = data.seeds.into_iter().tuples().map(|(start, range)| Range {
-        start,
-        end: start + range,
-    });
-    info!(?seed_ranges);
-    let result = seed_ranges
-        .flat_map(|seed_range| {
-            data.maps.iter().fold(vec![seed_range], |acc, map| {
-                acc.into_iter()
-                    .flat_map(|r| map.convert_ranges(r))
-                    .collect()
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        let (input, seeds) = tag("seeds: ")
+            .precedes(separated_list1(space1, complete::u64))
+            .parse(data)?;
+        let (input, maps) = many1(parse_mappings)(input)?;
+        // info!(?seeds); // Commented out debug info
+        Ok((input, Almanac { seeds, maps }))
+    }
+
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u64 {
+        let locations = data
+            .seeds
+            .iter()
+            .map(|seed| data.maps.iter().fold(*seed, |seed, map| map.convert(seed)))
+            .collect_vec();
+        *locations.iter().min().expect("should have min")
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u64 {
+        let seed_ranges = data.seeds.into_iter().tuples().map(|(start, range)| Range {
+            start,
+            end: start + range,
+        });
+        // info!(?seed_ranges); // Commented out debug info
+        seed_ranges
+            .flat_map(|seed_range| {
+                data.maps.iter().fold(vec![seed_range], |acc, map| {
+                    acc.into_iter()
+                        .flat_map(|r| map.convert_ranges(r))
+                        .collect()
+                })
             })
-        })
-        .map(|locations_range| locations_range.start)
-        .min()
-        .expect("to have min");
-        
-    Ok(result.into())
+            .map(|locations_range| locations_range.start)
+            .min()
+            .expect("to have min")
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    
 
-    const EXAMPLE: &str = indoc! {"
-        seeds: 79 14 55 13
-        
-        seed-to-soil map:
-        50 98 2
-        52 50 48
-        
-        soil-to-fertilizer map:
-        0 15 37
-        37 52 2
-        39 0 15
-        
-        fertilizer-to-water map:
-        49 53 8
-        0 11 42
-        42 0 7
-        57 7 4
-        
-        water-to-light map:
-        88 18 7
-        18 25 70
-        
-        light-to-temperature map:
-        45 77 23
-        81 45 19
-        68 64 13
-        
-        temperature-to-humidity map:
-        0 69 1
-        1 0 69
-        
-        humidity-to-location map:
-        60 56 37
-        56 93 4
-    "};
+    #[aoc_case(35, 46)]
+    const EXAMPLE: &str = "seeds: 79 14 55 13
 
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 35.into());
-        Ok(())
-    }
+seed-to-soil map:
+50 98 2
+52 50 48
 
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 46.into());
-        Ok(())
-    }
+soil-to-fertilizer map:
+0 15 37
+37 52 2
+39 0 15
 
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 5)?;
-        assert_eq!(super::part_1(input.as_str())?, 111627841.into());
-        Ok(())
-    }
+fertilizer-to-water map:
+49 53 8
+0 11 42
+42 0 7
+57 7 4
 
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 5)?;
-        assert_eq!(super::part_2(input.as_str())?, 69323688.into());
-        Ok(())
-    }
+water-to-light map:
+88 18 7
+18 25 70
+
+light-to-temperature map:
+45 77 23
+81 45 19
+68 64 13
+
+temperature-to-humidity map:
+0 69 1
+1 0 69
+
+humidity-to-location map:
+60 56 37
+56 93 4";
 }

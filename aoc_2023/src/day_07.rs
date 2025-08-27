@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
 use itertools::Position;
 use nom::character::complete::alphanumeric1;
@@ -8,10 +8,6 @@ use nom::multi::separated_list1;
 use nom::sequence::separated_pair;
 use nom::Parser;
 use nom_supreme::tag::complete::tag;
-
-solution!("Camel Cards", 7);
-
-type Input = Vec<Hand>;
 
 #[derive(Clone, Debug)]
 enum HandType {
@@ -25,7 +21,7 @@ enum HandType {
 }
 
 #[derive(Clone, Debug)]
-struct Hand {
+pub struct Hand {
     cards: String,
     bid: u32,
 }
@@ -62,8 +58,6 @@ impl Hand {
                     .join("")
             }
         };
-        dbg!(&self.cards);
-        dbg!(&counts_str);
 
         match counts_str.as_str() {
             "5" => HandType::FiveOfAKind,
@@ -103,7 +97,6 @@ impl Hand {
     }
 }
 
-#[tracing::instrument(skip(input))]
 fn parse_hand(input: &str) -> nom::IResult<&str, Hand> {
     let (input, (cards, bid)) = separated_pair(alphanumeric1, tag(" "), digit1).parse(input)?;
     Ok((
@@ -115,48 +108,58 @@ fn parse_hand(input: &str) -> nom::IResult<&str, Hand> {
     ))
 }
 
-#[tracing::instrument(skip(data))]
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    separated_list1(line_ending, parse_hand).parse(data)
-}
+type Input = Vec<Hand>;
 
-#[tracing::instrument(skip(input))]
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let sorted = data
-        .into_iter()
-        .sorted_by_key(|h| (h.hand_type(false) as u8, h.card_value(false)));
-    dbg!(&sorted);
-    let result = sorted
-        .enumerate()
-        .map(|(i, h)| (i as u32 + 1) * h.bid)
-        .sum::<u32>();
-        
-    Ok(result.into())
-}
+#[aoc(2023, day7)]
+pub mod solutions {
+    use super::*;
 
-#[tracing::instrument(skip(input))]
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let sorted = data
-        .into_iter()
-        .sorted_by_key(|h| (h.hand_type(true) as u8, h.card_value(true)));
-    dbg!(&sorted);
-    let result = sorted
-        .enumerate()
-        .map(|(i, h)| (i as u32 + 1) * h.bid)
-        .sum::<u32>();
-        
-    Ok(result.into())
+    #[generator(gen)]
+    pub fn input_generator(data: &str) -> Input {
+        separated_list1(line_ending, parse_hand).parse(data).unwrap().1
+    }
+
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u32 {
+        let sorted = data
+            .into_iter()
+            .sorted_by_key(|h| (h.hand_type(false) as u8, h.card_value(false)));
+        sorted
+            .enumerate()
+            .map(|(i, h)| (i as u32 + 1) * h.bid)
+            .sum::<u32>()
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u32 {
+        let sorted = data
+            .into_iter()
+            .sorted_by_key(|h| (h.hand_type(true) as u8, h.card_value(true)));
+        sorted
+            .enumerate()
+            .map(|(i, h)| (i as u32 + 1) * h.bid)
+            .sum::<u32>()
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
+    use aoc_runner_macros::aoc_case;
     use indoc::indoc;
 
+    #[aoc_case(6440, 5905)]
     const EXAMPLE: &str = indoc! {"
         32T3K 765
         T55J5 684
@@ -165,31 +168,7 @@ mod test {
         QQQJA 483
     "};
 
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 6440.into());
-        Ok(())
-    }
-
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 5905.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 7)?;
-        assert_eq!(super::part_1(input.as_str())?, 248453531.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 7)?;
-        assert_eq!(super::part_2(input.as_str())?, 248781813.into());
-        Ok(())
-    }
+    #[cfg(feature = "real-input")]
+    #[aoc_case(248453531, 248781813)]
+    const REAL: &str = include_str!("../input/2023/day7.txt");
 }

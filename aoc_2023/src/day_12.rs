@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::repeat_n;
 use itertools::Itertools;
 use nom::bytes::complete::is_a;
@@ -9,15 +9,14 @@ use nom::character::complete::space1;
 use nom::multi::separated_list1;
 use nom::sequence::separated_pair;
 use nom::Parser;
-// use nom::character::complete;
-// use nom_supreme::ParserExt;
-// use tracing::info;
 
-solution!("Hot Springs", 12);
+#[aoc(2023, day12)]
+pub mod solutions {
+    use super::*;
 
 type Input = Vec<Record>;
 
-fn to_arrangement(v: Vec<SpringCondition>) -> Vec<usize> {
+pub fn to_arrangement(v: Vec<SpringCondition>) -> Vec<usize> {
     v.iter()
         .group_by(|v| *v == &SpringCondition::Damaged)
         .into_iter()
@@ -26,16 +25,16 @@ fn to_arrangement(v: Vec<SpringCondition>) -> Vec<usize> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum SpringCondition {
+pub enum SpringCondition {
     Operational,
     Damaged,
     Unknown,
 }
 
 #[derive(Clone, Debug)]
-struct Record {
-    line: Vec<SpringCondition>,
-    groups: Vec<usize>,
+pub struct Record {
+    pub line: Vec<SpringCondition>,
+    pub groups: Vec<usize>,
 }
 
 impl Record {
@@ -55,7 +54,7 @@ impl Record {
     }
     // brute force
     #[allow(dead_code)]
-    fn num_valid_arrangement(&self) -> u32 {
+    pub fn num_valid_arrangement(&self) -> u32 {
         let poss_arangements = self.possible_arrangements();
         poss_arangements
             .into_iter()
@@ -159,49 +158,66 @@ fn parse_line(input: &str) -> nom::IResult<&str, Record> {
     Ok((input, Record { line, groups }))
 }
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    separated_list1(line_ending, parse_line).parse(data)
-}
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        separated_list1(line_ending, parse_line).parse(data)
+    }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let result: u64 = data.into_iter()
-        .map(|r| r.count_possible_arangements())
-        .sum();
-    Ok(result.into())
-}
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let result: u64 = data.into_iter()
-        .map(|mut r| {
-            r.line = r
-                .line
-                .iter()
-                .copied()
-                .chain([SpringCondition::Unknown])
-                .cycle()
-                .take(r.line.len() * 5 + 4)
-                .collect_vec();
-            r.groups = r
-                .groups
-                .iter()
-                .copied()
-                .cycle()
-                .take(r.groups.len() * 5)
-                .collect_vec();
-            r.count_possible_arangements()
-        })
-        .sum();
-    Ok(result.into())
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u64 {
+        data.into_iter()
+            .map(|r| r.count_possible_arangements())
+            .sum()
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u64 {
+        data.into_iter()
+            .map(|mut r| {
+                r.line = r
+                    .line
+                    .iter()
+                    .copied()
+                    .chain([SpringCondition::Unknown])
+                    .cycle()
+                    .take(r.line.len() * 5 + 4)
+                    .collect_vec();
+                r.groups = r
+                    .groups
+                    .iter()
+                    .copied()
+                    .cycle()
+                    .take(r.groups.len() * 5)
+                    .collect_vec();
+                r.count_possible_arangements()
+            })
+            .sum()
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    use super::solutions::*;
+    use itertools::Itertools;
     use rstest::rstest;
-    use super::*;
 
     #[rstest]
     #[case("#.#.###", vec![1,1,3])]
@@ -239,47 +255,11 @@ mod test {
         assert_eq!(expected, r.num_valid_arrangement());
     }
 
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        let input = indoc! {"
-            ???.### 1,1,3
-            .??..??...?##. 1,1,3
-            ?#?#?#?#?#?#?#? 1,3,1,6
-            ????.#...#... 4,1,1
-            ????.######..#####. 1,6,5
-            ?###???????? 3,2,1
-        "};
-        assert_eq!(super::part_1(input)?, 21.into());
-        Ok(())
-    }
-
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        let input = indoc! {"
-            ???.### 1,1,3
-            .??..??...?##. 1,1,3
-            ?#?#?#?#?#?#?#? 1,3,1,6
-            ????.#...#... 4,1,1
-            ????.######..#####. 1,6,5
-            ?###???????? 3,2,1
-        "};
-        assert_eq!(super::part_2(input)?, 525152.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 12)?;
-        assert_eq!(super::part_1(input.as_str())?, 7653.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 12)?;
-        assert_eq!(super::part_2(input.as_str())?, 60681419004564_u64.into());
-        Ok(())
-    }
+    #[aoc_case(21, 525152)]
+    const EXAMPLE: &str = "???.### 1,1,3
+.??..??...?##. 1,1,3
+?#?#?#?#?#?#?#? 1,3,1,6
+????.#...#... 4,1,1
+????.######..#####. 1,6,5
+?###???????? 3,2,1";
 }

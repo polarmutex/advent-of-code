@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use nom::bytes::complete::tag;
 use nom::character::complete;
 use nom::character::complete::digit1;
@@ -14,12 +14,10 @@ use nom::sequence::tuple;
 use std::collections::BTreeMap;
 use std::collections::HashSet;
 
-solution!("Scratchcards", 4);
-
 type Input = Vec<Card>;
 
 #[derive(Clone, Debug)]
-struct Card {
+pub struct Card {
     // id: u32,
     winning_numbers: HashSet<u32>,
     my_numbers: HashSet<u32>,
@@ -69,82 +67,70 @@ fn card_parser(input: &str) -> nom::IResult<&str, Card> {
     ))
 }
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    separated_list1(line_ending, card_parser)(data)
-}
+#[aoc(2023, day4)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = data.iter().map(|c| c.score()).sum::<u32>();
-    
-    Ok(result.into())
-}
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        separated_list1(line_ending, card_parser)(data)
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let total_scratchcards = (0..data.len())
-        .map(|i| (i, 1))
-        .collect::<BTreeMap<usize, u32>>();
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
 
-    let temp = data
-        .iter()
-        .enumerate()
-        .fold(total_scratchcards, |mut res, (index, card)| {
-            let num_matches = card.num_matching();
-            for i in (index + 1)..(index + 1 + num_matches as usize) {
-                let current_index_cards = *res.get(&index).unwrap();
-                res.entry(i).and_modify(|v| {
-                    *v += current_index_cards;
-                });
-            }
-            res
-        });
-    let result = temp.values().sum::<u32>();
-    
-    Ok(result.into())
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u32 {
+        data.iter().map(|c| c.score()).sum::<u32>()
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u32 {
+        let total_scratchcards = (0..data.len())
+            .map(|i| (i, 1))
+            .collect::<BTreeMap<usize, u32>>();
+
+        let temp = data
+            .iter()
+            .enumerate()
+            .fold(total_scratchcards, |mut res, (index, card)| {
+                let num_matches = card.num_matching();
+                for i in (index + 1)..(index + 1 + num_matches as usize) {
+                    let current_index_cards = *res.get(&index).unwrap();
+                    res.entry(i).and_modify(|v| {
+                        *v += current_index_cards;
+                    });
+                }
+                res
+            });
+        temp.values().sum::<u32>()
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    
 
-    const EXAMPLE: &str = indoc! {"
-        Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
-        Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
-        Card 3:  1 21 53 59 44 | 69 82 63 72 16 21 14  1
-        Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83
-        Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
-        Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11
-    "};
-
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 13.into());
-        Ok(())
-    }
-
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 30.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 4)?;
-        assert_eq!(super::part_1(input.as_str())?, 27845.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 4)?;
-        assert_eq!(super::part_2(input.as_str())?, 9496801.into());
-        Ok(())
-    }
+    #[aoc_case(13, 30)]
+    const EXAMPLE: &str = "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
+Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
+Card 3:  1 21 53 59 44 | 69 82 63 72 16 21 14  1
+Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83
+Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
+Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11";
 }

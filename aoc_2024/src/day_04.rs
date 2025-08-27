@@ -1,9 +1,6 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use glam::IVec2;
-use miette::Result;
 use std::collections::HashMap;
-
-solution!("Ceres Search", 4);
 
 fn parse(input: &str) -> HashMap<IVec2, char> {
     input
@@ -28,31 +25,6 @@ const POSS_LOCATIONS1: [[IVec2; 3]; 8] = [
     [IVec2::new(-1, 1), IVec2::new(-2, 2), IVec2::new(-3, 3)],
 ];
 
-fn part_1(input: &str) -> Result<Answer> {
-    let word_search = parse(input);
-    let mas = ['M', 'A', 'S'];
-    Ok(word_search
-        .iter()
-        .filter(|(_position, value)| **value == 'X')
-        .map(|(position, _value)| {
-            let count = POSS_LOCATIONS1
-                .iter()
-                .map(|mas_positions| {
-                    mas_positions
-                        .iter()
-                        .map(|offset| word_search.get(&(*position + *offset)))
-                        .enumerate()
-                        .all(|(index, value)| mas.get(index) == value)
-                })
-                .filter(|b| *b)
-                .count();
-            // info!(?position, ?value, count);
-            count
-        })
-        .sum::<usize>()
-        .into())
-}
-
 const POSS_LOCATIONS2: [[IVec2; 2]; 4] = [
     [IVec2::new(1, 1), IVec2::new(-1, -1)],
     [IVec2::new(-1, -1), IVec2::new(1, 1)],
@@ -60,79 +32,88 @@ const POSS_LOCATIONS2: [[IVec2; 2]; 4] = [
     [IVec2::new(-1, 1), IVec2::new(1, -1)],
 ];
 
-fn part_2(input: &str) -> Result<Answer> {
-    let word_search = parse(input);
-    let mas = ['M', 'S'];
-    Ok(word_search
-        .iter()
-        .filter(|(_position, value)| **value == 'A')
-        .filter(|(position, _value)| {
-            let count = POSS_LOCATIONS2
-                .iter()
-                .map(|mas_positions| {
-                    mas_positions
-                        .iter()
-                        .map(|offset| word_search.get(&(**position + *offset)))
-                        .enumerate()
-                        .all(|(index, value)| mas.get(index) == value)
-                })
-                .filter(|b| *b)
-                .count()
-                == 2;
-            // info!(?position, ?value, count);
-            count
-        })
-        .count()
-        .into())
+#[aoc(2024, day4)]
+pub mod solutions {
+    use super::*;
+
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> HashMap<IVec2, char> {
+        parse(input)
+    }
+
+    #[solver(part1, main)]
+    pub fn solve_part_1(word_search: HashMap<IVec2, char>) -> usize {
+        let mas = ['M', 'A', 'S'];
+        word_search
+            .iter()
+            .filter(|(_position, value)| **value == 'X')
+            .map(|(position, _value)| {
+                let count = POSS_LOCATIONS1
+                    .iter()
+                    .map(|mas_positions| {
+                        mas_positions
+                            .iter()
+                            .map(|offset| word_search.get(&(*position + *offset)))
+                            .enumerate()
+                            .all(|(index, value)| mas.get(index) == value)
+                    })
+                    .filter(|b| *b)
+                    .count();
+                count
+            })
+            .sum::<usize>()
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(word_search: HashMap<IVec2, char>) -> usize {
+        let mas = ['M', 'S'];
+        word_search
+            .iter()
+            .filter(|(_position, value)| **value == 'A')
+            .filter(|(position, _value)| {
+                let count = POSS_LOCATIONS2
+                    .iter()
+                    .map(|mas_positions| {
+                        mas_positions
+                            .iter()
+                            .map(|offset| word_search.get(&(**position + *offset)))
+                            .enumerate()
+                            .all(|(index, value)| mas.get(index) == value)
+                    })
+                    .filter(|b| *b)
+                    .count()
+                    == 2;
+                count
+            })
+            .count()
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> usize {
+        let word_search = input_generator(input);
+        solve_part_1(word_search)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> usize {
+        let word_search = input_generator(input);
+        solve_part_2(word_search)
+    }
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
+mod tests {
+    use aoc_runner_macros::aoc_case;
 
-    const CASE: &str = indoc! {"
-        MMMSXXMASM
-        MSAMXMSMSA
-        AMXSXMAAMM
-        MSAMASMSMX
-        XMASAMXAMM
-        XXAMMXXAMA
-        SMSMSASXSS
-        SAXAMASAAA
-        MAMMMXMMMM
-        MXMXAXMASX
-    "};
-
-    #[test]
-    // #[test_log::test]
-    fn part_1_case() -> miette::Result<()> {
-        assert_eq!(super::part_1(CASE)?, 18.into());
-        Ok(())
-    }
-
-    #[test]
-    // #[test_log::test]
-    fn part_2_case() -> miette::Result<()> {
-        assert_eq!(super::part_2(CASE)?, 9.into());
-        Ok(())
-    }
-
-    #[test]
-    // #[test_log::test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2024, 4)?;
-        assert_eq!(super::part_1(input.as_str())?, 2447.into());
-        Ok(())
-    }
-
-    #[test]
-    // #[test_log::test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2024, 4)?;
-        assert_eq!(super::part_2(input.as_str())?, 1868.into());
-        Ok(())
-    }
+    #[aoc_case(18, 9)]
+    const CASE: &str = "MMMSXXMASM
+MSAMXMSMSA
+AMXSXMAAMM
+MSAMASMSMX
+XMASAMXAMM
+XXAMMXXAMA
+SMSMSASXSS
+SAXAMASAAA
+MAMMMXMMMM
+MXMXAXMASX";
 }

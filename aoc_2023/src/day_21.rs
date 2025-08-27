@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use glam::IVec2;
 use nom::branch::alt;
 use nom::bytes::complete::is_a;
@@ -12,12 +12,10 @@ use nom::Parser;
 use nom_locate::LocatedSpan;
 use std::collections::HashMap;
 use std::collections::HashSet;
-// use itertools::Itertools;
-// use nom::character::complete;
-// use nom_supreme::ParserExt;
-// use tracing::info;
 
-solution!("Step Counter", 21);
+#[aoc(2023, day21)]
+pub mod solutions {
+    use super::*;
 
 type Input = (IVec2, HashSet<IVec2>);
 
@@ -95,29 +93,45 @@ fn num_steps(start: &IVec2, set: &HashSet<IVec2>, step_count: usize) -> u64 {
     .len() as u64
 }
 
-fn parse_input(data: &str) -> miette::Result<Input> {
-    let (grid, start) = parse_grid(Span::new(data)).map_err(|e| miette::miette!("Parse error: {}", e))?.1;
-    Ok((start, grid))
-}
+    fn parse_input(data: &str) -> Input {
+        let (grid, start) = parse_grid(Span::new(data)).unwrap().1;
+        (start, grid)
+    }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (start, set) = parse_input(input)?;
-    let result = num_steps(&start, &set, 64);
-    Ok(result.into())
-}
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        parse_input(input)
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (start, set) = parse_input(input)?;
-    let len = 131_usize;
+    #[solver(part1, main)]
+    pub fn solve_part_1((start, set): Input) -> u64 {
+        num_steps(&start, &set, 64)
+    }
 
-    let x = num_steps(&start, &set, 65);
-    let y = num_steps(&start, &set, 65 + len);
-    let z = num_steps(&start, &set, 65 + len * 2);
+    #[solver(part2, main)]
+    pub fn solve_part_2((start, set): Input) -> u64 {
+        let len = 131_usize;
 
-    let goal = 26501365_u64;
-    let n = goal / len as u64;
-    let result = quad(n, x, y, z);
-    Ok(result.into())
+        let x = num_steps(&start, &set, 65);
+        let y = num_steps(&start, &set, 65 + len);
+        let z = num_steps(&start, &set, 65 + len * 2);
+
+        let goal = 26501365_u64;
+        let n = goal / len as u64;
+        quad(n, x, y, z)
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 fn quad(n: u64, a0: u64, a1: u64, a2: u64) -> u64 {
@@ -144,23 +158,9 @@ fn print(d: &HashSet<IVec2>, size: &IVec2) {
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use super::*;
+mod tests {
+    
+    
 
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 21)?;
-        assert_eq!(super::part_1(input.as_str())?, 3666.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 21)?;
-        assert_eq!(super::part_2(input.as_str())?, 609298746763952_u64.into());
-        Ok(())
-    }
+    // No example test case available for this problem
 }

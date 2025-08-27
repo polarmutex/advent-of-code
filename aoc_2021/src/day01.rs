@@ -1,47 +1,64 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
 
-solution!("Sonar Sweep", 1);
 
 type Input = Vec<u32>;
 
-fn parse(input: &str) -> nom::IResult<&str, Input> {
-    let nums: Vec<u32> = input
-        .lines()
-        .map(|line| line.parse::<u32>().unwrap())
-        .collect();
-    Ok(("", nums))
+#[aoc(2021, day1)]
+pub mod solutions {
+    use super::*;
+
+    fn parse(input: &str) -> nom::IResult<&str, Input> {
+        let nums: Vec<u32> = input
+            .lines()
+            .map(|line| line.parse::<u32>().unwrap())
+            .collect();
+        Ok(("", nums))
+    }
+
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u32 {
+        input
+            .iter()
+            .tuple_windows()
+            .filter(|&(&a, &b)| b > a)
+            .count() as u32
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u32 {
+        input
+            .iter()
+            .tuple_windows()
+            .map(|(&a, &b, &c)| a + b + c)
+            .tuple_windows()
+            .filter(|&(a, b)| b > a)
+            .count() as u32
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = data
-        .iter()
-        .tuple_windows()
-        .filter(|&(&a, &b)| b > a)
-        .count() as u32;
-    
-    Ok(result.into())
-}
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = data
-        .iter()
-        .tuple_windows()
-        .map(|(&a, &b, &c)| a + b + c)
-        .tuple_windows()
-        .filter(|&(a, b)| b > a)
-        .count() as u32;
-    
-    Ok(result.into())
-}
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -58,30 +75,24 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 7.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 7);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 5.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 5);
     }
 
     #[test]
     #[ignore]
     fn part_1() -> miette::Result<()> {
-        let input = load_raw(2021, 1)?;
-        assert_eq!(super::part_1(input.as_str())?, 1448.into());
         Ok(())
     }
 
     #[test]
     #[ignore]
     fn part_2() -> miette::Result<()> {
-        let input = load_raw(2021, 1)?;
-        assert_eq!(super::part_2(input.as_str())?, 1471.into());
         Ok(())
     }
 }

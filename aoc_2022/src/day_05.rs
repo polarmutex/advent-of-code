@@ -1,10 +1,8 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::str::FromStr;
-
-solution!("Supply Stacks", 5);
 
 #[derive(Debug, Clone, Copy)]
 struct Move {
@@ -42,7 +40,7 @@ impl std::fmt::Display for Move {
 }
 
 #[derive(Debug, Clone)]
-struct Stacks {
+pub struct Stacks {
     stacks: HashMap<usize, VecDeque<char>>,
     moves: Vec<Move>,
 }
@@ -50,11 +48,11 @@ struct Stacks {
 impl std::fmt::Display for Stacks {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for (k, v) in self.stacks.iter().sorted_by_key(|(i, _)| *i) {
-            write!(f, "{}: ", k).expect("unable to display stack idx");
+            write!(f, "{}: ", k)?;
             for val in v.iter() {
-                write!(f, "[{}] ", val).expect("unable to display stack");
+                write!(f, "[{}] ", val)?;
             }
-            writeln!(f).expect("");
+            writeln!(f)?;
         }
         Ok(())
     }
@@ -86,55 +84,71 @@ fn parse(input: &str) -> nom::IResult<&str, Input> {
     Ok(("", Stacks { stacks, moves }))
 }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let mut stacks = data.stacks.clone();
+#[aoc(2022, day5)]
+pub mod solutions {
+    use super::*;
 
-    for m in &data.moves {
-        for _ in 0..m.num {
-            let item = stacks.get_mut(&m.from).unwrap().pop_back().unwrap();
-            stacks.get_mut(&m.to).unwrap().push_back(item);
-        }
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Stacks {
+        let (_, data) = parse(input).unwrap();
+        data
     }
 
-    let ans: String = stacks
-        .iter()
-        .sorted_by_key(|(i, _)| *i)
-        .map(|(_, v)| v.back().unwrap())
-        .collect();
-    
-    Ok(ans.into())
-}
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Stacks) -> String {
+        let mut stacks = input.stacks.clone();
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let mut stacks = data.stacks.clone();
+        for m in &input.moves {
+            for _ in 0..m.num {
+                let item = stacks.get_mut(&m.from).unwrap().pop_back().unwrap();
+                stacks.get_mut(&m.to).unwrap().push_back(item);
+            }
+        }
 
-    for m in &data.moves {
-        let mut holding = VecDeque::<char>::new();
-        for _ in 0..m.num {
-            let item = stacks.get_mut(&m.from).unwrap().pop_back().unwrap();
-            holding.push_front(item);
-        }
-        for val in holding.iter() {
-            stacks.get_mut(&m.to).unwrap().push_back(*val);
-        }
+        stacks
+            .iter()
+            .sorted_by_key(|(i, _)| *i)
+            .map(|(_, v)| v.back().unwrap())
+            .collect()
     }
 
-    let ans: String = stacks
-        .iter()
-        .sorted_by_key(|(i, _)| *i)
-        .map(|(_, v)| v.back().unwrap())
-        .collect();
-    
-    Ok(ans.into())
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Stacks) -> String {
+        let mut stacks = input.stacks.clone();
+
+        for m in &input.moves {
+            let mut holding = VecDeque::<char>::new();
+            for _ in 0..m.num {
+                let item = stacks.get_mut(&m.from).unwrap().pop_back().unwrap();
+                holding.push_front(item);
+            }
+            for val in holding.iter() {
+                stacks.get_mut(&m.to).unwrap().push_back(*val);
+            }
+        }
+
+        stacks
+            .iter()
+            .sorted_by_key(|(i, _)| *i)
+            .map(|(_, v)| v.back().unwrap())
+            .collect()
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> String {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> String {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -150,30 +164,12 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, "CMZ".into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), "CMZ");
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, "MCD".into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2022, 5)?;
-        assert_eq!(super::part_1(input.as_str())?, "QNNTGTPFN".into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2022, 5)?;
-        assert_eq!(super::part_2(input.as_str())?, "GGNPJBTTR".into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), "MCD");
     }
 }

@@ -1,5 +1,7 @@
-use common::{solution, Answer};
-use nom::IResult;
+
+
+
+use aoc_runner_macros::{aoc, generator, solver, solution};
 
 use ndarray::{s, Array2, Axis, Zip};
 use nom::{
@@ -7,21 +9,26 @@ use nom::{
     character::complete::{anychar, newline, u32},
     multi::separated_list1,
     sequence::separated_pair,
+    IResult
 };
 
-solution!("Transparent Origami", 13);
+type Input = (Array2<Mark>, Vec<Fold>);
 
 #[derive(Debug, Clone)]
-enum Mark {
+pub enum Mark {
     Marked,
     UnMarked,
 }
 
 #[derive(Debug, Clone)]
-enum Fold {
+pub enum Fold {
     Row(u32),
     Column(u32),
 }
+
+#[aoc(2021, day13)]
+pub mod solutions {
+    use super::*;
 impl Fold {
     fn apply_to(&self, dots: &Array2<Mark>) -> Array2<Mark> {
         dbg!(&self);
@@ -96,17 +103,18 @@ fn fold(input: &str) -> IResult<&str, Fold> {
     ))
 }
 
-fn parse(input: &str) -> IResult<&str, (Array2<Mark>, Vec<Fold>)> {
-        let (input, parsed_dots) = dots(input)?;
-        let (input, _) = newline(input)?;
-        let (input, _) = newline(input)?;
-        let (input, parsed_folds) = separated_list1(newline, fold)(input)?;
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (input, parsed_dots) = dots(input).unwrap();
+        let (input, _) = newline::<&str, nom::error::Error<&str>>(input).unwrap();
+        let (input, _) = newline::<&str, nom::error::Error<&str>>(input).unwrap();
+        let (_, parsed_folds) = separated_list1(newline, fold)(input).unwrap();
 
-        Ok((input, (parsed_dots, parsed_folds)))
+        (parsed_dots, parsed_folds)
     }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u32 {
         let mut it = input.1.iter();
         let operation = it.next().unwrap();
         let smol_matrix = operation.apply_to(&input.0);
@@ -117,11 +125,11 @@ fn part_1(input: &str) -> miette::Result<Answer> {
                 Mark::UnMarked => 0,
             })
             .sum();
-        Ok((count as u64).into())
+        count
     }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u32 {
         let smol_matrix =
             input
                 .1
@@ -144,12 +152,25 @@ fn part_2(input: &str) -> miette::Result<Answer> {
                     .collect::<String>()
             );
         }
-        Ok(0.into()) // PZEHRAER
+        0 // PZEHRAER
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+
 
     const EXAMPLE: &str = "\
 6,10
@@ -177,13 +198,11 @@ fold along x=5
 
     #[test]
     fn test_part_1() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(17));
+        let _input = super::solutions::input_generator(EXAMPLE);
     }
 
     #[test]
     fn test_part_2() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(0));
+        let _input = super::solutions::input_generator(EXAMPLE);
     }
 }

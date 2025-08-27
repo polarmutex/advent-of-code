@@ -1,36 +1,51 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use nom::character::complete::alphanumeric1;
 use nom::character::complete::line_ending;
 use nom::combinator::map;
 use nom::multi::separated_list1;
 
-solution!("Trebuchet?!", 1);
-
 type Input = Vec<String>;
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    let line_parser = map(alphanumeric1, String::from);
-    separated_list1(line_ending, line_parser)(data)
-}
+#[aoc(2023, day1)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = data.iter()
-        .map(|l| process_calibration_line(l, false))
-        .sum::<u32>();
-        
-    Ok(result.into())
-}
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        let line_parser = map(alphanumeric1, String::from);
+        separated_list1(line_ending, line_parser)(data)
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = data.iter()
-        .map(|l| process_calibration_line(l, true))
-        .sum::<u32>();
-        
-    Ok(result.into())
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u32 {
+        data.iter()
+            .map(|l| process_calibration_line(l, false))
+            .sum::<u32>()
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u32 {
+        data.iter()
+            .map(|l| process_calibration_line(l, true))
+            .sum::<u32>()
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 fn process_calibration_line(line: &String, convert_num_str: bool) -> u32 {
@@ -67,69 +82,37 @@ fn process_calibration_line(line: &String, convert_num_str: bool) -> u32 {
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    use super::solutions::*;
 
-    const EXAMPLE1: &str = indoc! {"
-        1abc2
-        pqr3stu8vwx
-        a1b2c3d4e5f
-        treb7uchet
-    "};
+    #[aoc_case(142, 142)]
+    const EXAMPLE1: &str = "1abc2
+pqr3stu8vwx
+a1b2c3d4e5f
+treb7uchet";
 
-    const EXAMPLE2: &str = indoc! {"
-        two1nine
-        eightwothree
-        abcone2threexyz
-        xtwone3four
-        4nineeightseven2
-        zoneight234
-        7pqrstsixteen
-    "};
-
+    const EXAMPLE2: &str = "two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen";
+    
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE1)?, 142.into());
-        Ok(())
+    fn part_2_custom() {
+        assert_eq!(part_2(EXAMPLE2), 281);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE2)?, 281.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 1)?;
-        assert_eq!(super::part_1(input.as_str())?, 55538.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 1)?;
-        assert_eq!(super::part_2(input.as_str())?, 54875.into());
-        Ok(())
-    }
-
-    use rstest::rstest;
-
-    #[rstest]
-    #[case("two1nine".to_string(), 29)]
-    #[case("eightwothree".to_string(), 83)]
-    #[case("abcone2threexyz".to_string(), 13)]
-    #[case("xtwone3four".to_string(), 24)]
-    #[case("4nineeightseven2".to_string(), 42)]
-    #[case("zoneight234".to_string(), 14)]
-    #[case("7pqrstsixteen".to_string(), 76)]
-    fn line_test(
-        #[case] line: String,
-        #[case] expected: u32,
-    ) {
-        assert_eq!(expected, super::process_calibration_line(&line, true))
+    fn line_tests() {
+        assert_eq!(super::process_calibration_line(&"two1nine".to_string(), true), 29);
+        assert_eq!(super::process_calibration_line(&"eightwothree".to_string(), true), 83);
+        assert_eq!(super::process_calibration_line(&"abcone2threexyz".to_string(), true), 13);
+        assert_eq!(super::process_calibration_line(&"xtwone3four".to_string(), true), 24);
+        assert_eq!(super::process_calibration_line(&"4nineeightseven2".to_string(), true), 42);
+        assert_eq!(super::process_calibration_line(&"zoneight234".to_string(), true), 14);
+        assert_eq!(super::process_calibration_line(&"7pqrstsixteen".to_string(), true), 76);
     }
 }

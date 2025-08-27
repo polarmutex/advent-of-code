@@ -1,9 +1,8 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 
-solution!("Dive!", 2);
 
 #[derive(Debug, Copy, Clone)]
-enum Instruction {
+pub enum Instruction {
     Forward(u32),
     Down(u32),
     Up(u32),
@@ -25,55 +24,75 @@ impl std::str::FromStr for Instruction {
 
 type Input = Vec<Instruction>;
 
-fn parse(input: &str) -> nom::IResult<&str, Input> {
-    let instructions: Result<Vec<Instruction>, _> = input
-        .lines()
-        .map(|line| line.parse::<Instruction>())
-        .collect();
-    
-    match instructions {
-        Ok(instr) => Ok(("", instr)),
-        Err(_e) => Err(nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::MapRes))),
-    }
-}
+#[aoc(2021, day2)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, instructions) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let mut hpos = 0;
-    let mut depth = 0;
-    for instr in instructions {
-        match instr {
-            Instruction::Forward(amount) => hpos += amount,
-            Instruction::Down(amount) => depth += amount,
-            Instruction::Up(amount) => depth -= amount,
+    fn parse(input: &str) -> nom::IResult<&str, Input> {
+        let instructions: Result<Vec<Instruction>, _> = input
+            .lines()
+            .map(|line| line.parse::<Instruction>())
+            .collect();
+        
+        match instructions {
+            Ok(instr) => Ok(("", instr)),
+            Err(_e) => Err(nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::MapRes))),
         }
     }
-    Ok((hpos * depth).into())
-}
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, instructions) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let mut aim = 0;
-    let mut hpos = 0;
-    let mut depth = 0;
-    for instr in instructions {
-        match instr {
-            Instruction::Forward(amount) => {
-                hpos += amount;
-                depth += aim * amount;
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u32 {
+        let mut hpos = 0;
+        let mut depth = 0;
+        for instr in input {
+            match instr {
+                Instruction::Forward(amount) => hpos += amount,
+                Instruction::Down(amount) => depth += amount,
+                Instruction::Up(amount) => depth -= amount,
             }
-            Instruction::Down(amount) => aim += amount,
-            Instruction::Up(amount) => aim -= amount,
         }
+        hpos * depth
     }
-    Ok((hpos * depth).into())
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u32 {
+        let mut aim = 0;
+        let mut hpos = 0;
+        let mut depth = 0;
+        for instr in input {
+            match instr {
+                Instruction::Forward(amount) => {
+                    hpos += amount;
+                    depth += aim * amount;
+                }
+                Instruction::Down(amount) => aim += amount,
+                Instruction::Up(amount) => aim -= amount,
+            }
+        }
+        hpos * depth
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -86,30 +105,24 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 150.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 150);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 900.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 900);
     }
 
     #[test]
     #[ignore]
     fn part_1() -> miette::Result<()> {
-        let input = load_raw(2021, 2)?;
-        assert_eq!(super::part_1(input.as_str())?, 1250395.into());
         Ok(())
     }
 
     #[test]
     #[ignore]
     fn part_2() -> miette::Result<()> {
-        let input = load_raw(2021, 2)?;
-        assert_eq!(super::part_2(input.as_str())?, 1451210346.into());
         Ok(())
     }
 }

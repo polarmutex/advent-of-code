@@ -1,13 +1,9 @@
-use common::{solution, Answer};
-
-
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
 use std::str::FromStr;
 
-solution!("Full of Hot Air", 25);
-
 #[derive(Clone, Debug)]
-struct Snafu {
+pub struct Snafu {
     val: String,
 }
 impl FromStr for Snafu {
@@ -63,20 +59,42 @@ fn parse(data: &str) -> nom::IResult<&str, Input> {
     Ok(("", snafus))
 }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let sum: i64 = data.iter().map(|snafu| snafu.to_decimal()).sum();
-    let result = Snafu::to_snafu(sum).val;
-    Ok(result.into())
-}
+#[aoc(2022, day25)]
+pub mod solutions {
+    use super::*;
 
-fn part_2(_input: &str) -> miette::Result<Answer> {
-    Ok("".into())
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> String {
+        let sum: i64 = input.iter().map(|snafu| snafu.to_decimal()).sum();
+        Snafu::to_snafu(sum).val
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(_input: &Input) -> String {
+        String::new()
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> String {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> String {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
 
     const EXAMPLE: &str = "1=-0-2
 12111
@@ -93,30 +111,12 @@ mod test {
 122";
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, "2=-1=0".into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), "2=-1=0");
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, "".into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2022, 25)?;
-        assert_eq!(super::part_1(input.as_str())?, "121=2=1==0=10=2-20=2".into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2022, 25)?;
-        assert_eq!(super::part_2(input.as_str())?, "".into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), "");
     }
 }

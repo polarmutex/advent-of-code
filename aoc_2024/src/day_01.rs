@@ -1,88 +1,71 @@
-use aoc_lib::hash::*;
-use common::{solution, Answer};
-
-solution!("Historian Hysteria", 1);
+use aoc_runner_macros::{aoc, generator, solver, solution};
+use std::collections::HashMap;
 
 type Input = (Vec<u32>, Vec<u32>);
 
-fn parse(input: &str) -> Input {
-    let (mut left, mut right) = (Vec::new(), Vec::new());
+#[aoc(2024, day1)]
+pub mod solutions {
+    use super::*;
 
-    for line in input.lines() {
-        let mut parts = line.split_whitespace();
-        left.push(parts.next().unwrap().parse::<u32>().unwrap());
-        right.push(parts.next().unwrap().parse::<u32>().unwrap());
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (mut left, mut right) = (Vec::new(), Vec::new());
+
+        for line in input.lines() {
+            let mut parts = line.split_whitespace();
+            left.push(parts.next().unwrap().parse::<u32>().unwrap());
+            right.push(parts.next().unwrap().parse::<u32>().unwrap());
+        }
+        (left, right)
     }
-    (left, right)
-}
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (mut left, mut right) = parse(input);
+    #[solver(part1, main)]
+    pub fn solve_part_1(input: Input) -> u32 {
+        let (mut left, mut right) = input;
 
-    left.sort();
-    right.sort();
+        left.sort();
+        right.sort();
 
-    println!("finished 1 1");
-    Ok(left
-        .into_iter()
-        .zip(right)
-        .map(|(left, right)| left.abs_diff(right))
-        .sum::<u32>()
-        .into())
-}
+        left.into_iter()
+            .zip(right)
+            .map(|(left, right)| left.abs_diff(right))
+            .sum::<u32>()
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (left, right) = parse(input);
+    #[solver(part2, main)]
+    pub fn solve_part_2(input: Input) -> u32 {
+        let (left, right) = input;
 
-    let mut map = FastMap::with_capacity(1_000);
-    right.iter().for_each(|v| *map.entry(v).or_insert(0) += 1);
+        let mut map = HashMap::with_capacity(1_000);
+        right.iter().for_each(|v| *map.entry(v).or_insert(0) += 1);
 
-    Ok(left
-        .iter()
-        .map(|left| map.get(left).unwrap_or(&0) * left)
-        .sum::<u32>()
-        .into())
+        left.iter()
+            .map(|left| map.get(left).unwrap_or(&0) * left)
+            .sum::<u32>()
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u32 {
+        let parsed = input_generator(input);
+        solve_part_1(parsed)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u32 {
+        let parsed = input_generator(input);
+        solve_part_2(parsed)
+    }
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
+mod tests {
+    use aoc_runner_macros::aoc_case;
 
-    const CASE: &str = indoc! {"
-        3   4
-        4   3
-        2   5
-        1   3
-        3   9
-        3   3
-    "};
-
-    #[test]
-    fn part_1_case() -> miette::Result<()> {
-        assert_eq!(super::part_1(CASE)?, 11.into());
-        Ok(())
-    }
-
-    #[test]
-    fn part_2_case() -> miette::Result<()> {
-        assert_eq!(super::part_2(CASE)?, 31.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2024, 1)?;
-        assert_eq!(super::part_1(input.as_str())?, 1320851.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2024, 1)?;
-        assert_eq!(super::part_2(input.as_str())?, 26859182.into());
-        Ok(())
-    }
+    #[aoc_case(11, 31)]
+    const CASE: &str = "3   4
+4   3
+2   5
+1   3
+3   9
+3   3";
 }

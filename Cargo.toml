@@ -1,12 +1,14 @@
 [workspace]
 resolver = "2"
 
-# members = ["framework", "common", "aoc_*"]
 members=[
    "aoc-runner",
-    "aoc-runner-macros"
+   "aoc-runner-macros",
+   "aoc_2024",
+   "aoc_2023",
+   "aoc_2022",
+   "aoc_2021"
 ]
-# default-members = ["framework"]
 
 [workspace.package]
 version = "1.0.0"
@@ -15,13 +17,9 @@ version = "1.0.0"
 name = "advent-of-code"
 
 [workspace.dependencies]
-# framework = { path = "./framework" }
-# common = { path = "./common" }
-# aoc_lib = { path = "./aoc_lib" }
-# aoc_2020 = { path = "./aoc_2020" }
-# aoc_2023 = { path = "./aoc_2023" }
-# aoc_2024 = { path = "./aoc_2024" }
 
+aoc_lib = { path = "aoc_lib" }
+common = { path = "common" }
 ahash = "0.8"
 anyhow = { version = "1", features = ["backtrace"] }
 bitvec = "1.0.1"

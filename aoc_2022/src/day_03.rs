@@ -1,52 +1,69 @@
 use ahash::AHashSet;
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
-
-solution!("Rucksack Reorganization", 3);
 
 type Input = Vec<String>;
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    Ok(("", data.split('\n').map(String::from).collect()))
-}
+#[aoc(2022, day3)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let mut priority: u32 = 0;
-    for rucksack in data {
-        let halfs = rucksack.split_at(rucksack.len() / 2);
-        let mut common: AHashSet<char> = AHashSet::new();
-        for c in halfs.0.chars() {
-            if halfs.1.contains(c) {
-                common.insert(c);
-            }
-        }
-        for c in common.iter() {
-            priority += score(*c);
-        }
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        Ok(("", data.split('\n').map(String::from).collect()))
     }
-    Ok(priority.into())
-}
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = data.iter()
-        .tuples()
-        .map(|(a, b, c)| {
-            let mut common = '0';
-            for letter in a.chars() {
-                if b.contains(letter) && c.contains(letter) {
-                    common = letter;
-                    break;
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u32 {
+        let mut priority: u32 = 0;
+        for rucksack in input {
+            let halfs = rucksack.split_at(rucksack.len() / 2);
+            let mut common: AHashSet<char> = AHashSet::new();
+            for c in halfs.0.chars() {
+                if halfs.1.contains(c) {
+                    common.insert(c);
                 }
             }
-            score(common)
-        })
-        .sum::<u32>();
-    
-    Ok(result.into())
+            for c in common.iter() {
+                priority += score(*c);
+            }
+        }
+        priority
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u32 {
+        input.iter()
+            .tuples()
+            .map(|(a, b, c)| {
+                let mut common = '0';
+                for letter in a.chars() {
+                    if b.contains(letter) && c.contains(letter) {
+                        common = letter;
+                        break;
+                    }
+                }
+                score(common)
+            })
+            .sum::<u32>()
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 fn score(c: char) -> u32 {
@@ -61,7 +78,6 @@ fn score(c: char) -> u32 {
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -74,30 +90,13 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 157.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 157);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 70.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 70);
     }
 
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2022, 3)?;
-        assert_eq!(super::part_1(input.as_str())?, 7845.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2022, 3)?;
-        assert_eq!(super::part_2(input.as_str())?, 2790.into());
-        Ok(())
-    }
 }

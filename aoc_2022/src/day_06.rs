@@ -1,7 +1,5 @@
 use ahash::AHashSet;
-use common::{solution, Answer};
-
-solution!("Tuning Trouble", 6);
+use aoc_runner_macros::{aoc, generator, solver, solution};
 
 type Input = Vec<char>;
 
@@ -17,28 +15,46 @@ fn solve(input: &[char], window: usize) -> usize {
         + window
 }
 
-fn parse(input: &str) -> nom::IResult<&str, Input> {
-    let chars = input.trim().chars().collect();
-    Ok(("", chars))
-}
+#[aoc(2022, day6)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = solve(&data, 4);
-    Ok(result.into())
-}
+    fn parse(input: &str) -> nom::IResult<&str, Input> {
+        let chars = input.trim().chars().collect();
+        Ok(("", chars))
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let result = solve(&data, 14);
-    Ok(result.into())
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> usize {
+        solve(input, 4)
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> usize {
+        solve(input, 14)
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -46,30 +62,12 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 11.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 11);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 26.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2022, 6)?;
-        assert_eq!(super::part_1(input.as_str())?, 1042.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2022, 6)?;
-        assert_eq!(super::part_2(input.as_str())?, 2980.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 26);
     }
 }

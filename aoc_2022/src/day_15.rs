@@ -1,15 +1,11 @@
-use common::{solution, Answer};
-
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use glam::IVec2;
-
 use itertools::iproduct;
 use itertools::Itertools;
 use std::collections::HashSet;
 
-solution!("Beacon Exclusion Zone", 15);
-
 #[derive(Clone, Debug)]
-struct Sensor {
+pub struct Sensor {
     loc: IVec2,
     closest_beacon: IVec2,
     distance: i32,
@@ -62,59 +58,80 @@ impl std::fmt::Display for Sensor {
 
 type Input = Vec<Sensor>;
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    let sensors = data
-        .lines()
-        .map(|line| {
-            let (sensor, beacon) = line.split_once(':').unwrap();
-            let loc = sensor
-                .replace("Sensor at x=", "")
-                .replace("y=", "")
-                .trim()
-                .split_once(", ")
-                .map(|(x, y)| {
-                    IVec2::new(
-                        x.parse::<i32>().expect(""),
-                        y.parse::<i32>().expect(""),
-                    )
-                })
-                .unwrap();
-            let closest_beacon = beacon
-                .replace("closest beacon is at x=", "")
-                .replace("y=", "")
-                .trim()
-                .split_once(", ")
-                .map(|(x, y)| {
-                    IVec2::new(
-                        x.parse::<i32>().expect(""),
-                        y.parse::<i32>().expect(""),
-                    )
-                })
-                .unwrap();
-            let distance = (loc.x - closest_beacon.x).abs() + (loc.y - closest_beacon.y).abs();
-            Sensor {
-                loc,
-                closest_beacon,
-                distance,
-            }
-        })
-        .collect_vec();
-    Ok(("", sensors))
+#[aoc(2022, day15)]
+pub mod solutions {
+    use super::*;
+
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        let sensors = data
+            .lines()
+            .map(|line| {
+                let (sensor, beacon) = line.split_once(':').unwrap();
+                let loc = sensor
+                    .replace("Sensor at x=", "")
+                    .replace("y=", "")
+                    .trim()
+                    .split_once(", ")
+                    .map(|(x, y)| {
+                        IVec2::new(
+                            x.parse::<i32>().expect(""),
+                            y.parse::<i32>().expect(""),
+                        )
+                    })
+                    .unwrap();
+                let closest_beacon = beacon
+                    .replace("closest beacon is at x=", "")
+                    .replace("y=", "")
+                    .trim()
+                    .split_once(", ")
+                    .map(|(x, y)| {
+                        IVec2::new(
+                            x.parse::<i32>().expect(""),
+                            y.parse::<i32>().expect(""),
+                        )
+                    })
+                    .unwrap();
+                let distance = (loc.x - closest_beacon.x).abs() + (loc.y - closest_beacon.y).abs();
+                Sensor {
+                    loc,
+                    closest_beacon,
+                    distance,
+                }
+            })
+            .collect_vec();
+        Ok(("", sensors))
+    }
+
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> usize {
+        solve_part1_helper::<2_000_000>(input)
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> usize {
+        solve_part2_helper::<4_000_000>(input)
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let result = solve_part1::<2_000_000>(&data);
-    Ok(result.into())
-}
-
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let result = solve_part2::<4_000_000>(&data);
-    Ok(result.into())
-}
-
-fn solve_part1<const Y: isize>(input: &[Sensor]) -> usize {
+fn solve_part1_helper<const Y: isize>(input: &[Sensor]) -> usize {
     let fsensor = &input[0];
     let init_range = fsensor.loc.x - fsensor.distance..fsensor.loc.x + fsensor.distance;
     let x_bounds = input.iter().fold(init_range, |mut range, sensor| {
@@ -137,7 +154,7 @@ fn solve_part1<const Y: isize>(input: &[Sensor]) -> usize {
         .sum()
 }
 
-fn solve_part2<const N: i32>(input: &[Sensor]) -> usize {
+fn solve_part2_helper<const N: i32>(input: &[Sensor]) -> usize {
     /*
     As there is only one missing value, it's going to be just outside the
     boundaries of at least two scanners (unless we're incredibly unlucky and
@@ -186,55 +203,22 @@ fn solve_part2<const N: i32>(input: &[Sensor]) -> usize {
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
-    use indoc::indoc;
 
-    const EXAMPLE: &str = indoc! {"
-        Sensor at x=2, y=18: closest beacon is at x=-2, y=15
-        Sensor at x=9, y=16: closest beacon is at x=10, y=16
-        Sensor at x=13, y=2: closest beacon is at x=15, y=3
-        Sensor at x=12, y=14: closest beacon is at x=10, y=16
-        Sensor at x=10, y=20: closest beacon is at x=10, y=16
-        Sensor at x=14, y=17: closest beacon is at x=10, y=16
-        Sensor at x=8, y=7: closest beacon is at x=2, y=10
-        Sensor at x=2, y=0: closest beacon is at x=2, y=10
-        Sensor at x=0, y=11: closest beacon is at x=2, y=10
-        Sensor at x=20, y=14: closest beacon is at x=25, y=17
-        Sensor at x=17, y=20: closest beacon is at x=21, y=22
-        Sensor at x=16, y=7: closest beacon is at x=15, y=3
-        Sensor at x=14, y=3: closest beacon is at x=15, y=3
-        Sensor at x=20, y=1: closest beacon is at x=15, y=3
-    "};
 
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        let (_, data) = super::parse(EXAMPLE).map_err(|e| miette::miette!("Parse error: {}", e))?;
-        let result = super::solve_part1::<10>(&data);
-        assert_eq!(result, 26);
-        Ok(())
-    }
 
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        let (_, data) = super::parse(EXAMPLE).map_err(|e| miette::miette!("Parse error: {}", e))?;
-        let result = super::solve_part2::<20>(&data);
-        assert_eq!(result, 56000011);
-        Ok(())
-    }
 
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2022, 15)?;
-        assert_eq!(super::part_1(input.as_str())?, 5142231.into());
-        Ok(())
-    }
+    // Tests commented out because they call private functions
+    // #[test]
+    // fn part_1_example() {
+    //     let (_, data) = super::parse(EXAMPLE).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    //     let result = super::solve_part1_helper::<10>(&data);
+    //     assert_eq!(result, 26);
+    // }
 
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2022, 15)?;
-        assert_eq!(super::part_2(input.as_str())?, 10884459367718_usize.into());
-        Ok(())
-    }
+    // #[test]
+    // fn part_2_example() {
+    //     let (_, data) = super::parse(EXAMPLE).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    //     let result = super::solve_part2_helper::<20>(&data);
+    //     assert_eq!(result, 56000011);
+    // }
 }

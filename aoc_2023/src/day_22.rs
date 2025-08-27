@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use glam::IVec3;
 use itertools::Itertools;
 use nom::character::complete;
@@ -8,15 +8,15 @@ use nom::sequence::separated_pair;
 use nom::Parser;
 use std::collections::HashMap;
 use std::collections::HashSet;
-// use nom_supreme::ParserExt;
-// use tracing::info;
 
-solution!("Sand Slabs", 22);
+#[aoc(2023, day22)]
+pub mod solutions {
+    use super::*;
 
 type Input = Vec<Brick>;
 
 #[derive(Clone, Debug)]
-struct Brick {
+pub struct Brick {
     start: IVec3,
     end: IVec3,
 }
@@ -42,12 +42,18 @@ fn parse_brick(input: &str) -> nom::IResult<&str, Brick> {
     Ok((input, Brick { start, end }))
 }
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    separated_list1(line_ending, parse_brick).parse(data)
-}
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        separated_list1(line_ending, parse_brick).parse(data)
+    }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, mut input_data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, main)]
+    pub fn solve_part_1(mut input_data: Input) -> u32 {
         input_data.sort_by_key(|b| b.start.z);
         let mut below = vec![HashSet::new(); input_data.len()];
         let mut above = vec![HashSet::new(); input_data.len()];
@@ -85,18 +91,17 @@ fn part_1(input: &str) -> miette::Result<Answer> {
         }
 
         let mut falling = HashSet::new();
-        let (mut p1, mut _p2) = (0, 0);
+        let mut p1 = 0;
         for b in 0..input_data.len() {
             falling.clear();
             disintegrate_all(&below, &above, &mut falling, b);
             p1 += (falling.len() == 1) as usize;
-            _p2 += falling.len() - 1;
         }
-        Ok((p1 as u32).into())
-}
+        p1 as u32
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, mut input_data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    #[solver(part2, main)]
+    pub fn solve_part_2(mut input_data: Input) -> u32 {
         input_data.sort_by_key(|b| b.start.z);
         let mut below = vec![HashSet::new(); input_data.len()];
         let mut above = vec![HashSet::new(); input_data.len()];
@@ -121,23 +126,29 @@ fn part_2(input: &str) -> miette::Result<Answer> {
                     below[i].insert(j);
                 }
             }
-            // b.start.x = x1;
-            // b.start.y = y1;
-            // b.start.z = z1;
-            // b.end.x = x2;
-            // b.end.y = y2;
-            // b.end.z = z2;
         }
 
         let mut falling = HashSet::new();
-        let (mut _p1, mut p2) = (0, 0);
+        let mut p2 = 0;
         for b in 0..input_data.len() {
             falling.clear();
             disintegrate_all(&below, &above, &mut falling, b);
-            _p1 += (falling.len() == 1) as usize;
             p2 += falling.len() - 1;
         }
-        Ok((p2 as u32).into())
+        p2 as u32
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 fn disintegrate_all(
@@ -155,54 +166,16 @@ fn disintegrate_all(
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
-    use super::*;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    
 
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        let input = indoc! {"
-            1,0,1~1,2,1
-            0,0,2~2,0,2
-            0,2,3~2,2,3
-            0,0,4~0,2,4
-            2,0,5~2,2,5
-            0,1,6~2,1,6
-            1,1,8~1,1,9
-        "};
-        assert_eq!(super::part_1(input)?, 5.into());
-        Ok(())
-    }
-
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        let input = indoc! {"
-            1,0,1~1,2,1
-            0,0,2~2,0,2
-            0,2,3~2,2,3
-            0,0,4~0,2,4
-            2,0,5~2,2,5
-            0,1,6~2,1,6
-            1,1,8~1,1,9
-        "};
-        assert_eq!(super::part_2(input)?, 7.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 22)?;
-        assert_eq!(super::part_1(input.as_str())?, 411.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 22)?;
-        assert_eq!(super::part_2(input.as_str())?, 47671.into());
-        Ok(())
-    }
+    #[aoc_case(5, 7)]
+    const EXAMPLE: &str = "1,0,1~1,2,1
+0,0,2~2,0,2
+0,2,3~2,2,3
+0,0,4~0,2,4
+2,0,5~2,2,5
+0,1,6~2,1,6
+1,1,8~1,1,9";
 }

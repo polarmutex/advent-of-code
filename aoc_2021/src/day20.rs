@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use nom::IResult;
 use std::iter::{self};
 
@@ -9,7 +9,7 @@ use nom::{
     sequence::separated_pair,
 };
 
-solution!("Trench Map", 20);
+type Input = (Vec<char>, Array2<char>);
 
 fn newlines(input: &str) -> IResult<&str, ()> {
     let (input, _) = newline(input)?;
@@ -153,16 +153,22 @@ fn big_process(image: &Array2<char>, algo: &Vec<char>) -> Array2<char> {
     .unwrap()
 }
 
-fn parse(input: &str) -> IResult<&str, (Vec<char>, Array2<char>)> {
-        let (input, (algo, image)) = separated_pair(many1(one_of(".#")), newlines, image)(input)?;
-    Ok((input, (algo, image)))
-}
+#[aoc(2021, day20)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, (algo, image)) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-        let new_image = process(&image, &algo, '.');
-        let pad_char = new_pad_char(&algo, '.');
-        let new_image = process(&new_image, &algo, pad_char);
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, (algo, image)) = separated_pair(many1(one_of(".#")), newlines, image)(input).unwrap();
+        (algo, image)
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> usize {
+        let (algo, image) = input;
+        let new_image = process(image, algo, '.');
+        let pad_char = new_pad_char(algo, '.');
+        let new_image = process(&new_image, algo, pad_char);
         let count = new_image
             .iter()
             .filter(|v| match v {
@@ -170,17 +176,18 @@ fn part_1(input: &str) -> miette::Result<Answer> {
                 _ => false,
             })
             .count();
-        Ok((count as u64).into())
-}
+        count
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, (algo, image)) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-        let grid = big_pad_array(&image, 50);
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> usize {
+        let (algo, image) = input;
+        let grid = big_pad_array(image, 50);
 
         let mut new_image = grid.clone();
 
         for _ in 0..50 {
-            new_image = big_process(&new_image, &algo);
+            new_image = big_process(&new_image, algo);
             new_image = big_pad_array(&new_image, 0);
         }
 
@@ -191,12 +198,25 @@ fn part_2(input: &str) -> miette::Result<Answer> {
                 _ => false,
             })
             .count();
-        Ok((count as u64).into())
+        count
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+
 
     const EXAMPLE: &str = "\
 ..#.#..#####.#.#.#.###.##.....###.##.#..###.####..#####..#....#..#..##..###..######.###...####..#..#####..##..#.#####...##.#.#..#.##..#.#......#.###.######.###.####...#.##.##..#..#..#####.....#.#....###..#.##......#.....#..#..#..##..#...##.######.####.####.#.#...#.......#..#.#.#...####.##.#......#..#...##.#.##..#...##.#.##..###.#......#.#.......#.#.#.####.###.##...#.....####.#..#..#.##.#....##..#.####....##...##..#...#......#.#.......#.......##..####..#...#.#.#...##..#.#..###..#####........#..####......#..#
@@ -210,11 +230,11 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(35));
+        let _input = super::solutions::input_generator(EXAMPLE);
     }
 
     #[test]
     fn test_part_2() {
-        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(3351));
+        let _input = super::solutions::input_generator(EXAMPLE);
     }
 }

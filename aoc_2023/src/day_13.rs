@@ -1,16 +1,20 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
 use nom::bytes::complete::is_a;
 use nom::bytes::complete::tag;
-// use nom::character::complete;
 use nom::character::complete::line_ending;
 use nom::multi::separated_list1;
-// use nom::character::complete;
 use nom::Parser;
-// use nom_supreme::ParserExt;
-// use tracing::info;
 
-solution!("Point of Incidence", 13);
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GroundType {
+    Ash,
+    Rock,
+}
+
+#[aoc(2023, day13)]
+pub mod solutions {
+    use super::*;
 
 type Input = Vec<Pattern>;
 
@@ -20,11 +24,6 @@ pub enum Fold {
     Vertical(usize),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum GroundType {
-    Ash,
-    Rock,
-}
 
 fn detect_horiz(p: &Pattern, allowed_mismatches: u8) -> Option<Fold> {
     p.iter()
@@ -69,7 +68,7 @@ fn detect_vert(p: &Pattern, allowed_mismatches: u8) -> Option<Fold> {
         })
 }
 
-fn detect_fold(p: &Pattern, allowed_mismatches: u8) -> Fold {
+pub fn detect_fold(p: &Pattern, allowed_mismatches: u8) -> Fold {
     detect_horiz(p, allowed_mismatches)
         .or(detect_vert(p, allowed_mismatches))
         .expect("should be horiz or vertical")
@@ -101,38 +100,56 @@ fn parse_grid(input: &str) -> nom::IResult<&str, Pattern> {
     .parse(input)
 }
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    separated_list1(tag("\n\n"), parse_grid).parse(data)
-}
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        separated_list1(tag("\n\n"), parse_grid).parse(data)
+    }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let result: u32 = data.iter()
-        .map(|p| match detect_fold(p, 0) {
-            Fold::Horizontal(num) => 100 * num as u32,
-            Fold::Vertical(num) => num as u32,
-        })
-        .sum();
-    Ok(result.into())
-}
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let result: u32 = data.iter()
-        .map(|p| match detect_fold(p, 1) {
-            Fold::Horizontal(num) => 100 * num as u32,
-            Fold::Vertical(num) => num as u32,
-        })
-        .sum();
-    Ok(result.into())
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u32 {
+        data.iter()
+            .map(|p| match detect_fold(p, 0) {
+                Fold::Horizontal(num) => 100 * num as u32,
+                Fold::Vertical(num) => num as u32,
+            })
+            .sum()
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u32 {
+        data.iter()
+            .map(|p| match detect_fold(p, 1) {
+                Fold::Horizontal(num) => 100 * num as u32,
+                Fold::Vertical(num) => num as u32,
+            })
+            .sum()
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
-    use rstest::rstest;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    use super::solutions::*;
     use super::*;
+    use itertools::Itertools;
+    use rstest::rstest;
 
     #[rstest]
     #[case("\
@@ -196,65 +213,20 @@ mod test {
         assert_eq!(expected, detect_fold(&p, 1));
     }
 
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        let input = indoc! {"
-            #.##..##.
-            ..#.##.#.
-            ##......#
-            ##......#
-            ..#.##.#.
-            ..##..##.
-            #.#.##.#.
-            
-            #...##..#
-            #....#..#
-            ..##..###
-            #####.##.
-            #####.##.
-            ..##..###
-            #....#..#
-        "};
-        assert_eq!(super::part_1(input)?, 405.into());
-        Ok(())
-    }
+    #[aoc_case(405, 400)]
+    const EXAMPLE: &str = "#.##..##.
+..#.##.#.
+##......#
+##......#
+..#.##.#.
+..##..##.
+#.#.##.#.
 
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        let input = indoc! {"
-            #.##..##.
-            ..#.##.#.
-            ##......#
-            ##......#
-            ..#.##.#.
-            ..##..##.
-            #.#.##.#.
-            
-            #...##..#
-            #....#..#
-            ..##..###
-            #####.##.
-            #####.##.
-            ..##..###
-            #....#..#
-        "};
-        assert_eq!(super::part_2(input)?, 400.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 13)?;
-        assert_eq!(super::part_1(input.as_str())?, 27202.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 13)?;
-        assert_eq!(super::part_2(input.as_str())?, 41566.into());
-        Ok(())
-    }
+#...##..#
+#....#..#
+..##..###
+#####.##.
+#####.##.
+..##..###
+#....#..#";
 }

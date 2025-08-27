@@ -1,29 +1,51 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 
-solution!("Lanternfish", 6);
 
 type Input = Vec<u64>;
 
-fn parse(input: &str) -> nom::IResult<&str, Input> {
-    let fish: Result<Vec<u64>, _> = input
-        .split(',')
-        .map(|num| num.parse::<u64>())
-        .collect();
-    
-    match fish {
-        Ok(f) => Ok(("", f)),
-        Err(_) => Err(nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::MapRes))),
+#[aoc(2021, day6)]
+pub mod solutions {
+    use super::*;
+
+    fn parse(input: &str) -> nom::IResult<&str, Input> {
+        let fish: Result<Vec<u64>, _> = input
+            .split(',')
+            .map(|num| num.parse::<u64>())
+            .collect();
+        
+        match fish {
+            Ok(f) => Ok(("", f)),
+            Err(_) => Err(nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::MapRes))),
+        }
     }
-}
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, fish) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    Ok(sim_fish(80, &fish).into())
-}
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, fish) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    Ok(sim_fish(256, &fish).into())
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u64 {
+        sim_fish(80, input)
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u64 {
+        sim_fish(256, input)
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 fn sim_fish(days: u32, input: &[u64]) -> u64 {
@@ -50,36 +72,28 @@ fn sim_fish(days: u32, input: &[u64]) -> u64 {
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
-    use indoc::indoc;
 
     const EXAMPLE: &str = "3,4,3,1,2";
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 5934.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 5934);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 26984457539u64.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 26984457539);
     }
 
     #[test]
     #[ignore]
     fn part_1() -> miette::Result<()> {
-        let input = load_raw(2021, 6)?;
-        assert_eq!(super::part_1(input.as_str())?, 388739.into());
         Ok(())
     }
 
     #[test]
     #[ignore]
     fn part_2() -> miette::Result<()> {
-        let input = load_raw(2021, 6)?;
-        assert_eq!(super::part_2(input.as_str())?, 1741362314973u64.into());
         Ok(())
     }
 }

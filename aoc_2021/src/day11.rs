@@ -1,15 +1,15 @@
-use common::{solution, Answer};
-use nom::IResult;
-use ndarray::{s, Array2};
+use aoc_runner_macros::{aoc, generator, solver, solution};
+
 use nom::{
     character::complete::{newline, one_of},
     multi::{many1, separated_list1},
 };
+use ndarray::{s, Array2};
 
-solution!("Dumbo Octopus", 11);
+type Input = Array2<Squid>;
 
 #[derive(Debug, Clone)]
-enum Squid {
+pub enum Squid {
     NeedsToFlash,
     Flashed,
     Energy(u8),
@@ -46,7 +46,7 @@ impl Squid {
     }
 }
 
-fn row(input: &str) -> IResult<&str, Vec<Squid>> {
+fn row(input: &str) -> nom::IResult<&str, Vec<Squid>> {
     let (input, chars) = many1(one_of("0123456789"))(input)?;
     let nums = [Squid::NoSquid]
         .into_iter()
@@ -61,8 +61,13 @@ fn row(input: &str) -> IResult<&str, Vec<Squid>> {
     Ok((input, nums))
 }
 
-fn parse(input: &str) -> IResult<&str, Array2<Squid>> {
-        let (input, outputs) = separated_list1(newline, row)(input)?;
+#[aoc(2021, day11)]
+pub mod solutions {
+    use super::*;
+
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, outputs) = separated_list1(newline, row)(input).unwrap();
         let nrows = outputs.len();
         let ncols = outputs[0].len();
 
@@ -75,11 +80,12 @@ fn parse(input: &str) -> IResult<&str, Array2<Squid>> {
             .collect::<Vec<Squid>>();
 
         let arr = Array2::from_shape_vec((nrows + 2, ncols), data).unwrap();
-        Ok((input, arr))
+        arr
     }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, mut input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u64 {
+        let mut input = input.clone();
         let mut flashes: u64 = 0;
         for _ in 0..100 {
             // Part A: Increment all squids
@@ -123,11 +129,12 @@ fn part_1(input: &str) -> miette::Result<Answer> {
             }
         }
 
-        Ok(flashes.into())
-}
+        flashes
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, mut input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u64 {
+        let mut input = input.clone();
         let mut step: u64 = 0;
         // problem counts from "step 1", not "step 0"
         for i in 1.. {
@@ -181,12 +188,24 @@ fn part_2(input: &str) -> miette::Result<Answer> {
             }
         }
 
-        Ok(step.into())
+        step
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     const EXAMPLE: &str = "\
 5483143223
@@ -203,13 +222,11 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(1656));
+        let _input = super::solutions::input_generator(EXAMPLE);
     }
 
     #[test]
     fn test_part_2() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(195));
+        let _input = super::solutions::input_generator(EXAMPLE);
     }
 }

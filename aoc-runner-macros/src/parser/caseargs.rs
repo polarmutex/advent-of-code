@@ -17,15 +17,13 @@ impl Parse for AocCaseArgs {
                 expected_p1: p1,
                 expected_p2: Some(p2),
             })
+        } else if !input.is_empty() {
+            Err(input.error("Expected: a single expression for just testing Part 1, or two expressions as two arguments if testing Part 1 and Part 2."))
         } else {
-            if !input.is_empty() {
-                Err(input.error("Expected: a single expression for just testing Part 1, or two expressions as two arguments if testing Part 1 and Part 2."))
-            } else {
-                Ok(AocCaseArgs {
-                    expected_p1: p1,
-                    expected_p2: None,
-                })
-            }
+            Ok(AocCaseArgs {
+                expected_p1: p1,
+                expected_p2: None,
+            })
         }
     }
 }

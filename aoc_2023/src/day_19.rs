@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete;
@@ -14,11 +14,10 @@ use nom::sequence::terminated;
 use nom::Parser;
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
-// use nom_supreme::ParserExt;
-// use tracing::info;
-// use itertools::Itertools;
 
-solution!("Aplenty", 19);
+#[aoc(2023, day19)]
+pub mod solutions {
+    use super::*;
 
 type Input = WorkflowInput;
 
@@ -127,7 +126,7 @@ impl Default for PartRange {
 }
 
 #[derive(Clone, Debug)]
-struct WorkflowInput {
+pub struct WorkflowInput {
     workflows: HashMap<String, Workflow>,
     parts: Vec<Part>,
 }
@@ -273,114 +272,83 @@ fn parse_part(input: &str) -> nom::IResult<&str, Part> {
     .parse(input)
 }
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    let (input, workflows) = separated_list1(line_ending, parse_workflow).parse(data)?;
-    let (input, _) = multispace1.parse(input)?;
-    let (input, parts) = separated_list1(line_ending, parse_part).parse(input)?;
-    Ok((
-        input,
-        WorkflowInput {
-            parts,
-            workflows: workflows
-                .iter()
-                .map(|v| (v.id.clone(), v.clone()))
-                .collect::<HashMap<String, Workflow>>(),
-        },
-    ))
-}
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        let (input, workflows) = separated_list1(line_ending, parse_workflow).parse(data)?;
+        let (input, _) = multispace1.parse(input)?;
+        let (input, parts) = separated_list1(line_ending, parse_part).parse(input)?;
+        Ok((
+            input,
+            WorkflowInput {
+                parts,
+                workflows: workflows
+                    .iter()
+                    .map(|v| (v.id.clone(), v.clone()))
+                    .collect::<HashMap<String, Workflow>>(),
+            },
+        ))
+    }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let workflows = data.workflows;
-    let result: u64 = data.parts
-        .into_iter()
-        .map(|p| {
-            let s = (p.x + p.m + p.a + p.s) as u64;
-            (s, sort_part(&workflows, &p))
-        })
-        .filter(|(_, t)| t == &Target::Accepted)
-        .map(|(s, _)| s)
-        .sum();
-    Ok(result.into())
-}
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let p = PartRange::default();
-    let workflows = data.workflows;
-    let result = find_accepted_combinations(p, &workflows, &Target::Workflow(String::from("in")));
-    Ok(result.into())
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u64 {
+        let workflows = data.workflows;
+        data.parts
+            .into_iter()
+            .map(|p| {
+                let s = (p.x + p.m + p.a + p.s) as u64;
+                (s, sort_part(&workflows, &p))
+            })
+            .filter(|(_, t)| t == &Target::Accepted)
+            .map(|(s, _)| s)
+            .sum()
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u64 {
+        let p = PartRange::default();
+        let workflows = data.workflows;
+        find_accepted_combinations(p, &workflows, &Target::Workflow(String::from("in")))
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
-    use super::*;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    
 
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        let input = indoc! {"
-            px{a<2006:qkq,m>2090:A,rfg}
-            pv{a>1716:R,A}
-            lnx{m>1548:A,A}
-            rfg{s<537:gd,x>2440:R,A}
-            qs{s>3448:A,lnx}
-            qkq{x<1416:A,crn}
-            crn{x>2662:A,R}
-            in{s<1351:px,qqz}
-            qqz{s>2770:qs,m<1801:hdj,R}
-            gd{a>3333:R,R}
-            hdj{m>838:A,pv}
+    #[aoc_case(19114, 167409079868000)]
+    const EXAMPLE: &str = "px{a<2006:qkq,m>2090:A,rfg}
+pv{a>1716:R,A}
+lnx{m>1548:A,A}
+rfg{s<537:gd,x>2440:R,A}
+qs{s>3448:A,lnx}
+qkq{x<1416:A,crn}
+crn{x>2662:A,R}
+in{s<1351:px,qqz}
+qqz{s>2770:qs,m<1801:hdj,R}
+gd{a>3333:R,R}
+hdj{m>838:A,pv}
 
-            {x=787,m=2655,a=1222,s=2876}
-            {x=1679,m=44,a=2067,s=496}
-            {x=2036,m=264,a=79,s=2244}
-            {x=2461,m=1339,a=466,s=291}
-            {x=2127,m=1623,a=2188,s=1013}
-        "};
-        assert_eq!(super::part_1(input)?, 19114.into());
-        Ok(())
-    }
-
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        let input = indoc! {"
-            px{a<2006:qkq,m>2090:A,rfg}
-            pv{a>1716:R,A}
-            lnx{m>1548:A,A}
-            rfg{s<537:gd,x>2440:R,A}
-            qs{s>3448:A,lnx}
-            qkq{x<1416:A,crn}
-            crn{x>2662:A,R}
-            in{s<1351:px,qqz}
-            qqz{s>2770:qs,m<1801:hdj,R}
-            gd{a>3333:R,R}
-            hdj{m>838:A,pv}
-
-            {x=787,m=2655,a=1222,s=2876}
-            {x=1679,m=44,a=2067,s=496}
-            {x=2036,m=264,a=79,s=2244}
-            {x=2461,m=1339,a=466,s=291}
-            {x=2127,m=1623,a=2188,s=1013}
-        "};
-        assert_eq!(super::part_2(input)?, 167409079868000_u64.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 19)?;
-        assert_eq!(super::part_1(input.as_str())?, 319062.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 19)?;
-        assert_eq!(super::part_2(input.as_str())?, 118638369682135_u64.into());
-        Ok(())
-    }
+{x=787,m=2655,a=1222,s=2876}
+{x=1679,m=44,a=2067,s=496}
+{x=2036,m=264,a=79,s=2244}
+{x=2461,m=1339,a=466,s=291}
+{x=2127,m=1623,a=2188,s=1013}";
 }

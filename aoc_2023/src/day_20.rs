@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
@@ -8,11 +8,10 @@ use nom::multi::separated_list1;
 use nom::Parser;
 use std::collections::HashMap;
 use std::collections::VecDeque;
-// use nom::character::complete;
-// use nom_supreme::ParserExt;
-// use tracing::info;
 
-solution!("Pulse Propagation", 20);
+#[aoc(2023, day20)]
+pub mod solutions {
+    use super::*;
 
 type Input = HashMap<String, Module>;
 
@@ -35,7 +34,7 @@ enum ModuleType {
     Conjunction { memory: HashMap<String, Signal> },
 }
 #[derive(Clone, Debug)]
-struct Module {
+pub struct Module {
     module_type: ModuleType,
     id: String,
     destinations: Vec<String>,
@@ -138,23 +137,29 @@ fn parse_conjunction(input: &str) -> nom::IResult<&str, Module> {
     ))
 }
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    let (input, machines) = separated_list1(
-        line_ending,
-        alt((parse_broadcast, parse_flipflop, parse_conjunction)),
-    )
-    .parse(data)?;
-    Ok((
-        input,
-        machines
-            .into_iter()
-            .map(|v| (v.id.clone(), v))
-            .collect::<HashMap<String, Module>>(),
-    ))
-}
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        let (input, machines) = separated_list1(
+            line_ending,
+            alt((parse_broadcast, parse_flipflop, parse_conjunction)),
+        )
+        .parse(data)?;
+        Ok((
+            input,
+            machines
+                .into_iter()
+                .map(|v| (v.id.clone(), v))
+                .collect::<HashMap<String, Module>>(),
+        ))
+    }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, mut data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, main)]
+    pub fn solve_part_1(mut data: Input) -> u64 {
         let button_pushes = 1000;
         let mut high_pulses = 0;
         let mut low_pulses = 0;
@@ -195,7 +200,6 @@ fn part_1(input: &str) -> miette::Result<Answer> {
                         .collect();
                 });
             });
-        dbg!(&data);
 
         for _ in 0..button_pushes {
             // low pulse on button press
@@ -221,13 +225,11 @@ fn part_1(input: &str) -> miette::Result<Answer> {
             }
         }
 
-        dbg!(&high_pulses);
-        dbg!(&low_pulses);
-        Ok((high_pulses * low_pulses).into())
-}
+        high_pulses * low_pulses
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, mut data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    #[solver(part2, main)]
+    pub fn solve_part_2(mut data: Input) -> u64 {
         // initialize default of conjunciton module
         let conjunctions = data
             .iter()
@@ -264,7 +266,6 @@ fn part_2(input: &str) -> miette::Result<Answer> {
                         .collect();
                 });
             });
-        dbg!(&data);
 
         let final_node = data
             .iter()
@@ -307,7 +308,20 @@ fn part_2(input: &str) -> miette::Result<Answer> {
                 q.extend(next);
             }
         }
-        Ok(lcm(&lcms).into())
+        lcm(&lcms)
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 pub fn lcm(nums: &[u64]) -> u64 {
@@ -327,37 +341,19 @@ fn gcd_of_two_numbers(a: u64, b: u64) -> u64 {
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use super::*;
+mod tests {
+    
+    use super::solutions::*;
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
+    fn part_1_example_1() {
         let input = "broadcaster -> a, b, c\n%a -> b\n%b -> c\n%c -> inv\n&inv -> a";
-        assert_eq!(super::part_1(input)?, 32000000.into());
-        Ok(())
+        assert_eq!(part_1(input), 32000000);
     }
 
     #[test]
-    fn part_1_example2() -> miette::Result<()> {
+    fn part_1_example_2() {
         let input = "broadcaster -> a\n%a -> inv, con\n&inv -> b\n%b -> con\n&con -> output";
-        assert_eq!(super::part_1(input)?, 11687500.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 20)?;
-        assert_eq!(super::part_1(input.as_str())?, 812721756.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 20)?;
-        assert_eq!(super::part_2(input.as_str())?, 233338595643977_u64.into());
-        Ok(())
+        assert_eq!(part_1(input), 11687500);
     }
 }

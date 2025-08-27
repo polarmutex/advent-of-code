@@ -1,11 +1,7 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
 use std::cmp::Ordering;
 use std::str::FromStr;
-
-solution!("Distress Signal", 13);
-
-
 #[derive(Clone, Debug, Eq, PartialEq)]
 enum Packet {
     Num(u32),
@@ -41,7 +37,7 @@ fn parse_packet(input: &str) -> Packet {
 }
 
 impl FromStr for Packet {
-    type Err = miette::Error;
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let packet = parse_packet(s);
@@ -95,72 +91,91 @@ impl PartialOrd for Packet {
 }
 
 #[derive(Clone, Debug)]
-struct PacketPair {
+pub struct PacketPair {
     left: Packet,
     right: Packet,
 }
 
 type Input = Vec<PacketPair>;
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    let packet_pair: Vec<PacketPair> = data
-        .trim()
-        .split("\n\n")
-        .map(|pair| {
-            let (left, right) = pair.split_once('\n').expect("two packets");
-            let (left, right) = (
-                left.parse::<Packet>().expect("valid left packet"),
-                right.parse::<Packet>().expect("valid right packet"),
-            );
-            PacketPair { left, right }
-        })
-        .collect_vec();
-    Ok(("", packet_pair))
-}
+#[aoc(2022, day13)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let mut index_sum = 0_u32;
-    for (i, pair) in data.iter().enumerate() {
-        println!("{}", pair.left);
-        println!("{}", pair.right);
-        let res = pair.left.cmp(&pair.right);
-        match res {
-            Ordering::Equal => println!("{} - left = right", i + 1),
-            Ordering::Less => {
-                println!("{} - left < right", i + 1);
-                index_sum += (i as u32) + 1
-            }
-            Ordering::Greater => {
-                println!("{} - left > right", i + 1);
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        let packet_pair: Vec<PacketPair> = data
+            .trim()
+            .split("\n\n")
+            .map(|pair| {
+                let (left, right) = pair.split_once('\n').expect("two packets");
+                let (left, right) = (
+                    left.parse::<Packet>().expect("valid left packet"),
+                    right.parse::<Packet>().expect("valid right packet"),
+                );
+                PacketPair { left, right }
+            })
+            .collect_vec();
+        Ok(("", packet_pair))
+    }
+
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(data: &Input) -> usize {
+        let mut index_sum = 0_u32;
+        for (i, pair) in data.iter().enumerate() {
+            println!("{}", pair.left);
+            println!("{}", pair.right);
+            let res = pair.left.cmp(&pair.right);
+            match res {
+                Ordering::Equal => println!("{} - left = right", i + 1),
+                Ordering::Less => {
+                    println!("{} - left < right", i + 1);
+                    index_sum += (i as u32) + 1
+                }
+                Ordering::Greater => {
+                    println!("{} - left > right", i + 1);
+                }
             }
         }
+        index_sum as usize
     }
-    Ok((index_sum as usize).into())
-}
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    
-    let mut packets = data
-        .iter()
-        .flat_map(|pair| [pair.left.clone(), pair.right.clone()])
-        .collect_vec();
-    let divider_packet_1 = "[[2]]".parse::<Packet>().expect("");
-    let divider_packet_2 = "[[6]]".parse::<Packet>().expect("");
-    packets.push(divider_packet_1.clone());
-    packets.push(divider_packet_2.clone());
-    packets.sort();
+    #[solver(part2, gen)]
+    pub fn solve_part2(data: &Input) -> usize {
+        let mut packets = data
+            .iter()
+            .flat_map(|pair| [pair.left.clone(), pair.right.clone()])
+            .collect_vec();
+        let divider_packet_1 = "[[2]]".parse::<Packet>().expect("");
+        let divider_packet_2 = "[[6]]".parse::<Packet>().expect("");
+        packets.push(divider_packet_1.clone());
+        packets.push(divider_packet_2.clone());
+        packets.sort();
 
-    let result = (packets.binary_search(&divider_packet_1).unwrap() + 1)
-        * (packets.binary_search(&divider_packet_2).unwrap() + 1);
-    Ok(result.into())
+        (packets.binary_search(&divider_packet_1).unwrap() + 1)
+            * (packets.binary_search(&divider_packet_2).unwrap() + 1)
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> usize {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
     use indoc::indoc;
 
     const EXAMPLE: &str = indoc! {"
@@ -190,30 +205,12 @@ mod test {
     "};
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(EXAMPLE)?, 13.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(EXAMPLE), 13);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(EXAMPLE)?, 140.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2022, 13)?;
-        assert_eq!(super::part_1(input.as_str())?, 5529.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2022, 13)?;
-        assert_eq!(super::part_2(input.as_str())?, 27690.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(EXAMPLE), 140);
     }
 }

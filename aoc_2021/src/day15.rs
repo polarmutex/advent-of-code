@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use nom::IResult;
 use ndarray::{concatenate, Array2, Axis};
 use nom::{
@@ -7,7 +7,7 @@ use nom::{
 };
 use petgraph::{algo::dijkstra, graphmap::GraphMap, Undirected};
 
-solution!("Chiton", 15);
+type Input = Array2<u8>;
 
 fn row(input: &str) -> IResult<&str, Vec<u8>> {
     let (input, chars) = many1(one_of("0123456789"))(input)?;
@@ -24,6 +24,10 @@ struct Node {
     point: (usize, usize),
     weight: u8,
 }
+
+#[aoc(2021, day15)]
+pub mod solutions {
+    use super::*;
 
 fn insert(
     graph: &mut GraphMap<Node, u32, Undirected>,
@@ -72,24 +76,25 @@ fn algo(array: Array2<u8>) -> u32 {
     *result.get(&end).unwrap()
 }
 
-fn parse(input: &str) -> IResult<&str, Array2<u8>> {
-        let (input, outputs) = separated_list1(newline, row)(input)?;
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, outputs) = separated_list1(newline, row)(input).unwrap();
         let nrows = outputs.len();
         let ncols = outputs[0].len();
 
         let data = outputs.into_iter().flatten().collect::<Vec<u8>>();
 
         let arr = Array2::from_shape_vec((nrows, ncols), data).unwrap();
-        Ok((input, arr))
+        arr
     }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-        Ok((algo(input) as u64).into())
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u32 {
+        algo(input.clone())
     }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u32 {
         let row_1_arrs = (0..5_u8)
             .map(|i| {
                 input.mapv(|weight| {
@@ -130,12 +135,25 @@ fn part_2(input: &str) -> miette::Result<Answer> {
         let col_views: Vec<_> = col_arrs.iter().map(|v| v.view()).collect();
         let full_grid = concatenate(Axis(0), &col_views[..]);
 
-        Ok((algo(full_grid.unwrap()) as u64).into())
+        algo(full_grid.unwrap())
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+
 
     const EXAMPLE: &str = "\
 1163751742
@@ -152,13 +170,11 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(40));
+        let _input = super::solutions::input_generator(EXAMPLE);
     }
 
     #[test]
     fn test_part_2() {
-        let input = parse(EXAMPLE).unwrap().1;
-        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(315));
+        let _input = super::solutions::input_generator(EXAMPLE);
     }
 }

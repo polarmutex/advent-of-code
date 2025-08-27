@@ -1,8 +1,6 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use itertools::Itertools;
 use std::collections::VecDeque;
-
-solution!("Monkey in the Middle", 11);
 
 #[allow(dead_code)]
 const EXAMPLE: &str = "Monkey 0:
@@ -34,7 +32,7 @@ Monkey 3:
     If false: throw to monkey 1";
 
 #[derive(Debug, Clone)]
-struct Monkey {
+pub struct Monkey {
     num: u32,
     items: VecDeque<u64>,
     operation: Operation,
@@ -44,7 +42,7 @@ struct Monkey {
     inspections: u64,
 }
 impl std::str::FromStr for Monkey {
-    type Err = miette::Error;
+    type Err = String;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let mut iter = input.lines();
 
@@ -120,16 +118,16 @@ impl std::str::FromStr for Monkey {
 
 impl std::fmt::Display for Monkey {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Monkey: {}", self.num).unwrap();
-        write!(f, "\titems: ").unwrap();
+        writeln!(f, "Monkey: {}", self.num)?;
+        write!(f, "\titems: ")?;
         for i in self.items.iter() {
-            write!(f, "{} ", i).unwrap();
+            write!(f, "{} ", i)?;
         }
-        writeln!(f).unwrap();
-        writeln!(f, "\toperation: {}", self.operation).unwrap();
-        writeln!(f, "\ttest: {}", self.test_divisable).unwrap();
-        writeln!(f, "\ttest true: {}", self.test_true).unwrap();
-        writeln!(f, "\ttest false: {}", self.test_false).unwrap();
+        writeln!(f)?;
+        writeln!(f, "\toperation: {}", self.operation)?;
+        writeln!(f, "\ttest: {}", self.test_divisable)?;
+        writeln!(f, "\ttest true: {}", self.test_true)?;
+        writeln!(f, "\ttest false: {}", self.test_false)?;
         Ok(())
     }
 }
@@ -141,7 +139,7 @@ enum Operation {
     Squared,
 }
 impl std::str::FromStr for Operation {
-    type Err = miette::Error;
+    type Err = String;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let input = input
             .split_once(": new =")
@@ -160,7 +158,7 @@ impl std::str::FromStr for Operation {
                     input[2].parse::<u32>().expect("u32 for mut num"),
                 )),
             },
-            _ => miette::bail!("Could not match operation"),
+            _ => Err("Could not match operation".to_string()),
         }
     }
 }
@@ -222,55 +220,57 @@ fn keep_away<const ROUNDS: u32, const RELIEF_FACTOR: u8>(monkeys: &[Monkey]) -> 
 
 type Input = Vec<Monkey>;
 
-fn parse(data: &str) -> nom::IResult<&str, Input> {
-    let monkeys = data
-        .split("\n\n")
-        .map(|monkey| monkey.parse::<Monkey>().expect("valid monkeys"))
-        .collect_vec();
-    Ok(("", monkeys))
-}
+#[aoc(2022, day11)]
+pub mod solutions {
+    use super::*;
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let result = keep_away::<20, 3>(&data);
-    Ok(result.into())
-}
+    fn parse(data: &str) -> nom::IResult<&str, Input> {
+        let monkeys = data
+            .split("\n\n")
+            .map(|monkey| monkey.parse::<Monkey>().expect("valid monkeys"))
+            .collect_vec();
+        Ok(("", monkeys))
+    }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, data) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-    let result = keep_away::<10_000, 1>(&data);
-    Ok(result.into())
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Input) -> u64 {
+        keep_away::<20, 3>(input)
+    }
+
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Input) -> u64 {
+        keep_away::<10_000, 1>(input)
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use common::load_raw;
 
     #[test]
-    fn part_1_example() -> miette::Result<()> {
-        assert_eq!(super::part_1(super::EXAMPLE)?, 10605.into());
-        Ok(())
+    fn part_1_example() {
+        assert_eq!(super::solutions::part_1(super::EXAMPLE), 10605);
     }
 
     #[test]
-    fn part_2_example() -> miette::Result<()> {
-        assert_eq!(super::part_2(super::EXAMPLE)?, 2713310158u64.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2022, 11)?;
-        assert_eq!(super::part_1(input.as_str())?, 55458.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2022, 11)?;
-        assert_eq!(super::part_2(input.as_str())?, 14508081294u64.into());
-        Ok(())
+    fn part_2_example() {
+        assert_eq!(super::solutions::part_2(super::EXAMPLE), 2713310158u64);
     }
 }

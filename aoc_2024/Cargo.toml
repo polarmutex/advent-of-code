@@ -5,13 +5,9 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-aoc_lib.workspace = true
-common.workspace = true
-ctor.workspace = true
+aoc-runner = { path = "../aoc-runner" }
+aoc-runner-macros = { path = "../aoc-runner-macros" }
 glam.workspace = true
-indoc.workspace = true
 itertools.workspace = true
-miette.workspace = true
 nom.workspace = true
-test-log.workspace = true
 tracing.workspace = true

@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use nom::IResult;
 use ndarray::Array2;
 use nom::{
@@ -8,10 +8,9 @@ use nom::{
 use petgraph::algo::condensation;
 use petgraph::{graphmap::GraphMap, Undirected};
 
-solution!("Smoke Basin", 9);
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq)]
-struct Grid {
+pub struct Grid {
     data: Vec<Option<u8>>,
     rows: usize,
     cols: usize,
@@ -72,9 +71,19 @@ fn parse(input: &str) -> IResult<&str, Grid> {
         Ok((input, Grid { data, rows, cols }))
     }
 
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
-        let arr = Array2::from_shape_vec((input.rows + 2, input.cols), input.data).unwrap();
+#[aoc(2021, day9)]
+pub mod solutions {
+    use super::*;
+
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Grid {
+        let (_, data) = parse(input).unwrap();
+        data
+    }
+
+    #[solver(part1, gen)]
+    pub fn solve_part1(input: &Grid) -> u64 {
+        let arr = Array2::from_shape_vec((input.rows + 2, input.cols), input.data.clone()).unwrap();
         let results: u32 = arr
             .windows((3, 3))
             .into_iter()
@@ -90,18 +99,17 @@ fn part_1(input: &str) -> miette::Result<Answer> {
                     .all(|&v| v > point)
                 {
                     true => {
-                        // dbg!(point);
                         point.map(|v| (v + 1) as u32)
                     }
                     false => None,
                 }
             })
             .sum();
-        Ok((results as u64).into())
+        results as u64
     }
 
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let (_, input) = parse(input).map_err(|e| miette::miette!("Parse error: {}", e))?;
+    #[solver(part2, gen)]
+    pub fn solve_part2(input: &Grid) -> u64 {
         let data: Vec<Option<u8>> = input
             .data
             .iter()
@@ -113,10 +121,12 @@ fn part_2(input: &str) -> miette::Result<Answer> {
                 None => None,
             })
             .collect();
+
         let arr = Array2::from_shape_vec((input.rows + 2, input.cols), data).unwrap();
         let mut graph: GraphMap<Node, (), Undirected> = GraphMap::new();
-        for (point, maybe_value) in arr.indexed_iter() {
-            if let Some(value) = maybe_value {
+
+        for (point, value) in arr.indexed_iter() {
+            if let Some(value) = value {
                 let node = Node {
                     point,
                     weight: *value,
@@ -136,8 +146,22 @@ fn part_2(input: &str) -> miette::Result<Answer> {
         sums.sort();
         sums.reverse();
         let mut finals = sums.iter();
-        Ok(((finals.next().unwrap() * finals.next().unwrap() * finals.next().unwrap()) as u64).into())
+        (finals.next().unwrap() * finals.next().unwrap() * finals.next().unwrap()) as u64
+    }
+
+    #[solution(part1, gen)]
+    pub fn part_1(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part1(&data)
+    }
+
+    #[solution(part2, gen)]
+    pub fn part_2(input: &str) -> u64 {
+        let data = input_generator(input);
+        solve_part2(&data)
+    }
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -153,11 +177,11 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        assert_eq!(part_1(EXAMPLE).unwrap(), Answer::Number(15));
+        assert_eq!(solutions::part_1(EXAMPLE), 15);
     }
 
     #[test]
     fn test_part_2() {
-        assert_eq!(part_2(EXAMPLE).unwrap(), Answer::Number(1134));
+        assert_eq!(solutions::part_2(EXAMPLE), 1134);
     }
 }

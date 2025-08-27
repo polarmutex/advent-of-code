@@ -1,4 +1,4 @@
-use common::{solution, Answer};
+use aoc_runner_macros::{aoc, generator, solver, solution};
 use glam::IVec2;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
@@ -8,20 +8,16 @@ use nom::Parser;
 use nom_locate::LocatedSpan;
 use std::collections::HashMap;
 use std::fmt::Display;
-// use nom_supreme::ParserExt;
-// use itertools::Itertools;
-// use tracing::info;
-
-solution!("Parabolic Reflector Dish", 14);
 
 type Input = RockMap;
+
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 enum Direction {
     North,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-enum RockType {
+pub enum RockType {
     Rounded,
     Cube,
     Empty,
@@ -41,13 +37,17 @@ impl Display for RockType {
     }
 }
 
-type RockState = HashMap<IVec2, RockType>;
+pub type RockState = HashMap<IVec2, RockType>;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-struct RockMap {
+pub struct RockMap {
     grid: RockState,
     size: IVec2,
 }
+
+#[aoc(2023, day14)]
+pub mod solutions {
+    use super::*;
 
 type Span<'a> = LocatedSpan<&'a str>;
 #[derive(Clone, Debug, PartialEq)]
@@ -101,58 +101,74 @@ fn parse_grid(input: Span) -> IBaseResult<Span, RockState> {
     res.map(|(input, _)| (input, parsed))
 }
 
-fn parse_input(data: &str) -> miette::Result<Input> {
-    let grid = parse_grid(Span::new(data)).map_err(|e| miette::miette!("Parse error: {}", e))?.1;
-    let size = IVec2::new(
-        grid.iter()
-            .fold(0, |acc, (pos, _)| if pos.x > acc { pos.x } else { acc })
-            .abs() as i32
-            + 1,
-        grid.iter()
-            .fold(0, |acc, (pos, _)| if pos.y > acc { pos.y } else { acc })
-            .abs() as i32
-            + 1,
-    );
-    Ok(RockMap {
-        size,
-        grid: grid
-            .into_iter()
-            .filter(|(_, t)| *t != RockType::Empty)
-            .collect::<HashMap<IVec2, RockType>>(),
-    })
-}
-
-fn part_1(input: &str) -> miette::Result<Answer> {
-    let data = parse_input(input)?;
-    let dir = [Direction::North].iter();
-    let final_map = dir.fold(data.grid, |old_map, dir| match dir {
-        Direction::North => tilt_north(&old_map, &data.size),
-    });
-    let result: u32 = final_map
-        .iter()
-        .filter_map(|(p, t)| match t {
-            RockType::Rounded => Some((data.size.x - p.y) as u32),
-            _ => None,
-        })
-        .sum::<u32>();
-    Ok(result.into())
-}
-
-fn part_2(input: &str) -> miette::Result<Answer> {
-    let data = parse_input(input)?;
-    let (spins, cycle_len, mut state) = find_cycle(&data.grid, &data.size);
-    let spins_left = (1_000_000_000 - spins) % cycle_len;
-    for _ in 0..spins_left {
-        state = spin(&state, &data.size);
+    fn parse_input(data: &str) -> Input {
+        let grid = parse_grid(Span::new(data)).unwrap().1;
+        let size = IVec2::new(
+            grid.iter()
+                .fold(0, |acc, (pos, _)| if pos.x > acc { pos.x } else { acc })
+                .abs() as i32
+                + 1,
+            grid.iter()
+                .fold(0, |acc, (pos, _)| if pos.y > acc { pos.y } else { acc })
+                .abs() as i32
+                + 1,
+        );
+        RockMap {
+            size,
+            grid: grid
+                .into_iter()
+                .filter(|(_, t)| *t != RockType::Empty)
+                .collect::<HashMap<IVec2, RockType>>(),
+        }
     }
-    let result: u32 = state
-        .iter()
-        .filter_map(|(p, t)| match t {
-            RockType::Rounded => Some((data.size.x - p.y) as u32),
-            _ => None,
-        })
-        .sum::<u32>();
-    Ok(result.into())
+
+    #[generator(gen)]
+    pub fn input_generator(input: &str) -> Input {
+        parse_input(input)
+    }
+
+    #[solver(part1, main)]
+    pub fn solve_part_1(data: Input) -> u32 {
+        let dir = [Direction::North].iter();
+        let final_map = dir.fold(data.grid, |old_map, dir| match dir {
+            Direction::North => tilt_north(&old_map, &data.size),
+        });
+        final_map
+            .iter()
+            .filter_map(|(p, t)| match t {
+                RockType::Rounded => Some((data.size.x - p.y) as u32),
+                _ => None,
+            })
+            .sum::<u32>()
+    }
+
+    #[solver(part2, main)]
+    pub fn solve_part_2(data: Input) -> u32 {
+        let (spins, cycle_len, mut state) = find_cycle(&data.grid, &data.size);
+        let spins_left = (1_000_000_000 - spins) % cycle_len;
+        for _ in 0..spins_left {
+            state = spin(&state, &data.size);
+        }
+        state
+            .iter()
+            .filter_map(|(p, t)| match t {
+                RockType::Rounded => Some((data.size.x - p.y) as u32),
+                _ => None,
+            })
+            .sum::<u32>()
+    }
+
+    #[solution(part1, main)]
+    pub fn part_1(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_1(data)
+    }
+
+    #[solution(part2, main)]
+    pub fn part_2(input: &str) -> u32 {
+        let data = input_generator(input);
+        solve_part_2(data)
+    }
 }
 
 fn find_cycle(d: &RockState, s: &IVec2) -> (usize, usize, RockState) {
@@ -302,60 +318,19 @@ fn grid_as_str(d: &RockState, size: &IVec2) -> String {
 }
 
 #[cfg(test)]
-mod test {
-    use common::load_raw;
-    use indoc::indoc;
-    use super::*;
+mod tests {
+    use aoc_runner_macros::aoc_case;
+    
 
-    #[test]
-    fn part_1_example() -> miette::Result<()> {
-        let input = indoc! {"
-            O....#....
-            O.OO#....#
-            .....##...
-            OO.#O....O
-            .O.....O#.
-            O.#..O.#.#
-            ..O..#O..O
-            .......O..
-            #....###..
-            #OO..#....
-        "};
-        assert_eq!(super::part_1(input)?, 136.into());
-        Ok(())
-    }
-
-    #[test]
-    fn part_2_example() -> miette::Result<()> {
-        let input = indoc! {"
-            O....#....
-            O.OO#....#
-            .....##...
-            OO.#O....O
-            .O.....O#.
-            O.#..O.#.#
-            ..O..#O..O
-            .......O..
-            #....###..
-            #OO..#....
-        "};
-        assert_eq!(super::part_2(input)?, 64.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_1() -> miette::Result<()> {
-        let input = load_raw(2023, 14)?;
-        assert_eq!(super::part_1(input.as_str())?, 107053.into());
-        Ok(())
-    }
-
-    #[test]
-    #[ignore]
-    fn part_2() -> miette::Result<()> {
-        let input = load_raw(2023, 14)?;
-        assert_eq!(super::part_2(input.as_str())?, 88371.into());
-        Ok(())
-    }
+    #[aoc_case(136, 64)]
+    const EXAMPLE: &str = "O....#....
+O.OO#....#
+.....##...
+OO.#O....O
+.O.....O#.
+O.#..O.#.#
+..O..#O..O
+.......O..
+#....###..
+#OO..#....";
 }
